@@ -24,6 +24,7 @@
       <RowConstraints minHeight="10.0" vgrow="NEVER" />
       <RowConstraints minHeight="10.0" vgrow="NEVER" />
       <RowConstraints minHeight="10.0" vgrow="NEVER" />
+      <RowConstraints minHeight="10.0" vgrow="NEVER" />
    </rowConstraints>
    <children>
       <Label text="Directory to archive match screenshots" GridPane.columnIndex="1" GridPane.rowIndex="3" />
@@ -81,5 +82,7 @@
          </children>
       </HBox>
       <Label text="Use this to try find data that can be fixed" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+      <CheckBox fx:id="checkAllowPopups" mnemonicParsing="false" text="allow error popups" GridPane.rowIndex="9" />
+      <Label text="Disable this if you don't want to be interrupted if anything bad happens. You can check the log file afterwards" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="9" />
    </children>
 </GridPane>

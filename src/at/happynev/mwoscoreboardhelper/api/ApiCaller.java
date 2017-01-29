@@ -1,6 +1,6 @@
 package at.happynev.mwoscoreboardhelper.api;
 
-import at.happynev.mwoscoreboardhelper.Utils;
+import at.happynev.mwoscoreboardhelper.Logger;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -30,7 +30,7 @@ public class ApiCaller {
             JsonObject root = new JsonParser().parse(dataString).getAsJsonObject();
             root.entrySet().forEach(e -> ret.add(gson.fromJson(e.getValue(), Mech.class)));
         } catch (Exception e) {
-            Utils.error(e);
+            Logger.error(e);
             return new ArrayList<>();
         }
         return ret;
@@ -45,7 +45,7 @@ public class ApiCaller {
             is.close();
             return bos.toByteArray();
         } catch (IOException e) {
-            Utils.error(e);
+            Logger.error(e);
         }
         return null;
     }

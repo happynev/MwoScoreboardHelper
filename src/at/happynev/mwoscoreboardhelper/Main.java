@@ -10,6 +10,10 @@ import org.h2.tools.Server;
 import java.net.URL;
 
 public class Main extends Application {
+    static {
+        System.setProperty("logback.configurationFile", Main.class.getResource("logback.xml").toString());
+        Logger.log("############################# Application STARTED ###########################");
+    }
 
     public static String getVersion() {
         return "0.1";
@@ -22,7 +26,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         Server dbserver = Server.createTcpServer("-tcpPort", "9124", "-tcpAllowOthers", "-baseDir", Utils.getHomeDir().toString()).start();
-        Utils.log("db server: " + dbserver.getURL());
+        Logger.log("db server: " + dbserver.getURL());
         DbHandler.getInstance();//pre-init
         URL loc = this.getClass().getResource("ScoreboardHelper.fxml");
         Parent root = FXMLLoader.load(loc);
@@ -44,11 +48,11 @@ public class Main extends Application {
                         DbHandler.getInstance().saveSetting("sceneHeight", "" + primaryStage.getHeight());
                         DbHandler.getInstance().saveSetting("sceneMaximized", "" + primaryStage.isMaximized());
                     } catch (Exception e) {
-                        Utils.error(e);
+                        Logger.error(e);
                     }
                     dbserver.stop();
+                    Logger.log("######## Application closing ########");
                 });
-
         primaryStage.show();
     }
 }

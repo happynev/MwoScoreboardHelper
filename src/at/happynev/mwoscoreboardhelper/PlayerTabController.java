@@ -177,7 +177,7 @@ public class PlayerTabController {
             tablePlayers.getItems().clear();
             tablePlayers.getItems().addAll(tmp);
         } catch (Exception e) {
-            Utils.error(e);
+            Logger.error(e);
         }
         tablePlayers.sort();
         if (selection != null) {

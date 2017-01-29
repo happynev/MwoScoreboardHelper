@@ -3,6 +3,8 @@ package at.happynev.mwoscoreboardhelper;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.paint.Color;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -43,46 +45,13 @@ public class Utils {
         }
     }
 
-    public static void error(Throwable e) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
-        alert.setHeaderText(e.getMessage());
-        //alert.setContentText();
-        alert.showAndWait();
-        e.printStackTrace();
-    }
-
-    public static void info(String info) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Info");
-        alert.setHeaderText(info);
-        //alert.setContentText();
-        alert.showAndWait();
-    }
-
-    public static void log(String s) {
-        System.out.println(s);
-    }
-
-    public static void alert(String info) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Info");
-        alert.setHeaderText(info);
-        //alert.setContentText();
-        alert.showAndWait();
-    }
-
     public static boolean confirmationDialog(String header, String info) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle(header);
         alert.setHeaderText(info);
-        //alert.setContentText();
+        //alertPopup.setContentText();
         Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent() && result.get().getButtonData().isDefaultButton()) {
-            return true;
-        } else {
-            return false;
-        }
+        return result.isPresent() && result.get().getButtonData().isDefaultButton();
     }
 
     public static String getWebColor(Color newValue) {

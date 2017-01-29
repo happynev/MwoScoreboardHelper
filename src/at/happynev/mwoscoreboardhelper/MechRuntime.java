@@ -130,7 +130,7 @@ public class MechRuntime {
             rs.close();
             calculateStats();
         } catch (Exception e) {
-            Utils.error(e);
+            Logger.error(e);
         }
     }
 
@@ -208,7 +208,7 @@ public class MechRuntime {
             guess = TraceHelpers.guessValue(preparedMech.replaceAll("\\(L\\)", ""), knownShortNames);
         }
         if (!mech.equals(guess)) {
-            Utils.log("changed mech: " + mech + "-->" + guess);
+            Logger.log("changed mech: " + mech + "-->" + guess);
         }
         return guess;
     }

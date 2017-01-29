@@ -149,7 +149,7 @@ public class PreviewTabController {
                 }
             }
         } catch (Exception e) {
-            Utils.error(e);
+            Logger.error(e);
         }
     }
 
@@ -158,8 +158,12 @@ public class PreviewTabController {
         fc.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("jpg", "jpeg", "png"));
         fc.setInitialDirectory(new File("."));
         File result = fc.showOpenDialog(null);
-        Image screenshot = new Image(result.toURI().toString());
+        try {
+            Image screenshot = new Image(result.toURI().toString());
 
-        imagePreview.setImage(screenshot);
+            imagePreview.setImage(screenshot);
+        } catch (Exception e) {
+            Logger.error(e);
+        }
     }
 }

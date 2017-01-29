@@ -64,9 +64,9 @@ public class MechsTabController {
     }
 
     private void downloadMechData() {
-        Utils.log("downloading mech data");
+        Logger.log("downloading mech data");
         List<Mech> mechs = ApiCaller.getAllMechs();
-        Utils.log("downloaded " + mechs.size() + " mechs");
+        Logger.log("downloaded " + mechs.size() + " mechs");
         if (mechs.size() > 0) {
             deleteMechData();
             try {
@@ -92,7 +92,7 @@ public class MechsTabController {
                 }
                 insert.executeBatch();
             } catch (Exception e) {
-                Utils.error(e);
+                Logger.error(e);
             }
         }
         reloadData();
@@ -110,7 +110,7 @@ public class MechsTabController {
             int deleted = DbHandler.getInstance().prepareStatement("delete from mech_data").executeUpdate();
             MechRuntime.getKnownMechs().clear();
         } catch (Exception e) {
-            Utils.error(e);
+            Logger.error(e);
         }
         reloadData();
     }

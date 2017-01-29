@@ -34,8 +34,6 @@ public class SettingsTabController {
     @FXML
     Button buttonSelectErrorDir;
     @FXML
-    Button buttonFixPlayernames;
-    @FXML
     Button buttonFixOldData;
     @FXML
     CheckBox checkDeleteScreenshots;
@@ -49,6 +47,8 @@ public class SettingsTabController {
     ColorPicker pickerPlayerBack;
     @FXML
     ColorPicker pickerPlayerFront;
+    @FXML
+    CheckBox checkAllowPopups;
 
     private SimpleObjectProperty<Color> playerBackColor = new SimpleObjectProperty<>(Color.web(DbHandler.getInstance().loadSetting("playerColorBack", "#000000")));
     private SimpleObjectProperty<Color> playerFrontColor = new SimpleObjectProperty<>(Color.web(DbHandler.getInstance().loadSetting("playerColorFront", "#FFFFFF")));
@@ -127,6 +127,7 @@ public class SettingsTabController {
         textPostProcessingDirectory.setText(getPostProcessedDirectory().toString());
         textErrorDirectory.setText(getErrorDirectory().toString());
         checkDeleteScreenshots.setSelected(Boolean.parseBoolean(DbHandler.getInstance().loadSetting("deleteScreenshots", "true")));
+        checkAllowPopups.setSelected(Boolean.parseBoolean(DbHandler.getInstance().loadSetting("allowPopups", "true")));
         sliderPollingInterval.setValue(Double.parseDouble(DbHandler.getInstance().loadSetting("pollingInterval", "500")));
         togglePersistentDatabase.selectedProperty().setValue(DbHandler.getInstance().getWriteEnabled());
         pickerPlayerFront.valueProperty().bindBidirectional(playerFrontColor);
@@ -139,7 +140,7 @@ public class SettingsTabController {
         buttonFixOldData.setOnAction(event -> {
             int mechs = fixMechReferences();
             int status = fixPlayerStatus();
-            Utils.info("Fixed " + mechs + " Mech references and " + status + " Player Status records");
+            Logger.infoPopup("Fixed " + mechs + " Mech references and " + status + " Player Status records");
         });
         //set changelisteners
         textPlayerName.textProperty().addListener((observable, oldValue, newValue) -> DbHandler.getInstance().saveSetting("playerName", newValue));
@@ -148,6 +149,7 @@ public class SettingsTabController {
         textErrorDirectory.textProperty().addListener((observable, oldValue, newValue) -> DbHandler.getInstance().saveSetting("errorDirectory", newValue));
         textPollingInterval.textProperty().addListener((observable, oldValue, newValue) -> DbHandler.getInstance().saveSetting("pollingInterval", newValue));
         checkDeleteScreenshots.selectedProperty().addListener((observable, oldValue, newValue) -> DbHandler.getInstance().saveSetting("deleteScreenshots", "" + newValue));
+        checkAllowPopups.selectedProperty().addListener((observable, oldValue, newValue) -> DbHandler.getInstance().saveSetting("allowPopups", "" + newValue));
         togglePersistentDatabase.selectedProperty().bindBidirectional(DbHandler.getInstance().writeEnabledProperty());
         playerFrontColor.addListener((observable, oldValue, newValue) -> {
             DbHandler.getInstance().saveSetting("playerColorFront", Utils.getWebColor(newValue));
@@ -175,7 +177,7 @@ public class SettingsTabController {
                         prepFix.setString(1, fixedMech);
                         prepFix.setString(2, mech);
                         prepFix.addBatch();
-                        Utils.log(mech + "-->" + fixedMech);
+                        Logger.log(mech + "-->" + fixedMech);
                     }
                 }
             }
@@ -183,9 +185,13 @@ public class SettingsTabController {
             for (int i : parts) fixed += i;
             rs.close();
         } catch (SQLException e) {
-            Utils.error(e);
+            Logger.error(e);
         }
         return fixed;
+    }
+
+    public boolean popupsAllowed() {
+        return checkAllowPopups.isSelected();
     }
 
     private int fixPlayerStatus() {
@@ -203,7 +209,7 @@ public class SettingsTabController {
                         prepFix.setString(1, fixedStatus);
                         prepFix.setString(2, status);
                         prepFix.addBatch();
-                        Utils.log(status + "-->" + fixedStatus);
+                        Logger.log(status + "-->" + fixedStatus);
                     }
                 }
             }
@@ -211,7 +217,7 @@ public class SettingsTabController {
             for (int i : parts) fixed += i;
             rs.close();
         } catch (SQLException e) {
-            Utils.error(e);
+            Logger.error(e);
         }
         return fixed;
     }

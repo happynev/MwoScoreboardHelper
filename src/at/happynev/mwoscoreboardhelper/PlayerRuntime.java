@@ -45,7 +45,7 @@ public class PlayerRuntime {
             try {
                 ret = createOrLoadPlayer(playerName);
             } catch (Exception e) {
-                Utils.error(e);
+                Logger.error(e);
                 return null;
             }
             playersById.put(ret.getId(), ret);
@@ -64,7 +64,7 @@ public class PlayerRuntime {
             }
             rs.close();
         } catch (SQLException e) {
-            Utils.error(e);
+            Logger.error(e);
         }
         Collections.sort(ret);
         return ret;
@@ -111,7 +111,7 @@ public class PlayerRuntime {
             orig.refreshDataFromDb();
             return ret;
         } catch (SQLException e) {
-            Utils.error(e);
+            Logger.error(e);
             return 0;
         }
     }
@@ -204,7 +204,7 @@ public class PlayerRuntime {
             matchRecords.setAll(tmp);
             rsRecords.close();
         } catch (Exception e) {
-            Utils.error(e);
+            Logger.error(e);
         }
     }
 
@@ -281,7 +281,7 @@ public class PlayerRuntime {
             prep.setInt(2, id);
             prep.executeUpdate();
         } catch (SQLException e) {
-            Utils.error(e);
+            Logger.error(e);
         }
     }
 

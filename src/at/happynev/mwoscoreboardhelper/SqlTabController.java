@@ -83,7 +83,7 @@ public class SqlTabController {
                 }
             }
         } catch (Exception e) {
-            Utils.error(e);
+            Logger.error(e);
         }
     }
 }

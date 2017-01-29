@@ -79,7 +79,6 @@ public class MatchInfoTracer extends AsyncTracer {
     }
 
     public String getMap() {
-        //TODO: limit to actual maps
         if (map == null) return "";
         return map.getValue();
     }
@@ -89,7 +88,6 @@ public class MatchInfoTracer extends AsyncTracer {
     }
 
     public String getGameMode() {
-        //TODO: limit to actual gamemodes
         if (gameMode == null) return "";
         return gameMode.getValue().replaceAll("GAMEMODE:", "");
     }
@@ -99,7 +97,6 @@ public class MatchInfoTracer extends AsyncTracer {
     }
 
     public String getServer() {
-        //TODO: limit to actual servers
         if (server == null) return "";
         return server.getValue();
     }

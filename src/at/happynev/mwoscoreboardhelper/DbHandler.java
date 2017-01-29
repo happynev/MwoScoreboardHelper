@@ -43,7 +43,7 @@ public class DbHandler {
         if (value == null || value.isEmpty()) {
             value = EMPTY;
         }
-        Utils.log("save setting " + key + "=" + value);
+        Logger.log("save setting " + key + "=" + value);
         try {
             PreparedStatement clean = prepareStatement("delete from SETTINGS where propKey=?");
             clean.setString(1, key);
@@ -53,7 +53,7 @@ public class DbHandler {
             insert.setString(2, key);
             insert.executeUpdate();
         } catch (SQLException e) {
-            Utils.error(e);
+            Logger.error(e);
         }
     }
 
@@ -72,7 +72,7 @@ public class DbHandler {
             }
             rs.close();
         } catch (SQLException e) {
-            Utils.error(e);
+            Logger.error(e);
         }
         return ret;
     }
@@ -89,7 +89,7 @@ public class DbHandler {
                     con.commit();
                 }
             }
-            Utils.log("reopen DB with writeEnabled= " + writeEnabled.getValue());
+            Logger.log("reopen DB with writeEnabled= " + writeEnabled.getValue());
             if (con != null) con.close();
             cachedStatements.clear();
             con = DriverManager.getConnection(dburl);
@@ -98,7 +98,7 @@ public class DbHandler {
             writeEnabled.set(autocommit);
             con.setAutoCommit(autocommit);
         } catch (Exception e) {
-            Utils.error(e);
+            Logger.error(e);
         }
     }
 
@@ -112,7 +112,7 @@ public class DbHandler {
             rs.close();
             saveSetting("version", Main.getVersion());
         } catch (SQLException e) {
-            Utils.error(e);
+            Logger.error(e);
         }
     }
 

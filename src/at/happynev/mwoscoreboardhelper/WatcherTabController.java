@@ -112,7 +112,7 @@ public class WatcherTabController {
         paneEnemyTeam.backgroundProperty().bind(backgroundBinding);
         toggleAutowatch.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (!SettingsTabController.getScreenshotDirectory().isDirectory() || SettingsTabController.getPlayername().isEmpty()) {
-                Utils.alert("Make sure to set Playername and Screenshot directory on the Settings tab");
+                Logger.alertPopup("Make sure to set Playername and Screenshot directory on the Settings tab");
             } else {
                 DbHandler.getInstance().saveSetting("autowatchEnabled", "" + newValue);
                 startWatcher(SettingsTabController.getInstance().getTextPollingInterval().getText());
@@ -163,7 +163,7 @@ public class WatcherTabController {
             }
             rs.close();
         } catch (Exception e) {
-            Utils.error(e);
+            Logger.error(e);
         }
         return ret;
     }
@@ -265,13 +265,13 @@ public class WatcherTabController {
             parent.add(labelMechs, 6, row);
             playersFinished++;
         } catch (Exception e) {
-            Utils.error(e);
+            Logger.error(e);
             paneMyTeam.getChildren().add(new Label("Error adding player '" + pr.getPilotname() + "':" + e.toString()));
         }
         if (playersFinished == 24) {
             //all players traced. ok to procees with next screenshot
             isProcessing = false;
-            Utils.log("Tracing finished");
+            Logger.log("Tracing finished");
             buildMatchAnalyticsGui();
         }
     }

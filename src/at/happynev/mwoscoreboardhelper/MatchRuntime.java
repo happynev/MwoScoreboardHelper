@@ -25,6 +25,7 @@ import java.util.*;
  * Created by Nev on 15.01.2017.
  */
 public class MatchRuntime {
+    private static final int TRACE_TIMEOUT = 1000 * 30;
     private final SimpleStringProperty matchName = new SimpleStringProperty("");
     private final SimpleStringProperty map = new SimpleStringProperty("");
     private final SimpleStringProperty server = new SimpleStringProperty("");
@@ -115,7 +116,7 @@ public class MatchRuntime {
                                 }
                             }
                         } catch (Exception e) {
-                            Utils.error(e);
+                            Logger.error(e);
                         }
                     }
                 });
@@ -157,7 +158,7 @@ public class MatchRuntime {
                 }
                 boolean success = screenshot.renameTo(arch);
                 if (!success) {
-                    Utils.alert("Failed to move " + screenshot.getName() + " to " + arch.toString());
+                    Logger.alertPopup("Failed to move " + screenshot.getName() + " to " + arch.toString());
                 }
             } else {
                 PreparedStatement prep = DbHandler.getInstance().prepareStatement("insert into processed(filename,processing_time) values(?,?)");
@@ -185,7 +186,7 @@ public class MatchRuntime {
                         expr.addListener((observable, oldValue, newValue) -> {
                             if (newValue) {
                                 int similarityScore = calculateSimilarity(this, previousData);
-                                Utils.log("similarity: " + similarityScore);
+                                Logger.log("similarity: " + similarityScore);
                                 if (similarityScore > 20) {
                                     previousData.delete();
                                 }
@@ -193,27 +194,30 @@ public class MatchRuntime {
                         });
                         if (expr.get()) {
                             int similarityScore = calculateSimilarity(this, previousData);
-                            Utils.log("similarity: " + similarityScore);
+                            Logger.log("similarity: " + similarityScore);
                             if (similarityScore > 20) {
                                 previousData.delete();
                             }
                         } else {
                             new Thread(() -> {
                                 try {
-                                    while (!expr.get()) {//necessary to get the lazy changelistener to fire
-                                        Thread.sleep(500);
+                                    int elapsed = 0;
+                                    final int interval = 300;
+                                    while (!expr.get() && elapsed < TRACE_TIMEOUT) {//necessary to get the lazy changelistener to fire
+                                        Thread.sleep(interval);
+                                        elapsed += interval;
                                     }
                                 } catch (InterruptedException e) {
-                                    e.printStackTrace();
+                                    Logger.error(e);
                                 }
                             }).start();
                         }
                     } else {
-                        Utils.log("time difference too large, not checking for duplicate");
+                        Logger.log("time difference too large, not checking for duplicate");
                     }
                 }
             } catch (Exception e) {
-                Utils.error(e);
+                Logger.error(e);
             }
         } catch (Exception e) {
             handleLoadError(e, screenshot);
@@ -288,7 +292,7 @@ public class MatchRuntime {
                 pmr.delete();//does nothing for now, cascaded from match delete
             }
         } catch (Exception e) {
-            Utils.error(e);
+            Logger.error(e);
         }
     }
 
@@ -344,7 +348,7 @@ public class MatchRuntime {
             prep.setString(8, mapTimeOfDay.getValue());
             prep.executeUpdate();
         } catch (Exception e) {
-            Utils.error(e);
+            Logger.error(e);
         }
     }
 
@@ -368,7 +372,7 @@ public class MatchRuntime {
             prep.setInt(2, id);
             prep.executeUpdate();
         } catch (SQLException e) {
-            Utils.error(e);
+            Logger.error(e);
         }
     }
 
