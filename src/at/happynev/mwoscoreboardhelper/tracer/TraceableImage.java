@@ -14,6 +14,7 @@ public class TraceableImage {
     private final BufferedImage image;
     private final Tesseract1 tesseract = new Tesseract1();
     private final SimpleStringProperty value = new SimpleStringProperty("");
+    private long traceDuration = 0;
 
     public TraceableImage(BufferedImage image) {
         this(image, OcrConfig.DEFAULT);
@@ -52,9 +53,15 @@ public class TraceableImage {
     }
 
     public String performTrace() {
+        long start = System.currentTimeMillis();
         String v = performTraceSync();
+        traceDuration = System.currentTimeMillis() - start;
         value.set(v);
         return v;
+    }
+
+    public long getTraceDuration() {
+        return traceDuration;
     }
 
     private String performTraceSync() {

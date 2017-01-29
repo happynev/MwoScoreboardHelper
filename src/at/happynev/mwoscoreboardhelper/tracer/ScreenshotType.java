@@ -34,9 +34,18 @@ public enum ScreenshotType {
             String ident2 = checkType2.getValue();
             if ("Exit Match".equals(ident2)) {
                 //TODO check QP vs FP
-                return QP_3SUMMARY;
+                TraceableImage checkType3 = new TraceableImage(Offsets.getSubImage(screenshot, Offsets.getInstance(QP_3SUMMARY, screenshot).winningTeam()), OcrConfig.DEFAULT);
+                lastCheck.add(checkType3);
+                checkType3.performTrace();
+                String ident3 = checkType3.getValue();
+                if (ident3.contains("Your")) {
+                    return QP_3SUMMARY;
+                } else {
+                    //TODO: reward screen
+                }
             }
         }
+
         return UNDEFINED;
     }
 }

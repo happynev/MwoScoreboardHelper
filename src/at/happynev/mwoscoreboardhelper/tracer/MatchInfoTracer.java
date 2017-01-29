@@ -1,7 +1,5 @@
 package at.happynev.mwoscoreboardhelper.tracer;
 
-import net.sourceforge.tess4j.util.ImageHelper;
-
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 
@@ -18,21 +16,23 @@ public class MatchInfoTracer extends AsyncTracer {
     private final TraceableImage matchResult;
 
     public MatchInfoTracer(BufferedImage screenshot, Offsets off) {
-        map = new TraceableImage(ImageHelper.convertImageToGrayscale(Offsets.getSubImage(screenshot, off.map())), OcrConfig.DEFAULT);
-        gameMode = new TraceableImage(ImageHelper.convertImageToGrayscale(Offsets.getSubImage(screenshot, off.gameMode())), OcrConfig.DEFAULT);
+        gameMode = new TraceableImage(extractYellow(Offsets.getSubImage(screenshot, off.gameMode())), OcrConfig.DEFAULT);
         if (off.getType() == ScreenshotType.QP_1PREPARATION) {
-            server = new TraceableImage(Offsets.getSubImage(screenshot, off.server()), OcrConfig.DEFAULT);
+            map = new TraceableImage(extractYellow(Offsets.getSubImage(screenshot, off.map())), OcrConfig.DEFAULT);
+            server = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.server())), OcrConfig.DEFAULT);
             battleTime = null;
             winningTeam = null;
             losingTeam = null;
             matchResult = null;
         } else if (off.getType() == ScreenshotType.QP_3SUMMARY) {
-            battleTime = new TraceableImage(Offsets.getSubImage(screenshot, off.battleTime()), OcrConfig.TIME);
-            winningTeam = new TraceableImage(Offsets.getSubImage(screenshot, off.winningTeam()), OcrConfig.TEAMS);
-            losingTeam = new TraceableImage(Offsets.getSubImage(screenshot, off.losingTeam()), OcrConfig.TEAMS);
-            matchResult = new TraceableImage(Offsets.getSubImage(screenshot, off.matchResult()), OcrConfig.MATCHRESULT);
+            map = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.map())), OcrConfig.DEFAULT);
+            battleTime = new TraceableImage(extractYellow(Offsets.getSubImage(screenshot, off.battleTime())), OcrConfig.TIME);
+            winningTeam = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.winningTeam())), OcrConfig.TEAMS);
+            losingTeam = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.losingTeam())), OcrConfig.TEAMS);
+            matchResult = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.matchResult())), OcrConfig.MATCHRESULT);
             server = null;
         } else {
+            map = null;
             battleTime = null;
             server = null;
             winningTeam = null;
@@ -40,6 +40,14 @@ public class MatchInfoTracer extends AsyncTracer {
             matchResult = null;
         }
         traceAllAsync(Arrays.asList(map, gameMode, server, battleTime, winningTeam, losingTeam, matchResult));
+    }
+
+    private BufferedImage extractWhite(BufferedImage input) {
+        return TraceHelpers.extractSpecificColor(input, new int[]{180, 180, 180}, new int[]{255, 255, 255});
+    }
+
+    private BufferedImage extractYellow(BufferedImage input) {
+        return TraceHelpers.extractSpecificColor(input, new int[]{170, 150, 30}, new int[]{255, 230, 115});
     }
 
     public TraceableImage getWinningTeamImage() {

@@ -181,7 +181,6 @@ public class WatcherTabController {
     }
 
     private void loadScreenshot(File f) {
-
         isProcessing = true;
         paneWatcherTab.setDisable(true);
         labelLastScreenshot.setText(f.getName());

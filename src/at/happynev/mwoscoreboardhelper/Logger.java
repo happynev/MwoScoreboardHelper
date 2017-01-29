@@ -44,6 +44,10 @@ public class Logger {
             //alertPopup.setContentText();
             alert.showAndWait();
         }
-        logger.warn("User Alert: " + info);
+        warning("User Alert: " + info);
+    }
+
+    public static void warning(String s) {
+        logger.warn(s);
     }
 }

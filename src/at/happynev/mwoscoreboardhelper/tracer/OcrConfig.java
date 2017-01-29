@@ -26,7 +26,7 @@ public enum OcrConfig {
                 tess.setTessVariable("tessedit_char_whitelist", digits);
                 break;
             case UNIT:
-                tess.setTessVariable("tessedit_char_whitelist", alphaChars + "[]()");
+                tess.setTessVariable("tessedit_char_whitelist", alphaChars + "[]()'");
                 tess.setTessVariable("chs_leading_punct", "[");
                 tess.setTessVariable("chs_trailing_punct1", "]");
                 break;

@@ -52,6 +52,7 @@ public class MatchRuntime {
 
     public MatchRuntime(final File screenshot, final MatchRuntime previousData) {
         try {
+            final long startProcessing = System.currentTimeMillis();
             timestamp = new Date(screenshot.lastModified());
             BufferedImage img = ImageIO.read(screenshot);
             type = ScreenshotType.identifyType(img);
@@ -171,6 +172,22 @@ public class MatchRuntime {
             valid = true;
             try {
                 //set up duplicate check for when tracing finishes
+                BooleanBinding expr = Bindings.size(playerRecords).isEqualTo(24).and(mapDataFinished);
+                new Thread(() -> {
+                    try {
+                        int elapsed = 0;
+                        final int interval = 300;
+                        while (!expr.get() && elapsed < TRACE_TIMEOUT) {//necessary to get the lazy changelistener to fire
+                            Thread.sleep(interval);
+                            elapsed += interval;
+                        }
+                        long matchDur = System.currentTimeMillis() - startProcessing;
+                        Logger.log(type + " Trace took " + matchDur + "ms");
+                    } catch (InterruptedException e) {
+                        Logger.error(e);
+                    }
+                }).start();
+
                 if (matchFinished && previousData != null && !previousData.isMatchFinished()) {
                     long maxMatchTime = 0;
                     long timeSinceLastData = timestamp.getTime() - previousData.getTimestamp().getTime();
@@ -182,7 +199,7 @@ public class MatchRuntime {
                         SimpleIntegerProperty duplicateLikelihood = new SimpleIntegerProperty(0);
                         //time matches. assign score for similar map/mode/players
                         //Utils.log("starting score check for possible duplicate");
-                        BooleanBinding expr = Bindings.size(playerRecords).isEqualTo(24).and(mapDataFinished);
+
                         expr.addListener((observable, oldValue, newValue) -> {
                             if (newValue) {
                                 int similarityScore = calculateSimilarity(this, previousData);
@@ -198,19 +215,6 @@ public class MatchRuntime {
                             if (similarityScore > 20) {
                                 previousData.delete();
                             }
-                        } else {
-                            new Thread(() -> {
-                                try {
-                                    int elapsed = 0;
-                                    final int interval = 300;
-                                    while (!expr.get() && elapsed < TRACE_TIMEOUT) {//necessary to get the lazy changelistener to fire
-                                        Thread.sleep(interval);
-                                        elapsed += interval;
-                                    }
-                                } catch (InterruptedException e) {
-                                    Logger.error(e);
-                                }
-                            }).start();
                         }
                     } else {
                         Logger.log("time difference too large, not checking for duplicate");

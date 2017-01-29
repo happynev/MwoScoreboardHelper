@@ -1,6 +1,6 @@
 package at.happynev.mwoscoreboardhelper.tracer;
 
-import net.sourceforge.tess4j.util.ImageHelper;
+import at.happynev.mwoscoreboardhelper.Logger;
 
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
@@ -20,8 +20,8 @@ public class PlayerInfoTracer extends AsyncTracer {
     private final TraceableImage ping;
 
     public PlayerInfoTracer(BufferedImage screenshot, int player, Offsets off) {
-        pilotName = new TraceableImage(Offsets.getSubImage(screenshot, off.playerPilotName(player)), OcrConfig.DEFAULT);
-        unitTag = new TraceableImage(Offsets.getSubImage(screenshot, off.playerUnit(player)), OcrConfig.UNIT);
+        pilotName = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.playerPilotName(player))), OcrConfig.DEFAULT);
+        unitTag = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.playerUnit(player))), OcrConfig.UNIT);
         BufferedImage mechImg = Offsets.getSubImage(screenshot, off.playerMech(player));
         if (mechImg != null) {
             //enemy team in preparation screen
@@ -30,12 +30,12 @@ public class PlayerInfoTracer extends AsyncTracer {
             mech = null;
         }
         if (off.getType() == ScreenshotType.QP_3SUMMARY) {
-            matchScore = new TraceableImage(Offsets.getSubImage(screenshot, off.playerMatchScore(player)), OcrConfig.NUMERIC);
-            kills = new TraceableImage(Offsets.getSubImage(screenshot, off.playerKills(player)), OcrConfig.NUMERIC);
-            assists = new TraceableImage(Offsets.getSubImage(screenshot, off.playerAssists(player)), OcrConfig.NUMERIC);
-            damage = new TraceableImage(Offsets.getSubImage(screenshot, off.playerDamage(player)), OcrConfig.NUMERIC);
-            status = new TraceableImage(ImageHelper.convertImageToGrayscale(Offsets.getSubImage(screenshot, off.playerStatus(player))), OcrConfig.STATUS);
-            ping = new TraceableImage(Offsets.getSubImage(screenshot, off.playerPing(player)), OcrConfig.NUMERIC);
+            matchScore = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.playerMatchScore(player))), OcrConfig.NUMERIC);
+            kills = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.playerKills(player))), OcrConfig.NUMERIC);
+            assists = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.playerAssists(player))), OcrConfig.NUMERIC);
+            damage = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.playerDamage(player))), OcrConfig.NUMERIC);
+            status = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.playerStatus(player))), OcrConfig.STATUS);
+            ping = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.playerPing(player))), OcrConfig.NUMERIC);
         } else {
             matchScore = null;
             kills = null;
@@ -52,11 +52,18 @@ public class PlayerInfoTracer extends AsyncTracer {
     }
 
     private String findMostLikelyStatus(String s) {
+        if (s.isEmpty()) {
+            return "DEAD";
+        }
         return s;
     }
 
     private String findMostLikelyMech(String s) {
         return s;
+    }
+
+    private BufferedImage extractWhite(BufferedImage input) {
+        return TraceHelpers.threshold(input, new int[]{100, 100, 100});
     }
 
     public String getUnitTag() {
@@ -88,7 +95,12 @@ public class PlayerInfoTracer extends AsyncTracer {
 
     public int getMatchScore() {
         if (matchScore == null || matchScore.getValue().isEmpty()) return 0;
-        return Integer.parseInt(matchScore.getValue());
+        try {
+            return Integer.parseInt(matchScore.getValue());
+        } catch (NumberFormatException e) {
+            Logger.warning(e.toString());
+            return 0;
+        }
     }
 
     public TraceableImage getMatchScoreImage() {
@@ -97,7 +109,12 @@ public class PlayerInfoTracer extends AsyncTracer {
 
     public int getKills() {
         if (kills == null || kills.getValue().isEmpty()) return 0;
-        return Integer.parseInt(kills.getValue());
+        try {
+            return Integer.parseInt(kills.getValue());
+        } catch (NumberFormatException e) {
+            Logger.warning(e.toString());
+            return 0;
+        }
     }
 
     public TraceableImage getKillsImage() {
@@ -106,7 +123,12 @@ public class PlayerInfoTracer extends AsyncTracer {
 
     public int getAssists() {
         if (assists == null || assists.getValue().isEmpty()) return 0;
-        return Integer.parseInt(assists.getValue());
+        try {
+            return Integer.parseInt(assists.getValue());
+        } catch (NumberFormatException e) {
+            Logger.warning(e.toString());
+            return 0;
+        }
     }
 
     public TraceableImage getAssistsImage() {
@@ -115,7 +137,12 @@ public class PlayerInfoTracer extends AsyncTracer {
 
     public int getDamage() {
         if (damage == null || damage.getValue().isEmpty()) return 0;
-        return Integer.parseInt(damage.getValue());
+        try {
+            return Integer.parseInt(damage.getValue());
+        } catch (NumberFormatException e) {
+            Logger.warning(e.toString());
+            return 0;
+        }
     }
 
     public TraceableImage getDamageImage() {
@@ -133,7 +160,12 @@ public class PlayerInfoTracer extends AsyncTracer {
 
     public int getPing() {
         if (ping == null || ping.getValue().isEmpty()) return 0;
-        return Integer.parseInt(ping.getValue());
+        try {
+            return Integer.parseInt(ping.getValue());
+        } catch (NumberFormatException e) {
+            Logger.warning(e.toString());
+            return 0;
+        }
     }
 
     public TraceableImage getPingImage() {
