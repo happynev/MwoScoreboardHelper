@@ -2,6 +2,7 @@ package at.happynev.mwoscoreboardhelper;
 
 import at.happynev.mwoscoreboardhelper.tracer.TraceHelpers;
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -24,6 +25,7 @@ import java.util.List;
  * Created by Nev on 15.01.2017.
  */
 public class PlayerTabController {
+    private static PlayerTabController instance;
     @FXML
     Button buttonRefreshData;
     @FXML
@@ -54,17 +56,37 @@ public class PlayerTabController {
     TableView<String> tableStatistics;
     @FXML
     Pane panePlayername;
+    @FXML
+    Button buttonJumpToDuplicate;
+
+    public PlayerTabController() {
+        instance = this;
+    }
+
+    public static PlayerTabController getInstance() {
+        if (instance == null) {
+            instance = new PlayerTabController();
+        }
+        return instance;
+    }
 
     @FXML
     private void initialize() {
         buttonRefreshData.setOnAction(event -> refreshData());
         buildPlayerTable();
-        buttonMergeDuplicate.disableProperty().bind(listPossibleDuplicates.getSelectionModel().selectedItemProperty().isNull());
+        BooleanBinding duplicateSelected = listPossibleDuplicates.getSelectionModel().selectedItemProperty().isNotNull();
+        buttonMergeDuplicate.disableProperty().bind(duplicateSelected.not());
         buttonMergeDuplicate.setOnAction(event -> mergePlayers(tablePlayers.getSelectionModel().getSelectedItem(), listPossibleDuplicates.getSelectionModel().getSelectedItem()));
         ObjectBinding<Background> backBinding = Bindings.createObjectBinding(() -> {
             BackgroundFill fill = new BackgroundFill(pickerBack.getValue(), CornerRadii.EMPTY, Insets.EMPTY);
             return new Background(fill);
         }, pickerBack.valueProperty());
+        buttonJumpToDuplicate.disableProperty().bind(duplicateSelected.not());
+        buttonJumpToDuplicate.setOnAction(event -> {
+            PlayerRuntime old = tablePlayers.getSelectionModel().getSelectedItem();
+            selectPlayer(listPossibleDuplicates.getSelectionModel().getSelectedItem());
+            listPossibleDuplicates.getSelectionModel().select(old);
+        });
         panePlayername.backgroundProperty().bind(backBinding);
         labelUnit.textFillProperty().bind(pickerFront.valueProperty());
         labelPilotname.textFillProperty().bind(pickerFront.valueProperty());
@@ -185,5 +207,10 @@ public class PlayerTabController {
         } else if (tablePlayers.getItems().size() > 0) {
             tablePlayers.getSelectionModel().selectFirst();
         }
+    }
+
+    public void selectPlayer(PlayerRuntime pr) {
+        ScoreboardController.getInstance().selectPlayerTab();
+        tablePlayers.getSelectionModel().select(pr);
     }
 }

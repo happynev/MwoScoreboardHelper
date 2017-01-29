@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-
+<?import java.lang.*?>
 <?import javafx.scene.control.*?>
-<TabPane tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+
+<TabPane fx:id="tabMainApplication" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="at.happynev.mwoscoreboardhelper.ScoreboardController">
     <tabs>
-        <Tab closable="false" text="Scoreboard Watcher">
+        <Tab fx:id="tabWatcher" closable="false" text="Scoreboard Watcher">
             <content>
-                <fx:include source="WatcherTab.fxml"/>
+                <fx:include source="WatcherTab.fxml" />
             </content>
         </Tab>
         <!--Tab closable="false" text="Match Stats">
@@ -14,29 +15,29 @@
                 <fx:include source="MatchTab.fxml"/>
             </content>
         </Tab-->
-        <Tab closable="false" text="Player Stats">
+        <Tab fx:id="tabPlayers" closable="false" text="Player Stats">
             <content>
-                <fx:include source="PlayerTab.fxml"/>
+                <fx:include source="PlayerTab.fxml" />
             </content>
         </Tab>
-        <Tab closable="false" text="Mech Stats">
+        <Tab fx:id="tabMechs" closable="false" text="Mech Stats">
             <content>
-                <fx:include source="MechsTab.fxml"/>
+                <fx:include source="MechsTab.fxml" />
             </content>
         </Tab>
-        <Tab closable="false" text="Settings">
+        <Tab fx:id="tabSettings" closable="false" text="Settings">
             <content>
-                <fx:include source="SettingsTab.fxml"/>
+                <fx:include source="SettingsTab.fxml" />
             </content>
         </Tab>
-        <Tab closable="false" text="Preview">
+        <Tab fx:id="tabPreview" closable="false" text="Preview">
             <content>
-                <fx:include source="PreviewTab.fxml"/>
+                <fx:include source="PreviewTab.fxml" />
             </content>
         </Tab>
-        <Tab closable="false" text="SQL">
+        <Tab fx:id="tabMatches" closable="false" text="SQL">
             <content>
-                <fx:include source="SqlTab.fxml"/>
+                <fx:include source="SqlTab.fxml" />
             </content>
         </Tab>
     </tabs>

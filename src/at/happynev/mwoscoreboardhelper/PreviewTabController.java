@@ -155,7 +155,7 @@ public class PreviewTabController {
 
     private void loadImage() {
         FileChooser fc = new FileChooser();
-        fc.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("jpg", "jpeg", "png"));
+        fc.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("jpg", "jpeg", "png", "bmp"));
         fc.setInitialDirectory(new File("."));
         File result = fc.showOpenDialog(null);
         try {

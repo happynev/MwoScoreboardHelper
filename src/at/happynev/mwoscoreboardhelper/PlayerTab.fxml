@@ -77,7 +77,13 @@
                   <HBox alignment="BOTTOM_LEFT" VBox.vgrow="NEVER">
                      <children>
                         <ListView fx:id="listPossibleDuplicates" maxHeight="200.0" HBox.hgrow="SOMETIMES" />
-                        <Button fx:id="buttonMergeDuplicate" mnemonicParsing="false" text="Merge" />
+                        <VBox HBox.hgrow="NEVER">
+                           <children>
+                              <Button fx:id="buttonJumpToDuplicate" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Jump to" VBox.vgrow="NEVER" />
+                              <Label maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
+                              <Button fx:id="buttonMergeDuplicate" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Merge" VBox.vgrow="NEVER" />
+                           </children>
+                        </VBox>
                      </children>
                   </HBox>
                </children>

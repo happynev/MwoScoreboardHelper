@@ -13,6 +13,9 @@ import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.effect.Bloom;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -248,6 +251,9 @@ public class WatcherTabController {
             applyPlayerFormat(labelDamage, pr);
             applyPlayerFormat(labelSurvival, pr);
             applyPlayerFormat(labelMechs, pr);
+            labelName.effectProperty().bind(Bindings.when(labelName.hoverProperty()).then(new Bloom(0)).otherwise((Bloom) null));
+            labelName.setTooltip(new Tooltip("Double-click to jump to player tab"));
+            labelName.setOnMouseClicked(event -> clickPlayer(event, pr));
             labelUnit.textProperty().bind(pr.unitProperty());
             labelName.textProperty().bind(pr.pilotnameProperty());
             textShortNote.textProperty().bindBidirectional(pr.shortnoteProperty());
@@ -273,6 +279,12 @@ public class WatcherTabController {
             isProcessing = false;
             Logger.log("Tracing finished");
             buildMatchAnalyticsGui();
+        }
+    }
+
+    private void clickPlayer(MouseEvent event, PlayerRuntime pr) {
+        if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
+            PlayerTabController.getInstance().selectPlayer(pr);
         }
     }
 
@@ -417,9 +429,7 @@ public class WatcherTabController {
             BackgroundFill fill = new BackgroundFill(backColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY);
             return new Background(fill);
         }, backColor);
-        ObjectBinding<String> textBinding = Bindings.createObjectBinding(() -> {
-            return "-fx-text-fill:" + Utils.getWebColor(frontColor.get()).replaceAll("0x", "#");
-        }, frontColor);
+        ObjectBinding<String> textBinding = Bindings.createObjectBinding(() -> "-fx-text-fill:" + Utils.getWebColor(frontColor.get()).replaceAll("0x", "#"), frontColor);
         node.backgroundProperty().bind(backBinding);
         GridPane.setFillWidth(node, true);
         node.setMaxWidth(Double.MAX_VALUE);
