@@ -79,7 +79,8 @@ public class MatchInfoTracer extends AsyncTracer {
 
     public String getBattleTime() {
         if (battleTime == null) return "";
-        return battleTime.getValue();
+        if (battleTime.getValue().matches("\\d{1,2}:\\d{2}")) return battleTime.getValue();
+        return "";
     }
 
     public TraceableImage getBattleTimeImage() {

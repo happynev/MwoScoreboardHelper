@@ -6,6 +6,7 @@ import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -48,7 +49,6 @@ public class MatchRuntime {
     private int id = 0;
     private Date timestamp = null;
     private boolean valid = false;
-    private SimpleBooleanProperty mapDataFinished = new SimpleBooleanProperty(false);
 
     public MatchRuntime(final File screenshot, final MatchRuntime previousData) {
         try {
@@ -70,25 +70,36 @@ public class MatchRuntime {
             if (id == 0) {
                 id = createMatchEntry();
             }
+            SimpleBooleanProperty mapDataFinished = new SimpleBooleanProperty(false);
             initChangeListeners();
             filename = "Match-" + type + "." + screenshot.getName();
             for (int i = 0; i < 24; i++) {
                 PlayerInfoTracer pi = new PlayerInfoTracer(img, i, off);
                 final int p = i;
                 preliminaryInfo.put(p, pi.progressProperty());
-                pi.finishedProperty().addListener((observable, oldValue, newValue) -> {
+                BooleanBinding allFinished = BooleanBinding.booleanExpression(pi.finishedProperty()).and(mapDataFinished);
+                startBindingWatchDog(allFinished, 300, TRACE_TIMEOUT);
+                allFinished.addListener((observable, oldValue, newValue) -> {
                     if (newValue) {
                         try {
                             PlayerRuntime pr = PlayerRuntime.getInstance(pi.getPilotName());
                             pr.unitProperty().set(pi.getUnitTag());
                             pr.setPlayerNumber(p);
-                            PlayerMatchRecord prec = new PlayerMatchRecord(pr, pi, this);
+                            PlayerMatchRecord prec = null;
+                            try {
+                                prec = new PlayerMatchRecord(pr, pi, this);
+                            } catch (Exception e) {
+                                Logger.error(e);
+                                Logger.log("using dummy match record for " + pi.getPilotName());
+                                prec = PlayerMatchRecord.getDummyInstance();
+                            }
                             pr.getMatchRecords().add(prec);
                             playerRecords.add(prec);
                             //TODO: just assuming result trace is done by now...
                             boolean isVictory = "VICTORY".equals(matchResult.get());
                             boolean isDefeat = "DEFEAT".equals(matchResult.get());
                             boolean isDraw = "DRAW".equals(matchResult.get());
+                            //Logger.log("player trace finished, victory=" + isVictory + " defeat=" + isDefeat);
                             if (isVictory) {
                                 if (p < 12) {
                                     playersTeam.add(pr);
@@ -117,34 +128,40 @@ public class MatchRuntime {
                                 }
                             }
                         } catch (Exception e) {
+                            Logger.log("Player info tracer finish trigger, " + pi.getPilotName());
                             Logger.error(e);
                         }
                     }
                 });
             }
             tracer.finishedProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue) {
-                    map.set(tracer.getMap());
-                    gameMode.set(TraceHelpers.guessValue(tracer.getGameMode().replaceAll(".*:", ""), gameModes));
-                    battleTime.set(tracer.getBattleTime());
-                    server.set(tracer.getServer());
-                    String realResult = "";
-                    realResult = tracer.getMatchResult();
-                    if (!realResult.matches("VICTORY|DEFEAT|DRAW")) {
-                        String winner = tracer.getWinningTeam().toLowerCase();
-                        String loser = tracer.getLosingTeam().toLowerCase();
-                        if (winner.contains("your")) {
-                            realResult = "VICTORY";
-                        } else if (winner.contains("enemy")) {
-                            realResult = "DEFEAT";
-                        } else if (loser.contains("your")) {
-                            realResult = "DEFEAT";
-                        } else if (loser.contains("enemy")) {
-                            realResult = "VICTORY";
+                try {
+                    if (newValue) {
+                        Logger.log("Match info trace finished");
+                        map.set(tracer.getMap());
+                        gameMode.set(TraceHelpers.guessValue(tracer.getGameMode().replaceAll(".*:", ""), gameModes));
+                        battleTime.set(tracer.getBattleTime());
+                        server.set(tracer.getServer());
+                        String realResult = "";
+                        realResult = tracer.getMatchResult();
+                        if (!realResult.matches("VICTORY|DEFEAT|DRAW")) {
+                            String winner = tracer.getWinningTeam().toLowerCase();
+                            String loser = tracer.getLosingTeam().toLowerCase();
+                            if (winner.contains("your")) {
+                                realResult = "VICTORY";
+                            } else if (winner.contains("enemy")) {
+                                realResult = "DEFEAT";
+                            } else if (loser.contains("your")) {
+                                realResult = "DEFEAT";
+                            } else if (loser.contains("enemy")) {
+                                realResult = "VICTORY";
+                            }
                         }
+                        matchResult.set(realResult);
+                        mapDataFinished.set(true);
                     }
-                    matchResult.set(realResult);
-                    mapDataFinished.set(true);
+                } catch (Exception e) {
+                    Logger.error(e);
                 }
             });
             //matchName.bind(Bindings.concat(formattedTimestamp, " ", map, " - ", gameMode));
@@ -173,21 +190,7 @@ public class MatchRuntime {
             try {
                 //set up duplicate check for when tracing finishes
                 BooleanBinding expr = Bindings.size(playerRecords).isEqualTo(24).and(mapDataFinished);
-                new Thread(() -> {
-                    try {
-                        int elapsed = 0;
-                        final int interval = 300;
-                        while (!expr.get() && elapsed < TRACE_TIMEOUT) {//necessary to get the lazy changelistener to fire
-                            Thread.sleep(interval);
-                            elapsed += interval;
-                        }
-                        long matchDur = System.currentTimeMillis() - startProcessing;
-                        Logger.log(type + " Trace took " + matchDur + "ms");
-                    } catch (InterruptedException e) {
-                        Logger.error(e);
-                    }
-                }).start();
-
+                startBindingWatchDog(expr, 300, TRACE_TIMEOUT);
                 if (matchFinished && previousData != null && !previousData.isMatchFinished()) {
                     long maxMatchTime = 0;
                     long timeSinceLastData = timestamp.getTime() - previousData.getTimestamp().getTime();
@@ -279,6 +282,20 @@ public class MatchRuntime {
 
     public static MatchRuntime getInstanceFromDb(int id) {
         return new MatchRuntime(id);
+    }
+
+    private void startBindingWatchDog(ObservableValue<Boolean> binding, int interval, int timeout) {
+        new Thread(() -> {
+            try {
+                int elapsed = 0;
+                while (!binding.getValue() && elapsed < timeout) {//necessary to get the lazy changelistener to fire
+                    Thread.sleep(interval);
+                    elapsed += interval;
+                }
+            } catch (InterruptedException e) {
+                Logger.error(e);
+            }
+        }).start();
     }
 
     private void delete() {

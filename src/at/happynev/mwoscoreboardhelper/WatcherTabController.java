@@ -207,11 +207,17 @@ public class WatcherTabController {
             }
             results.getPlayersTeam().addListener((ListChangeListener<? super PlayerRuntime>) c -> {
                 c.next();
-                c.getAddedSubList().forEach(o -> buildPlayerGui(o, paneMyTeam));
+                c.getAddedSubList().forEach(o -> {
+                    Logger.log("friend player " + o.getPilotname() + " finished tracing");
+                    buildPlayerGui(o, paneMyTeam);
+                });
             });
             results.getPlayersEnemy().addListener((ListChangeListener<? super PlayerRuntime>) c -> {
                 c.next();
-                c.getAddedSubList().forEach(o -> buildPlayerGui(o, paneEnemyTeam));
+                c.getAddedSubList().forEach(o -> {
+                    Logger.log("enemy  player " + o.getPilotname() + " finished tracing");
+                    buildPlayerGui(o, paneEnemyTeam);
+                });
             });
             flashBackground(flashGreen, 1500);
         } else {
@@ -229,12 +235,13 @@ public class WatcherTabController {
     }
 
     private void buildPlayerGui(PlayerRuntime pr, GridPane parent) {
-        Label preliminaryInfo = preliminaryPlayerInfo.get(pr.getPlayerNumber());
-        preliminaryPlayerInfo.remove(pr.getPlayerNumber());
-        parent.getChildren().remove(preliminaryInfo);
-        int row = pr.getPlayerNumber() % 12;
-        row++;//account for header
         try {
+            Label preliminaryInfo = preliminaryPlayerInfo.get(pr.getPlayerNumber());
+            preliminaryPlayerInfo.remove(pr.getPlayerNumber());
+            parent.getChildren().remove(preliminaryInfo);
+            int row = pr.getPlayerNumber() % 12;
+            row++;//account for header
+
             //parent.getChildren().add(playerLine);
             Label labelUnit = new Label();
             Label labelName = new Label();

@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
  */
 public class TraceHelpers {
     private static final Map<String, String> mapAmbiguousChars = new HashMap<>();
+    private static final String regexMetaChars = "([.*+?()\\[\\]|^${}\\\\])";
 
     static {
         mapAmbiguousChars.put("[TlI1tJ]", "[TlI1tJ]");
@@ -26,18 +27,45 @@ public class TraceHelpers {
         mapAmbiguousChars.put("[yv]", "[yv]");
         mapAmbiguousChars.put("[HR]", "[HR]");
         mapAmbiguousChars.put("[S5]", "[S5]");
-        //mapAmbiguousChars.put("w", "(?:w|vv)");
+        //mapAmbiguousChars.put("G\\)", "\\(I\\)");
         //mapAmbiguousChars.put("W", "(?:W|VV)");
     }
 
+    /*
+        public static String guessValue(String input, Collection<String> possibleValues) {
+            String bestMatch = input;
+            int bestSimilarity = Integer.MAX_VALUE;
+            for (String possible : findSimilarLookingStrings(input, possibleValues)) {
+                int score = StringUtils.getLevenshteinDistance(input, possible);
+                if (score < bestSimilarity) {
+                    bestSimilarity = score;
+                    bestMatch = possible;
+                }
+            }
+            return bestMatch;
+        }
+    */
     public static String guessValue(String input, Collection<String> possibleValues) {
         String bestMatch = input;
         int bestSimilarity = Integer.MAX_VALUE;
-        for (String possible : findSimilarLookingStrings(input, possibleValues)) {
-            int score = StringUtils.getLevenshteinDistance(input, possible);
-            if (score < bestSimilarity) {
-                bestSimilarity = score;
-                bestMatch = possible;
+        List<String> similar = findSimilarStrings(input, possibleValues, (input.length() + 1) / 2);
+        List<String> similarLooking = findSimilarLookingStrings(input, similar);
+        if (similarLooking.isEmpty()) {
+            //Logger.log("found nothing similar looking to " + input);
+            for (String possible : similar) {
+                int score = StringUtils.getLevenshteinDistance(input, possible);
+                if (score < bestSimilarity) {
+                    bestSimilarity = score;
+                    bestMatch = possible;
+                }
+            }
+        } else {
+            for (String possible : similarLooking) {
+                int score = StringUtils.getLevenshteinDistance(input, possible);
+                if (score < bestSimilarity) {
+                    bestSimilarity = score;
+                    bestMatch = possible;
+                }
             }
         }
         return bestMatch;
@@ -65,7 +93,8 @@ public class TraceHelpers {
     }
 
     private static String makeSimilarityRegex(String input) {
-        String ret = input.replaceAll("(\\[|\\])", "\\\\$1");
+        String ret = input.replaceAll(regexMetaChars, ".");
+        //if (!input.equals(ret)) Logger.log("regex " + input + "-->" + ret);
         for (String p : mapAmbiguousChars.keySet()) {
             ret = ret.replaceAll(p, mapAmbiguousChars.get(p));
         }
@@ -93,7 +122,7 @@ public class TraceHelpers {
 
             out.getRaster().setDataElements(0, 0, input.getWidth(), input.getHeight(), buffer);
         } else {
-            Logger.warning("Wrong colorspace (" + input.getColorModel().getColorSpace() + ") and/or transfertype (" + input.getRaster().getTransferType() + ")");
+            //Logger.warning("Wrong colorspace (" + input.getColorModel().getColorSpace().getType() + ") and/or transfertype (" + input.getRaster().getTransferType() + ")");
             return input;
         }
         return out;
@@ -116,7 +145,7 @@ public class TraceHelpers {
 
             out.getRaster().setDataElements(0, 0, input.getWidth(), input.getHeight(), buffer);
         } else {
-            Logger.warning("Wrong colorspace (" + input.getColorModel().getColorSpace() + ") and/or transfertype (" + input.getRaster().getTransferType() + ")");
+            //Logger.warning("Wrong colorspace (" + input.getColorModel().getColorSpace().getType() + ") and/or transfertype (" + input.getRaster().getTransferType() + ")");
             return input;
         }
         return out;

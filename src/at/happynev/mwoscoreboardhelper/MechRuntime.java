@@ -201,7 +201,7 @@ public class MechRuntime {
 
     public static String findMatchingMech(String mech) {
         if (mech.isEmpty()) return "";
-        String preparedMech = mech.replaceAll("\\([S5I8RP]\\)", "").replaceAll("\\s*", "").replaceAll("(\\(|\\))","$1"); //(S)pecial, (S)team, (I)nvasion, (R)esistance, (P)hoenix mechs not in smurfy data
+        String preparedMech = mech.replaceAll("\\(?[S5I8RP]\\)", "").replaceAll("\\s*", ""); //(S)pecial, (S)team, (I)nvasion, (R)esistance, (P)hoenix mechs not in smurfy data
         String guess = TraceHelpers.guessValue(preparedMech, knownShortNames);
         if (!knownShortNames.contains(guess)) {
             //try again for some (L) variants

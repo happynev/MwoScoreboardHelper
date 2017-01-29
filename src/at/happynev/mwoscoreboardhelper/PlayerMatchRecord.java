@@ -44,6 +44,18 @@ public class PlayerMatchRecord {
         rs.close();
     }
 
+    private PlayerMatchRecord() {
+        playerId = -1;
+        matchId = -1;
+        mech = "";
+        status = "";
+        matchScore = 0;
+        kills = 0;
+        assists = 0;
+        damage = 0;
+        ping = 0;
+    }
+
     public PlayerMatchRecord(PlayerRuntime player, PlayerInfoTracer info, MatchRuntime match) throws IllegalArgumentException, SQLException {
         playerId = player.getId();
         matchId = match.getId();
@@ -68,6 +80,10 @@ public class PlayerMatchRecord {
         prep.setInt(8, damage);
         prep.setInt(9, ping);
         prep.executeUpdate();
+    }
+
+    public static PlayerMatchRecord getDummyInstance() {
+        return new PlayerMatchRecord();
     }
 
     public String getMech() {
