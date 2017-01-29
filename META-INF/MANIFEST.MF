@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Permissions: sandbox
+JavaFX-Version: 8.0
+Class-Path: lib/commons-io-2.5.jar lib/commons-logging-1.2.jar lib/h2-
+ 1.4.191.jar lib/jai-imageio-core-1.3.1.jar lib/jna-4.1.0.jar lib/jul-
+ to-slf4j-1.7.21.jar lib/junit-4.12.jar lib/lept4j-1.2.3.jar lib/log4j
+ -1.2.17.jar lib/log4j-over-slf4j-1.7.21.jar lib/logback-classic-1.1.7
+ .jar lib/logback-core-1.1.7.jar lib/slf4j-api-1.7.21.jar lib/tess4j-3
+ .2.1.jar lib/commons-lang3-3.5.jar
+Created-By: JavaFX Packager
+Main-Class: at.happynev.mwoscoreboardhelper.Main
+

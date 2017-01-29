@@ -1,0 +1,216 @@
+package at.happynev.mwoscoreboardhelper.tracer;
+
+import java.awt.image.BufferedImage;
+
+/**
+ * Created by Nev on 15.01.2017.
+ */
+public class QuickplayPreparationOffsets_16_10 extends Offsets {
+    private final static int WIDTH = 3840;
+    private final static int HEIGHT = 2400;
+
+    private final static int FIRST_PLAYERLINE_OFFSET = 522;
+    private final static int FIRST_PLAYERFIELD_OFFSET_FRIEND = 555;
+    private final static int FIRST_PLAYERFIELD_OFFSET_ENEMY = 2477;
+    private final static int PLAYER_LINE_HEIGHT = 45;
+    private final static int PLAYER_UNIT_WIDTH = 146;
+    private final static int PLAYER_PILOTNAME_WIDTH_FRIEND = 586;
+    private final static int PLAYER_PILOTNAME_WIDTH_ENEMY = 669;
+    private final static int PLAYER_MECH_WIDTH = 333;
+    private final static int PLAYER_STATUS_WIDTH_FRIEND = 297;
+    private final static int PLAYER_STATUS_WIDTH_ENEMY = 243;
+    private final static int PLAYER_PING_WIDTH = 120;
+
+    private final static double PLAYER_LINE_GAP = 7.8;
+    private final static double LANCE_LINE_GAP = 9.5;
+
+    private final static int MAP_OFFSET_X = 2326;
+    private final static int MAP_OFFSET_Y = 1312;
+    private final static int MAP_WIDTH = 465;
+    private final static int MAP_HEIGHT = 50;
+
+    private final static int GAMEMODE_OFFSET_X = 640;
+    private final static int GAMEMODE_OFFSET_Y = 1249;
+    private final static int GAMEMODE_WIDTH = 355;
+    private final static int GAMEMODE_HEIGHT = 55;
+
+    private final static int SERVER_OFFSET_X = 2677;
+    private final static int SERVER_OFFSET_Y = 250;
+    private final static int SERVER_WIDTH = 610;
+    private final static int SERVER_HEIGHT = 45;
+
+    private final static int IDENT_OFFSET_X = 340;
+    private final static int IDENT_OFFSET_Y = 343;
+    private final static int IDENT_WIDTH = 320;
+    private final static int IDENT_HEIGHT = 72;
+
+    private final double scaleFactor;
+
+    public QuickplayPreparationOffsets_16_10(BufferedImage img) {
+        this(img.getWidth(), img.getHeight());
+    }
+
+    public QuickplayPreparationOffsets_16_10(int width, int height) {
+        this(getScaleFactor(width, height, WIDTH, HEIGHT));
+    }
+
+    public QuickplayPreparationOffsets_16_10(double scale) {
+        scaleFactor = scale;
+    }
+
+    @Override
+    public int getAbsoluteWidth() {
+        return WIDTH;
+    }
+
+    @Override
+    public int getAbsoluteHeight() {
+        return HEIGHT;
+    }
+
+    @Override
+    public Rectangle map() {
+        return new Rectangle(MAP_OFFSET_X, MAP_OFFSET_Y, MAP_WIDTH, MAP_HEIGHT, scaleFactor);
+    }
+
+    @Override
+    public Rectangle gameMode() {
+        return new Rectangle(GAMEMODE_OFFSET_X, GAMEMODE_OFFSET_Y, GAMEMODE_WIDTH, GAMEMODE_HEIGHT, scaleFactor);
+    }
+
+    @Override
+    public Rectangle battleTime() {
+        return new Rectangle(0, 0, 0, 0, scaleFactor);
+    }
+
+    private int getPlayerLineOffset(int p) {
+        double playerLineOffset = FIRST_PLAYERLINE_OFFSET;
+        if (p > 12) playerLineOffset += 2;//crooked interface!!
+        p = p % 12;
+        for (int i = 0; i < p; i++) {
+            playerLineOffset += PLAYER_LINE_HEIGHT;
+            if (i == 3 || i == 7) {
+                playerLineOffset += LANCE_LINE_GAP;
+            } else {
+                playerLineOffset += PLAYER_LINE_GAP;
+            }
+        }
+        return (int) playerLineOffset;
+    }
+
+    @Override
+    protected Offsets getScaledInstance(int width, int height) {
+        return new QuickplayPreparationOffsets_16_10(width, height);
+    }
+
+    @Override
+    public Rectangle winningTeam() {
+        return new Rectangle(0, 0, 0, 0, scaleFactor);
+    }
+
+    @Override
+    public Rectangle losingTeam() {
+        return new Rectangle(0, 0, 0, 0, scaleFactor);
+    }
+
+    @Override
+    public Rectangle matchResult() {
+        return new Rectangle(0, 0, 0, 0, scaleFactor);
+    }
+
+    @Override
+    public Rectangle server() {
+        return new Rectangle(SERVER_OFFSET_X, SERVER_OFFSET_Y, SERVER_WIDTH, SERVER_HEIGHT, scaleFactor);
+    }
+
+    @Override
+    public Rectangle typeIdentifier() {
+        return new Rectangle(IDENT_OFFSET_X, IDENT_OFFSET_Y, IDENT_WIDTH, IDENT_HEIGHT, scaleFactor);
+    }
+
+    @Override
+    public Rectangle playerUnit(int i) {
+        int x = 0;
+        if (i < 12) {
+            x = FIRST_PLAYERFIELD_OFFSET_FRIEND;
+        } else {
+            x = FIRST_PLAYERFIELD_OFFSET_ENEMY;
+        }
+        return new Rectangle(x, getPlayerLineOffset(i), PLAYER_UNIT_WIDTH, PLAYER_LINE_HEIGHT, scaleFactor);
+    }
+
+    @Override
+    public Rectangle playerPilotName(int i) {
+        int x = 0;
+        int w = 0;
+        if (i < 12) {
+            x = FIRST_PLAYERFIELD_OFFSET_FRIEND + PLAYER_UNIT_WIDTH;
+            w = PLAYER_PILOTNAME_WIDTH_FRIEND;
+        } else {
+            x = FIRST_PLAYERFIELD_OFFSET_ENEMY + PLAYER_UNIT_WIDTH;
+            w = PLAYER_PILOTNAME_WIDTH_ENEMY;
+        }
+        return new Rectangle(x, getPlayerLineOffset(i), w, PLAYER_LINE_HEIGHT, scaleFactor);
+    }
+
+    @Override
+    public Rectangle playerMech(int i) {
+        int x = 0;
+        if (i < 12) {
+            x = FIRST_PLAYERFIELD_OFFSET_FRIEND + PLAYER_UNIT_WIDTH + PLAYER_PILOTNAME_WIDTH_FRIEND;
+        } else {
+            return new Rectangle(0, 0, 0, 0, scaleFactor);
+        }
+        return new Rectangle(x, getPlayerLineOffset(i), PLAYER_MECH_WIDTH, PLAYER_LINE_HEIGHT, scaleFactor);
+    }
+
+    @Override
+    public Rectangle playerStatus(int i) {
+        int x = 0;
+        int w = 0;
+        if (i < 12) {
+            x = FIRST_PLAYERFIELD_OFFSET_FRIEND + PLAYER_UNIT_WIDTH + PLAYER_PILOTNAME_WIDTH_FRIEND + PLAYER_MECH_WIDTH;
+            w = PLAYER_STATUS_WIDTH_FRIEND;
+        } else {
+            x = FIRST_PLAYERFIELD_OFFSET_ENEMY + PLAYER_UNIT_WIDTH + PLAYER_PILOTNAME_WIDTH_ENEMY;
+            w = PLAYER_STATUS_WIDTH_ENEMY;
+        }
+        return new Rectangle(x, getPlayerLineOffset(i), w, PLAYER_LINE_HEIGHT, scaleFactor);
+    }
+
+    @Override
+    public Rectangle playerMatchScore(int i) {
+        return new Rectangle(0, 0, 0, 0, scaleFactor);
+    }
+
+    @Override
+    public Rectangle playerKills(int i) {
+        return new Rectangle(0, 0, 0, 0, scaleFactor);
+    }
+
+    @Override
+    public Rectangle playerAssists(int i) {
+        return new Rectangle(0, 0, 0, 0, scaleFactor);
+    }
+
+    @Override
+    public Rectangle playerDamage(int i) {
+        return new Rectangle(0, 0, 0, 0, scaleFactor);
+    }
+
+    @Override
+    public Rectangle playerPing(int i) {
+        int x = 0;
+        if (i < 12) {
+            x = FIRST_PLAYERFIELD_OFFSET_FRIEND + PLAYER_UNIT_WIDTH + PLAYER_PILOTNAME_WIDTH_FRIEND + PLAYER_MECH_WIDTH + PLAYER_STATUS_WIDTH_FRIEND;
+        } else {
+            x = FIRST_PLAYERFIELD_OFFSET_ENEMY + PLAYER_UNIT_WIDTH + PLAYER_PILOTNAME_WIDTH_ENEMY + PLAYER_STATUS_WIDTH_ENEMY;
+        }
+        return new Rectangle(x, getPlayerLineOffset(i), PLAYER_PING_WIDTH, PLAYER_LINE_HEIGHT, scaleFactor);
+    }
+
+    @Override
+    public ScreenshotType getType() {
+        return ScreenshotType.QP_1PREPARATION;
+    }
+}

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+
+<HBox spacing="10.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="at.happynev.mwoscoreboardhelper.PlayerTabController">
+   <children>
+      <VBox>
+         <children>
+            <GridPane>
+               <columnConstraints>
+                  <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" minWidth="10.0" />
+                  <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" minWidth="10.0" />
+               </columnConstraints>
+               <rowConstraints>
+                  <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+               </rowConstraints>
+               <children>
+                  <Label maxWidth="1.7976931348623157E308" text="Known Players" HBox.hgrow="ALWAYS" />
+                  <Button fx:id="buttonRefreshData" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Refresh Data" GridPane.columnIndex="1" />
+               </children>
+            </GridPane>
+            <TableView fx:id="tablePlayers" HBox.hgrow="SOMETIMES" VBox.vgrow="ALWAYS" />
+         </children>
+      </VBox>
+      <VBox alignment="TOP_CENTER" spacing="20.0" HBox.hgrow="NEVER">
+         <children>
+            <HBox fx:id="panePlayername" alignment="CENTER" spacing="10.0" GridPane.columnSpan="2147483647" GridPane.valignment="CENTER" VBox.vgrow="SOMETIMES">
+               <children>
+                  <Label fx:id="labelUnit" text="UNIT" HBox.hgrow="SOMETIMES">
+                     <font>
+                        <Font size="30.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="labelPilotname" text="PILOTNAME" HBox.hgrow="ALWAYS">
+                     <font>
+                        <Font name="System Bold" size="30.0" />
+                     </font>
+                  </Label>
+               </children>
+            </HBox>
+            <Label maxHeight="1.7976931348623157E308" VBox.vgrow="SOMETIMES" />
+            <VBox GridPane.columnSpan="2147483647" GridPane.rowIndex="1">
+               <children>
+                  <Label text="Note (visible on Watcher screen)" />
+                  <TextField fx:id="textShortNote" GridPane.rowIndex="1" />
+                  <Label text="More Notes" />
+                  <TextArea fx:id="textNotes" />
+               </children>
+            </VBox>
+            <HBox alignment="CENTER" spacing="10.0">
+               <children>
+                  <ColorPicker fx:id="pickerFront" />
+                  <Label maxWidth="1.7976931348623157E308" text="Text Color" GridPane.rowIndex="2" HBox.hgrow="ALWAYS" />
+               </children>
+            </HBox>
+            <HBox alignment="CENTER" spacing="10.0">
+               <children>
+                  <ColorPicker fx:id="pickerBack" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                  <Label maxWidth="1.7976931348623157E308" text="Background Color" HBox.hgrow="ALWAYS" />
+               </children>
+            </HBox>
+            <Label VBox.vgrow="ALWAYS" />
+            <VBox>
+               <children>
+                  <Label text="Possible Duplicates" />
+                  <HBox alignment="BOTTOM_LEFT" VBox.vgrow="NEVER">
+                     <children>
+                        <ListView fx:id="listPossibleDuplicates" maxHeight="200.0" HBox.hgrow="SOMETIMES" />
+                        <Button fx:id="buttonMergeDuplicate" mnemonicParsing="false" text="Merge" />
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+         </children>
+      </VBox>
+      <VBox spacing="20.0" HBox.hgrow="SOMETIMES">
+         <children>
+            <VBox VBox.vgrow="SOMETIMES">
+               <children>
+                  <Label text="Observed Mechs" VBox.vgrow="NEVER" />
+                  <TableView fx:id="tableMechs" VBox.vgrow="SOMETIMES" />
+               </children>
+            </VBox>
+            <VBox VBox.vgrow="SOMETIMES">
+               <children>
+                  <Label text="Observed Matches" VBox.vgrow="NEVER" />
+                  <TableView fx:id="tablePlayerMatches" VBox.vgrow="SOMETIMES" />
+               </children>
+            </VBox>
+         </children>
+      </VBox>
+      <VBox HBox.hgrow="ALWAYS">
+         <children>
+            <Label text="Statistics" />
+            <TableView fx:id="tableStatistics" VBox.vgrow="ALWAYS" />
+         </children>
+      </VBox>
+   </children>
+   <padding>
+      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+   </padding>
+</HBox>
