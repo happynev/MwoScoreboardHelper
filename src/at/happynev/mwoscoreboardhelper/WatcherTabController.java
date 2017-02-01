@@ -222,6 +222,7 @@ public class WatcherTabController {
             flashBackground(flashGreen, 1500);
         } else {
             flashBackground(flashRed, 2000);
+            isProcessing=false;
             //clean?
             //textMatchName.textProperty().unbind();
         }
