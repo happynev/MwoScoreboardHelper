@@ -147,11 +147,11 @@ public class MatchRuntime {
                         if (!realResult.matches("VICTORY|DEFEAT|DRAW")) {
                             String winner = tracer.getWinningTeam().toLowerCase();
                             String loser = tracer.getLosingTeam().toLowerCase();
-                            if (winner.contains("your")) {
+                            if (winner.contains("team")) {
                                 realResult = "VICTORY";
                             } else if (winner.contains("enemy")) {
                                 realResult = "DEFEAT";
-                            } else if (loser.contains("your")) {
+                            } else if (loser.contains("team")) {
                                 realResult = "DEFEAT";
                             } else if (loser.contains("enemy")) {
                                 realResult = "VICTORY";
