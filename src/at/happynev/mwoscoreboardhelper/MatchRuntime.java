@@ -43,7 +43,7 @@ public class MatchRuntime {
     private final ObservableList<PlayerRuntime> playersEnemy = FXCollections.observableArrayList();
     private final ObservableList<PlayerMatchRecord> playerRecords = FXCollections.observableArrayList();
     private final Map<Integer, SimpleStringProperty> preliminaryInfo = new HashMap<>(24);
-    private final Set<String> gameModes = new HashSet<>(Arrays.asList("SKIRMISH", "DOMINATION", "ASSAULT", "CONQUEST", "INCURSION", "ESCORT"));
+    private final Set<String> gameModes = new HashSet<>(Arrays.asList("SKIRMISH", "DOMINATION", "ASSAULT", "CONQUEST", "INCURSION", "INVASION", "ESCORT"));
     private boolean matchFinished;
     private ScreenshotType type = null;
     private int id = 0;

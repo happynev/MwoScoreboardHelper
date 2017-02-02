@@ -10,6 +10,15 @@ public class Logger {
     //private static final java.util.logging.Logger logger = java.util.logging.Logger.getAnonymousLogger();
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger("root");
 
+    public static void dberror(Throwable e) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(e.getMessage());
+        //alertPopup.setContentText();
+        alert.showAndWait();
+        logger.error("Fehler hat passiert", e);
+    }
+
     public static void error(Throwable e) {
         if (SettingsTabController.getInstance().popupsAllowed()) {
             Alert alert = new Alert(Alert.AlertType.ERROR);

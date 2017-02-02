@@ -22,6 +22,7 @@ public class PlayerMatchRecord {
     private final int assists;
     private final int damage;
     private final int ping;
+    //private final boolean isEnemy;
 
     public PlayerMatchRecord(int playerId, int matchId) throws Exception {
         this.playerId = playerId;

@@ -15,8 +15,8 @@ public class Main extends Application {
         Logger.log("############################# Application STARTED ###########################");
     }
 
-    public static String getVersion() {
-        return "0.1";
+    public static int getVersion() {
+        return 1;
     }
 
     public static void main(String[] args) {

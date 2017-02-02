@@ -19,6 +19,7 @@ public class DbHandler {
     private Connection con = null;
     private Map<String, PreparedStatement> cachedStatements = new HashMap<>();
     private BooleanProperty writeEnabled = new SimpleBooleanProperty(true);
+
     private DbHandler() {
         writeEnabled.addListener((observable, oldValue, newValue) -> reopenConnection());
         reopenConnection();
@@ -98,7 +99,7 @@ public class DbHandler {
             writeEnabled.set(autocommit);
             con.setAutoCommit(autocommit);
         } catch (Exception e) {
-            Logger.error(e);
+            Logger.dberror(e);
         }
     }
 
@@ -110,9 +111,13 @@ public class DbHandler {
                 RunScript.execute(con, new InputStreamReader(getClass().getResourceAsStream("dbinit.sql")));
             }
             rs.close();
-            saveSetting("version", Main.getVersion());
+            int version = Integer.parseInt(loadSetting("version", "0").replaceAll("\\..*", ""));
+            if (version < Main.getVersion()) {
+                RunScript.execute(con, new InputStreamReader(getClass().getResourceAsStream("dbUpgradeFromVersion" + version + ".sql")));
+            }
+            saveSetting("version", "" + Main.getVersion());
         } catch (SQLException e) {
-            Logger.error(e);
+            Logger.dberror(e);
         }
     }
 
