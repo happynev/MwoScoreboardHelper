@@ -15,8 +15,12 @@ public class Main extends Application {
         Logger.log("############################# Application STARTED ###########################");
     }
 
-    public static int getVersion() {
+    public static int getDbVersion() {
         return 1;
+    }
+
+    public static String getVersion() {
+        return "0.2 Blackjack";
     }
 
     public static void main(String[] args) {

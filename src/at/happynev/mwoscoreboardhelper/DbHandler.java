@@ -112,10 +112,10 @@ public class DbHandler {
             }
             rs.close();
             int version = Integer.parseInt(loadSetting("version", "0").replaceAll("\\..*", ""));
-            if (version < Main.getVersion()) {
+            if (version < Main.getDbVersion()) {
                 RunScript.execute(con, new InputStreamReader(getClass().getResourceAsStream("dbUpgradeFromVersion" + version + ".sql")));
             }
-            saveSetting("version", "" + Main.getVersion());
+            saveSetting("version", "" + Main.getDbVersion());
         } catch (SQLException e) {
             Logger.dberror(e);
         }
