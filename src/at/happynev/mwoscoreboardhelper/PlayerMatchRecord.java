@@ -22,12 +22,16 @@ public class PlayerMatchRecord {
     private final int assists;
     private final int damage;
     private final int ping;
-    //private final boolean isEnemy;
+    private final boolean isEnemy;
+    private final long timestamp;
 
     public PlayerMatchRecord(int playerId, int matchId) throws Exception {
         this.playerId = playerId;
         this.matchId = matchId;
-        PreparedStatement prep = DbHandler.getInstance().prepareStatement("select mech,status,score,kills,assists,damage,ping from player_matchdata where player_data_id=? and match_data_id=?");
+        PreparedStatement prep = DbHandler.getInstance().prepareStatement(
+                "select pm.mech,pm.status,pm.score,pm.kills,pm.assists,pm.damage,pm.ping,pm.enemy,m.matchtime " +
+                        "from player_matchdata pm, match_data m " +
+                        "where pm.player_data_id=? and pm.match_data_id=? and pm.match_data_id=m.id");
         prep.setInt(1, playerId);
         prep.setInt(2, matchId);
         ResultSet rs = prep.executeQuery();
@@ -39,13 +43,15 @@ public class PlayerMatchRecord {
             assists = rs.getInt(5);
             damage = rs.getInt(6);
             ping = rs.getInt(7);
+            isEnemy = rs.getBoolean(8);
+            timestamp = rs.getTimestamp(9).getTime();
         } else {
             throw new Exception("Match Record for " + playerId + "/" + matchId + " not found");
         }
         rs.close();
     }
 
-    private PlayerMatchRecord() {
+    private PlayerMatchRecord(boolean isEnemy) {
         playerId = -1;
         matchId = -1;
         mech = "";
@@ -55,22 +61,31 @@ public class PlayerMatchRecord {
         assists = 0;
         damage = 0;
         ping = 0;
+        this.isEnemy = isEnemy;
+        timestamp = 0;
     }
 
-    public PlayerMatchRecord(PlayerRuntime player, PlayerInfoTracer info, MatchRuntime match) throws IllegalArgumentException, SQLException {
+    public PlayerMatchRecord(PlayerRuntime player, PlayerInfoTracer info, MatchRuntime match, boolean isEnemy) throws IllegalArgumentException, SQLException {
         playerId = player.getId();
         matchId = match.getId();
         if (!info.getFinished()) {
             throw new IllegalArgumentException("PlayerInfoTracer is not ready");
         }
         mech = MechRuntime.findMatchingMech(info.getMech());
-        status = TraceHelpers.guessValue(info.getStatus().replaceAll(".*DEAD.*", "DEAD").replaceAll(".*ALIVE.*", "ALIVE"), Arrays.asList("DEAD", "ALIVE"));
+        String tmpst = TraceHelpers.guessValue(info.getStatus().replaceAll(".*DEAD.*", "DEAD").replaceAll(".*ALIVE.*", "ALIVE"), Arrays.asList("DEAD", "ALIVE"));
+        if (tmpst.matches("DEAD|ALIVE")) {
+            status = tmpst;
+        } else {
+            status = "DEAD";//alive is white and traces very well
+        }
         matchScore = info.getMatchScore();
         kills = info.getKills();
         assists = info.getAssists();
         damage = info.getDamage();
         ping = info.getPing();
-        PreparedStatement prep = DbHandler.getInstance().prepareStatement("insert into player_matchdata(player_data_id,match_data_id,mech,status,score,kills,assists,damage,ping) values(?,?,?,?,?,?,?,?,?)");
+        timestamp = match.getTimestamp();
+        this.isEnemy = isEnemy;
+        PreparedStatement prep = DbHandler.getInstance().prepareStatement("insert into player_matchdata(player_data_id,match_data_id,mech,status,score,kills,assists,damage,ping,enemy) values(?,?,?,?,?,?,?,?,?,?)");
         prep.setInt(1, playerId);
         prep.setInt(2, matchId);
         prep.setString(3, mech);
@@ -80,11 +95,20 @@ public class PlayerMatchRecord {
         prep.setInt(7, assists);
         prep.setInt(8, damage);
         prep.setInt(9, ping);
+        prep.setBoolean(10, this.isEnemy);
         prep.executeUpdate();
     }
 
-    public static PlayerMatchRecord getDummyInstance() {
-        return new PlayerMatchRecord();
+    public static PlayerMatchRecord getDummyInstance(boolean isEnemy) {
+        return new PlayerMatchRecord(isEnemy);
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public boolean isEnemy() {
+        return isEnemy;
     }
 
     public String getMech() {

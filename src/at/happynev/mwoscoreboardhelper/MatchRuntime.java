@@ -47,13 +47,13 @@ public class MatchRuntime {
     private boolean matchFinished;
     private ScreenshotType type = null;
     private int id = 0;
-    private Date timestamp = null;
+    private long timestamp = 0;
     private boolean valid = false;
 
     public MatchRuntime(final File screenshot, final MatchRuntime previousData) {
         try {
             final long startProcessing = System.currentTimeMillis();
-            timestamp = new Date(screenshot.lastModified());
+            timestamp = screenshot.lastModified();
             BufferedImage img = ImageIO.read(screenshot);
             type = ScreenshotType.identifyType(img);
             formattedTimestamp.setValue(sdf.format(timestamp));
@@ -82,51 +82,42 @@ public class MatchRuntime {
                 allFinished.addListener((observable, oldValue, newValue) -> {
                     if (newValue) {
                         try {
+                            boolean isVictory = "VICTORY".equals(matchResult.get());
+                            boolean isDefeat = "DEFEAT".equals(matchResult.get());
+                            boolean isDraw = "DRAW".equals(matchResult.get());
+                            boolean isEnemy = false;
+                            //Logger.log("player trace finished, victory=" + isVictory + " defeat=" + isDefeat);
+                            if (isVictory) {
+                                isEnemy = p >= 12;
+                            } else if (isDefeat) {
+                                isEnemy = p < 12;
+                            } else if (isDraw) {
+                                //just assuming, didn't have an example
+                                isEnemy = p >= 12;
+                            } else {
+                                //unknown result... just assign anywhere
+                                isEnemy = p >= 12;
+                            }
+
                             PlayerRuntime pr = PlayerRuntime.getInstance(pi.getPilotName());
                             pr.unitProperty().set(pi.getUnitTag());
                             pr.setPlayerNumber(p);
                             PlayerMatchRecord prec = null;
                             try {
-                                prec = new PlayerMatchRecord(pr, pi, this);
+                                prec = new PlayerMatchRecord(pr, pi, this, isEnemy);
                             } catch (Exception e) {
                                 Logger.error(e);
                                 Logger.log("using dummy match record for " + pi.getPilotName());
-                                prec = PlayerMatchRecord.getDummyInstance();
+                                prec = PlayerMatchRecord.getDummyInstance(isEnemy);
+                            }
+                            if (isEnemy) {
+                                playersEnemy.add(pr);
+                            } else {
+                                playersTeam.add(pr);
                             }
                             pr.getMatchRecords().add(prec);
                             playerRecords.add(prec);
                             //TODO: just assuming result trace is done by now...
-                            boolean isVictory = "VICTORY".equals(matchResult.get());
-                            boolean isDefeat = "DEFEAT".equals(matchResult.get());
-                            boolean isDraw = "DRAW".equals(matchResult.get());
-                            //Logger.log("player trace finished, victory=" + isVictory + " defeat=" + isDefeat);
-                            if (isVictory) {
-                                if (p < 12) {
-                                    playersTeam.add(pr);
-                                } else {
-                                    playersEnemy.add(pr);
-                                }
-                            } else if (isDefeat) {
-                                if (p < 12) {
-                                    playersEnemy.add(pr);
-                                } else {
-                                    playersTeam.add(pr);
-                                }
-                            } else if (isDraw) {
-                                //just assuming, didn't have an example
-                                if (p < 12) {
-                                    playersTeam.add(pr);
-                                } else {
-                                    playersEnemy.add(pr);
-                                }
-                            } else {
-                                //unknown result... just assign anywhere
-                                if (p < 12) {
-                                    playersTeam.add(pr);
-                                } else {
-                                    playersEnemy.add(pr);
-                                }
-                            }
                         } catch (Exception e) {
                             Logger.log("Player info tracer finish trigger, " + pi.getPilotName());
                             Logger.error(e);
@@ -181,7 +172,7 @@ public class MatchRuntime {
             } else {
                 PreparedStatement prep = DbHandler.getInstance().prepareStatement("insert into processed(filename,processing_time) values(?,?)");
                 prep.setString(1, screenshot.getName());
-                prep.setTimestamp(2, new Timestamp(timestamp.getTime()));
+                prep.setTimestamp(2, new Timestamp(timestamp));
                 prep.executeUpdate();
                 WatcherTabController.getInstance().getAlreadyProcessed().add(screenshot.getName());
                 Utils.copyFile(screenshot, arch);
@@ -193,7 +184,7 @@ public class MatchRuntime {
                 startBindingWatchDog(expr, 300, TRACE_TIMEOUT);
                 if (matchFinished && previousData != null && !previousData.isMatchFinished()) {
                     long maxMatchTime = 0;
-                    long timeSinceLastData = timestamp.getTime() - previousData.getTimestamp().getTime();
+                    long timeSinceLastData = timestamp - previousData.getTimestamp();
                     if (type == ScreenshotType.QP_3SUMMARY) {
                         maxMatchTime = 15 * 60 * 1000;
                     }
@@ -233,11 +224,11 @@ public class MatchRuntime {
 
     private MatchRuntime(int id) {
         try {
-            PreparedStatement prep = DbHandler.getInstance().prepareStatement("select to_char(matchtime,'YYYY-MM-DD HH24:MI:SS),gamemode,map,matchResult,reward_cbill,reward_xp,matchname,battletime,maptimeofday from MATCH_DATA where id=?");
+            PreparedStatement prep = DbHandler.getInstance().prepareStatement("select matchtime,gamemode,map,matchResult,reward_cbill,reward_xp,matchname,battletime,maptimeofday from MATCH_DATA where id=?");
             prep.setInt(1, id);
             ResultSet rs = prep.executeQuery();
             if (rs.next()) {
-                String _timestamp = rs.getString(1);
+                long _timestamp = rs.getTimestamp(1).getTime();
                 String _gamemode = rs.getString(2);
                 String _map = rs.getString(3);
                 String _matchresult = rs.getString(4);
@@ -246,8 +237,8 @@ public class MatchRuntime {
                 String _matchname = rs.getString(7);
                 String _battletime = rs.getString(7);
                 String _maptod = rs.getString(8);
-                timestamp = sdf.parse(_timestamp);
-                formattedTimestamp.setValue(_timestamp);
+                timestamp = _timestamp;
+                formattedTimestamp.setValue(sdf.format(new Date(_timestamp)));
                 this.matchName.set(_matchname);
                 if (_gamemode != null) this.gameMode.set(_gamemode);
                 if (_map != null) this.gameMode.set(_map);
@@ -321,7 +312,7 @@ public class MatchRuntime {
         return preliminaryInfo;
     }
 
-    public Date getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 
