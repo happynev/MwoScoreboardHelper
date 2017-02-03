@@ -190,7 +190,7 @@ public class MatchRuntime {
             File archivedMatch = new File(SettingsTabController.getPostProcessedDirectory(), id + "-" + sdfDir.format(timestamp));
 
             archivedMatch.mkdirs();
-            boolean deleteScreenshots = Boolean.parseBoolean(DbHandler.getInstance().loadSetting("deleteScreenshots", "true"));
+            boolean deleteScreenshots = SettingsTabController.isDeleteScreenshots();
             File arch = new File(archivedMatch, filename);
             if (deleteScreenshots) {
                 if (arch.exists()) {

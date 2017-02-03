@@ -32,19 +32,10 @@ public class DbHandler {
         return ourInstance;
     }
 
-    public boolean getWriteEnabled() {
-        return writeEnabled.get();
-    }
-
-    public BooleanProperty writeEnabledProperty() {
-        return writeEnabled;
-    }
-
-    public void saveSetting(String key, String value) {
+    private void saveSetting(String key, String value) {
         if (value == null || value.isEmpty()) {
             value = EMPTY;
         }
-        Logger.log("save setting " + key + "=" + value);
         try {
             PreparedStatement clean = prepareStatement("delete from SETTINGS where propKey=?");
             clean.setString(1, key);
@@ -58,7 +49,7 @@ public class DbHandler {
         }
     }
 
-    public String loadSetting(String key, String defaultValue) {
+    private String loadSetting(String key, String defaultValue) {
         String ret = defaultValue;
         try {
             PreparedStatement prep = prepareStatement("select propValue from SETTINGS where propKey=?");
@@ -76,6 +67,14 @@ public class DbHandler {
             Logger.error(e);
         }
         return ret;
+    }
+
+    public boolean getWriteEnabled() {
+        return writeEnabled.get();
+    }
+
+    public BooleanProperty writeEnabledProperty() {
+        return writeEnabled;
     }
 
     private void reopenConnection() {
@@ -111,7 +110,7 @@ public class DbHandler {
                 RunScript.execute(con, new InputStreamReader(getClass().getResourceAsStream("dbinit.sql")));
             }
             rs.close();
-            int version = Integer.parseInt(loadSetting("version", "0").replaceAll("\\..*", ""));
+            int version = Integer.parseInt(loadSetting("version", "0"));
             if (version < Main.getDbVersion()) {
                 RunScript.execute(con, new InputStreamReader(getClass().getResourceAsStream("dbUpgradeFromVersion" + version + ".sql")));
             }
@@ -125,7 +124,7 @@ public class DbHandler {
         for (int i = 0; i < parameters.length; i++) {
             String v = parameters[i];
             if ("".equals(v)) {
-                v = EMPTY;
+                //v = EMPTY;
             }
             stmt.setString(i + 1, v);
         }

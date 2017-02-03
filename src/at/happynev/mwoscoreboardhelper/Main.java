@@ -37,20 +37,12 @@ public class Main extends Application {
         Scene scene = new Scene(root);
         primaryStage.setTitle("ScoreboardHelper");
         primaryStage.setScene(scene);
-        primaryStage.setX(Double.parseDouble(DbHandler.getInstance().loadSetting("sceneX", "20")));
-        primaryStage.setY(Double.parseDouble(DbHandler.getInstance().loadSetting("sceneY", "20")));
-        primaryStage.setWidth(Double.parseDouble(DbHandler.getInstance().loadSetting("sceneWidth", "1500")));
-        primaryStage.setHeight(Double.parseDouble(DbHandler.getInstance().loadSetting("sceneHeight", "900")));
-        primaryStage.setMaximized(Boolean.parseBoolean(DbHandler.getInstance().loadSetting("sceneMaximized", "false")));
+        SettingsTabController.restoreWindowPos(primaryStage);
         primaryStage.setOnCloseRequest(
                 event -> {
                     try {
                         WatcherTabController.getInstance().stopWatching();
-                        DbHandler.getInstance().saveSetting("sceneX", "" + primaryStage.getX());
-                        DbHandler.getInstance().saveSetting("sceneY", "" + primaryStage.getY());
-                        DbHandler.getInstance().saveSetting("sceneWidth", "" + primaryStage.getWidth());
-                        DbHandler.getInstance().saveSetting("sceneHeight", "" + primaryStage.getHeight());
-                        DbHandler.getInstance().saveSetting("sceneMaximized", "" + primaryStage.isMaximized());
+                        SettingsTabController.saveWindowPos(primaryStage);
                     } catch (Exception e) {
                         Logger.error(e);
                     }

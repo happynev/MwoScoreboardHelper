@@ -87,7 +87,7 @@ public class WatcherTabController {
 
     private void init() {
         //load values
-        boolean watcherActive = Boolean.parseBoolean(DbHandler.getInstance().loadSetting("autowatchEnabled", "false"));
+        boolean watcherActive = SettingsTabController.isAutowatchEnabled();
         toggleAutowatch.setSelected(watcherActive);
         if (watcherActive) {
             toggleAutowatch.setText("Watcher Active");
@@ -106,7 +106,7 @@ public class WatcherTabController {
             if (!SettingsTabController.getScreenshotDirectory().isDirectory() || SettingsTabController.getPlayername().isEmpty()) {
                 Logger.alertPopup("Make sure to set Playername and Screenshot directory on the Settings tab");
             } else {
-                DbHandler.getInstance().saveSetting("autowatchEnabled", "" + newValue);
+                SettingsTabController.setAutowatchEnabled(newValue);
                 startWatcher(SettingsTabController.getInstance().getTextPollingInterval().getText());
                 if (newValue) {
                     toggleAutowatch.setText("Watcher Active");
@@ -235,7 +235,7 @@ public class WatcherTabController {
             paneMyTeam.getChildren().add(new Label("Error adding player '" + pr.getPilotname() + "':" + e.toString()));
         }
         if (playersFinished == 24) {
-            //all players traced. ok to procees with next screenshot
+            //all players traced. ok to proceed with next screenshot
             isProcessing = false;
             Logger.log("Tracing finished");
             paneMatchAnalytics.getChildren().setAll(currentMatch.getMatchAnalyticsPane());
