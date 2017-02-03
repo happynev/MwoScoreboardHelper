@@ -1,5 +1,6 @@
 package at.happynev.mwoscoreboardhelper;
 
+import javafx.beans.binding.StringExpression;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -30,13 +31,23 @@ public class PlayerRuntime {
     private final SimpleStringProperty icon = new SimpleStringProperty("");
     private final SimpleStringProperty shortnote = new SimpleStringProperty("");
     private final ObservableList<PlayerMatchRecord> matchRecords = FXCollections.observableArrayList();
-    private final PlayerCalculatedValues calculatedValues = new PlayerCalculatedValues();
+    private final Map<Stat, StringExpression> calculatedValues = new TreeMap<>();
     private int playerNumber = -1;
 
     private PlayerRuntime(int id) {
         this.id = id;
+        setupCalculatedValues();
         refreshDataFromDb();
         initBindings();
+    }
+
+    private PlayerRuntime() {
+        this.id = -1;
+        setupCalculatedValues();
+    }
+
+    public static PlayerRuntime getReferencePlayer() {
+        return new PlayerRuntime();
     }
 
     public static PlayerRuntime getInstance(String playerName) {
@@ -97,6 +108,30 @@ public class PlayerRuntime {
         return ret;
     }
 
+    private static String appendTopEntries(List<Map.Entry<String, Integer>> list, int max) {
+        StringBuilder ret = new StringBuilder();
+        for (int i = 0; i < Math.min(list.size(), max); i++) {
+            if (ret.length() > 0) {
+                ret.append(", ");
+            }
+            ret.append(list.get(i).getKey()).append("[").append(list.get(i).getValue()).append("]");
+        }
+        return ret.toString();
+    }
+
+    private static List<Map.Entry<String, Integer>> sortByValue(Map<String, Integer> map) {
+        List<Map.Entry<String, Integer>> ret = new ArrayList<>(map.size());
+        ret.addAll(map.entrySet());
+        Collections.sort(ret, (o1, o2) -> {
+            int c = o2.getValue().compareTo(o1.getValue());
+            if (c == 0) {
+                c = o2.getKey().compareTo(o1.getKey());
+            }
+            return c;
+        });
+        return ret;
+    }
+
     public int mergeInto(PlayerRuntime orig) {
         try {
             PreparedStatement prep = DbHandler.getInstance().prepareStatement("update player_matchdata set player_data_id=? where player_data_id=?");
@@ -140,7 +175,7 @@ public class PlayerRuntime {
         this.playerNumber = playerNumber;
     }
 
-    public PlayerCalculatedValues getCalculatedValues() {
+    public Map<Stat, StringExpression> getCalculatedValues() {
         return calculatedValues;
     }
 
@@ -285,156 +320,89 @@ public class PlayerRuntime {
         }
     }
 
-    public class PlayerCalculatedValues {
-        private final SimpleStringProperty favMechs = new SimpleStringProperty("");
-        private final SimpleStringProperty bestMechs = new SimpleStringProperty("");
-        private final SimpleStringProperty timesSeen = new SimpleStringProperty("0");
-        private final SimpleStringProperty avgDamage = new SimpleStringProperty("");
-        private final SimpleStringProperty avgScore = new SimpleStringProperty("");
-        private final SimpleStringProperty avgKills = new SimpleStringProperty("");
-        private final SimpleStringProperty survivalRate = new SimpleStringProperty("");
+    private void setupCalculatedValues() {
+        final SimpleStringProperty favMechs = new SimpleStringProperty("");
+        final SimpleStringProperty bestMechs = new SimpleStringProperty("");
+        final SimpleStringProperty timesSeen = new SimpleStringProperty("");
+        final SimpleStringProperty timesFinished = new SimpleStringProperty("");
+        final SimpleStringProperty avgDamage = new SimpleStringProperty("");
+        final SimpleStringProperty avgScore = new SimpleStringProperty("");
+        final SimpleStringProperty avgKills = new SimpleStringProperty("");
+        final SimpleStringProperty avgAssists = new SimpleStringProperty("");
+        final SimpleStringProperty survivalRate = new SimpleStringProperty("");
 
-        private PlayerCalculatedValues() {
-            matchRecords.addListener((ListChangeListener<? super PlayerMatchRecord>) c -> {
-                //Utils.log("recalc values for " + pilotname.get());
-                int totalDamage = 0;
-                int totalScore = 0;
-                double totalAlive = 0;
-                double totalKills = 0;
-                int totalAssists = 0;
-                int totalValidMatches = 0;
-                Map<String, Integer> mechsSeen = new TreeMap<>();
-                Map<String, List<Integer>> mechScores = new HashMap<>();
-                for (PlayerMatchRecord mr : matchRecords) {
-                    boolean isValidMatch = mr.getPing() > 0;
+        calculatedValues.clear();
+        calculatedValues.put(Stat.FAVMECHS, favMechs);
+        calculatedValues.put(Stat.BESTMECHS, bestMechs);
+        calculatedValues.put(Stat.TIMESSEEN, timesSeen);
+        //calculatedValues.put(Stat.TIMESFINISHED, timesFinished);
+        //calculatedValues.put(Stat.AVGDAMAGE, avgDamage);
+        //calculatedValues.put(Stat.AVGSCORE, avgScore);
+        calculatedValues.put(Stat.AVGKILLS, avgKills);
+        calculatedValues.put(Stat.SURVIVAL, survivalRate);
+        calculatedValues.put(Stat.AVGASSISTS, avgAssists);
+
+        matchRecords.addListener((ListChangeListener<? super PlayerMatchRecord>) c -> {
+            //Utils.log("recalc values for " + pilotname.get());
+            int totalDamage = 0;
+            int totalScore = 0;
+            double totalAlive = 0;
+            double totalKills = 0;
+            int totalAssists = 0;
+            int totalValidMatches = 0;
+            Map<String, Integer> mechsSeen = new TreeMap<>();
+            Map<String, List<Integer>> mechScores = new HashMap<>();
+            for (PlayerMatchRecord mr : matchRecords) {
+                boolean isValidMatch = mr.getPing() > 0;
+                if (isValidMatch) {
+                    totalValidMatches++;
+                    totalScore += mr.getMatchScore();
+                    totalDamage += mr.getDamage();
+                    totalAssists += mr.getAssists();
+                    totalKills += mr.getKills();
+                    if (mr.getStatus().equals("ALIVE")) totalAlive++;
+                }
+                if (mr.getMech() != null && !mr.getMech().isEmpty()) {
+                    Integer seen = mechsSeen.get(mr.getMech());
+                    List<Integer> mechScore = mechScores.get(mr.getMech());
+                    if (seen == null) {
+                        seen = 0;
+                    }
+                    if (mechScore == null) {
+                        mechScore = new ArrayList<>();
+                        mechScores.put(mr.getMech(), mechScore);
+                    }
+                    mechsSeen.put(mr.getMech(), seen + 1);
                     if (isValidMatch) {
-                        totalValidMatches++;
-                        totalScore += mr.getMatchScore();
-                        totalDamage += mr.getDamage();
-                        totalAssists += mr.getAssists();
-                        totalKills += mr.getKills();
-                        if (mr.getStatus().equals("ALIVE")) totalAlive++;
-                    }
-                    if (mr.getMech() != null && !mr.getMech().isEmpty()) {
-                        Integer seen = mechsSeen.get(mr.getMech());
-                        List<Integer> mechScore = mechScores.get(mr.getMech());
-                        if (seen == null) {
-                            seen = 0;
-                        }
-                        if (mechScore == null) {
-                            mechScore = new ArrayList<>();
-                            mechScores.put(mr.getMech(), mechScore);
-                        }
-                        mechsSeen.put(mr.getMech(), seen + 1);
-                        if (isValidMatch) {
-                            mechScore.add(mr.getMatchScore());
-                        }
+                        mechScore.add(mr.getMatchScore());
                     }
                 }
-                Map<String, Integer> mechAvgScores = new HashMap();
-                for (Map.Entry<String, List<Integer>> e : mechScores.entrySet()) {
-                    double totalMechScore = 0;
-                    for (Integer s : e.getValue()) {
-                        totalMechScore += s;
-                    }
-                    double avgScore = totalMechScore / (double) e.getValue().size();
-                    mechAvgScores.put(e.getKey(), (int) avgScore);
-                }
-                if (totalValidMatches > 0) {
-                    avgDamage.set("" + (totalDamage / totalValidMatches));
-                    avgScore.set("" + (totalScore / totalValidMatches));
-                    String kills = new BigDecimal(totalKills / (double) totalValidMatches).setScale(1, BigDecimal.ROUND_HALF_UP).toPlainString();
-                    avgKills.set(kills);
-                    String aliveRatio = new BigDecimal(totalAlive / (double) totalValidMatches).multiply(new BigDecimal(100)).setScale(0, BigDecimal.ROUND_HALF_UP).toPlainString();
-                    survivalRate.set(aliveRatio + "%");
-                }
-                List<Map.Entry<String, Integer>> favMechSorted = sortByValue(mechsSeen);
-                List<Map.Entry<String, Integer>> bestMechSorted = sortByValue(mechAvgScores);
-                favMechs.set(appendTopEntries(favMechSorted, 5));
-                bestMechs.set(appendTopEntries(bestMechSorted, 5));
-                //TODO:assists
-                timesSeen.set(matchRecords.size() + "(" + totalValidMatches + ")");
-            });
-        }
-
-        public String getFavMechs() {
-            return favMechs.get();
-        }
-
-        public SimpleStringProperty favMechsProperty() {
-            return favMechs;
-        }
-
-        public String getBestMechs() {
-            return bestMechs.get();
-        }
-
-        public SimpleStringProperty bestMechsProperty() {
-            return bestMechs;
-        }
-
-        public String getTimesSeen() {
-            return timesSeen.get();
-        }
-
-        public SimpleStringProperty timesSeenProperty() {
-            return timesSeen;
-        }
-
-        public String getAvgDamage() {
-            return avgDamage.get();
-        }
-
-        public SimpleStringProperty avgDamageProperty() {
-            return avgDamage;
-        }
-
-        public String getAvgScore() {
-            return avgScore.get();
-        }
-
-        public SimpleStringProperty avgScoreProperty() {
-            return avgScore;
-        }
-
-        public String getAvgKills() {
-            return avgKills.get();
-        }
-
-        public SimpleStringProperty avgKillsProperty() {
-            return avgKills;
-        }
-
-        public String getSurvivalRate() {
-            return survivalRate.get();
-        }
-
-        public SimpleStringProperty survivalRateProperty() {
-            return survivalRate;
-        }
-
-        private String appendTopEntries(List<Map.Entry<String, Integer>> list, int max) {
-            StringBuilder ret = new StringBuilder();
-            for (int i = 0; i < Math.min(list.size(), max); i++) {
-                if (ret.length() > 0) {
-                    ret.append(", ");
-                }
-                ret.append(list.get(i).getKey()).append("[").append(list.get(i).getValue()).append("]");
             }
-            return ret.toString();
-        }
-
-        private List<Map.Entry<String, Integer>> sortByValue(Map<String, Integer> map) {
-            List<Map.Entry<String, Integer>> ret = new ArrayList<>(map.size());
-            ret.addAll(map.entrySet());
-            Collections.sort(ret, (o1, o2) -> {
-                int c = o2.getValue().compareTo(o1.getValue());
-                if (c == 0) {
-                    c = o2.getKey().compareTo(o1.getKey());
+            Map<String, Integer> mechAvgScores = new HashMap();
+            for (Map.Entry<String, List<Integer>> e : mechScores.entrySet()) {
+                double totalMechScore = 0;
+                for (Integer s : e.getValue()) {
+                    totalMechScore += s;
                 }
-                return c;
-            });
-            return ret;
-        }
+                double davgScore = totalMechScore / (double) e.getValue().size();
+                mechAvgScores.put(e.getKey(), (int) davgScore);
+            }
+            if (totalValidMatches > 0) {
+                avgDamage.set("" + (totalDamage / totalValidMatches));
+                avgScore.set("" + (totalScore / totalValidMatches));
+                String assists = new BigDecimal(totalAssists / (double) totalValidMatches).setScale(1, BigDecimal.ROUND_HALF_UP).toPlainString();
+                String kills = new BigDecimal(totalKills / (double) totalValidMatches).setScale(1, BigDecimal.ROUND_HALF_UP).toPlainString();
+                avgKills.set(kills);
+                avgAssists.set(assists);
+                String aliveRatio = new BigDecimal(totalAlive / (double) totalValidMatches).multiply(new BigDecimal(100)).setScale(0, BigDecimal.ROUND_HALF_UP).toPlainString();
+                survivalRate.set(aliveRatio + "%");
+            }
+            List<Map.Entry<String, Integer>> favMechSorted = sortByValue(mechsSeen);
+            List<Map.Entry<String, Integer>> bestMechSorted = sortByValue(mechAvgScores);
+            favMechs.set(appendTopEntries(favMechSorted, 5));
+            bestMechs.set(appendTopEntries(bestMechSorted, 5));
+            timesSeen.set("" + matchRecords.size());
+            timesFinished.set("" + totalValidMatches);
+        });
     }
 }

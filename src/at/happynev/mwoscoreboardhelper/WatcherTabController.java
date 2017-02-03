@@ -6,12 +6,13 @@ import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
+import javafx.beans.binding.StringExpression;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.effect.Bloom;
 import javafx.scene.input.MouseButton;
@@ -20,13 +21,13 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 import java.io.File;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Created by Nev on 15.01.2017.
@@ -44,6 +45,7 @@ public class WatcherTabController {
     private final static Color flashGreen = Color.GREENYELLOW;
     private static final Insets PLAYER_INSETS = new Insets(0, 10, 0, 10);
     private static final Insets DATA_INSETS = new Insets(2, 5, 2, 5);
+    private static final ColumnConstraints GRIDCOLUMNSIZE = new ColumnConstraints(0, 0, Double.MAX_VALUE, Priority.NEVER, HPos.LEFT, true);
     private static WatcherTabController instance;
     private final SimpleObjectProperty<Color> backgroundColor = new SimpleObjectProperty<>(defaultBackground);
     private final Map<Integer, Label> preliminaryPlayerInfo = new HashMap<>(24);
@@ -67,6 +69,8 @@ public class WatcherTabController {
     Pane paneWatcherTab;
     @FXML
     Pane paneMatchAnalytics;
+    @FXML
+    Pane panePlayerdata;
     Timeline watcher = null;
     private int playersFinished = 0;
     private boolean isProcessing = false;
@@ -82,6 +86,13 @@ public class WatcherTabController {
             instance = new WatcherTabController();
         }
         return instance;
+    }
+
+    private static ColumnConstraints getColumnConstraint(Label label) {
+        Text measure = new Text(label.getText());
+        double prefWidth = measure.getLayoutBounds().getWidth();
+        ColumnConstraints c = new ColumnConstraints(prefWidth, prefWidth, Double.MAX_VALUE, Priority.SOMETIMES, HPos.LEFT, true);
+        return c;
     }
 
     public void stopWatching() {
@@ -130,6 +141,8 @@ public class WatcherTabController {
         alreadyProcessed = getProcessedFiles();
         //set changelisteners
         SettingsTabController.getInstance().getTextPollingInterval().textProperty().addListener((observable, oldValue, newValue) -> startWatcher(newValue));
+        //paneMyTeam.maxWidthProperty().bind(panePlayerdata.widthProperty());
+        //paneEnemyTeam.maxWidthProperty().bind(panePlayerdata.widthProperty());
     }
 
     private void startWatcher(String newValue) {
@@ -188,8 +201,8 @@ public class WatcherTabController {
         paneWatcherTab.setDisable(false);
         if (results.isValid()) {
             playersFinished = 0;
-            cleanGrid(paneMyTeam);
-            cleanGrid(paneEnemyTeam);
+            prepareGrid(paneMyTeam);
+            prepareGrid(paneEnemyTeam);
             this.currentMatch = results;
             labelMap.textProperty().bind(results.mapProperty());
             labelGamemode.textProperty().bind(results.gameModeProperty());
@@ -200,9 +213,9 @@ public class WatcherTabController {
                 applyPlayerFormat(preliminaryInfo, null);
                 preliminaryInfo.textProperty().bind(results.getPreliminaryInfo().get(i));
                 if (i < 12) {
-                    paneMyTeam.add(preliminaryInfo, 1, 1 + i);
+                    paneMyTeam.add(preliminaryInfo, 0, 1 + i);
                 } else {
-                    paneEnemyTeam.add(preliminaryInfo, 1, 1 + i % 12);
+                    paneEnemyTeam.add(preliminaryInfo, 0, 1 + i % 12);
                 }
             }
             results.getPlayersTeam().addListener((ListChangeListener<? super PlayerRuntime>) c -> {
@@ -222,15 +235,34 @@ public class WatcherTabController {
             flashBackground(flashGreen, 1500);
         } else {
             flashBackground(flashRed, 2000);
-            isProcessing=false;
+            isProcessing = false;
             //clean?
             //textMatchName.textProperty().unbind();
         }
     }
 
-    private void cleanGrid(GridPane grid) {
-        List<Node> nodesToDelete = grid.getChildren().stream().filter(n -> GridPane.getRowIndex(n) != null && GridPane.getRowIndex(n) > 0 || preliminaryPlayerInfo.containsValue(n)).collect(Collectors.toList());
-        nodesToDelete.stream().forEach(node -> grid.getChildren().remove(node));
+    private void prepareGrid(GridPane grid) {
+        grid.getChildren().clear();
+        grid.getColumnConstraints().clear();
+        PlayerRuntime pr = PlayerRuntime.getReferencePlayer();
+        int col = 0;
+        Label labelUnit = applyHeaderFormat(new Label("Unit"));
+        grid.getColumnConstraints().add(getColumnConstraint(labelUnit));
+        grid.add(labelUnit, col++, 0);
+
+        Label labelPilotname = applyHeaderFormat(new Label("Pilot Name"));
+        grid.getColumnConstraints().add(getColumnConstraint(labelPilotname));
+        grid.add(labelPilotname, col++, 0);
+
+        Label labelShortnote = applyHeaderFormat(new Label("Short Note"));
+        grid.getColumnConstraints().add(getColumnConstraint(labelShortnote));
+        grid.add(labelShortnote, col++, 0);
+
+        for (Stat key : pr.getCalculatedValues().keySet()) {
+            Label label = applyHeaderFormat(new Label(key.toString()));
+            grid.getColumnConstraints().add(getColumnConstraint(label));
+            grid.add(label, col++, 0);
+        }
         preliminaryPlayerInfo.clear();
         paneMatchAnalytics.getChildren().clear();
     }
@@ -243,39 +275,35 @@ public class WatcherTabController {
             int row = pr.getPlayerNumber() % 12;
             row++;//account for header
 
-            //parent.getChildren().add(playerLine);
             Label labelUnit = new Label();
             Label labelName = new Label();
             TextField textShortNote = new TextField();
-            Label labelSeen = new Label();
-            Label labelDamage = new Label();
-            Label labelSurvival = new Label();
-            Label labelMechs = new Label();
             applyPlayerFormat(labelUnit, pr);
             applyPlayerFormat(labelName, pr);
             applyPlayerFormat(textShortNote, pr);
-            applyPlayerFormat(labelSeen, pr);
-            applyPlayerFormat(labelDamage, pr);
-            applyPlayerFormat(labelSurvival, pr);
-            applyPlayerFormat(labelMechs, pr);
             labelName.effectProperty().bind(Bindings.when(labelName.hoverProperty()).then(new Bloom(0)).otherwise((Bloom) null));
             labelName.setTooltip(new Tooltip("Double-click to jump to player tab"));
             labelName.setOnMouseClicked(event -> clickPlayer(event, pr));
             labelUnit.textProperty().bind(pr.unitProperty());
             labelName.textProperty().bind(pr.pilotnameProperty());
             textShortNote.textProperty().bindBidirectional(pr.shortnoteProperty());
-            labelSeen.textProperty().bind(pr.getCalculatedValues().timesSeenProperty());
-            labelDamage.textProperty().bind(Bindings.concat(pr.getCalculatedValues().avgDamageProperty()));
-            labelSurvival.textProperty().bind(pr.getCalculatedValues().survivalRateProperty());
-            //labelMechs.textProperty().bind(Bindings.concat(pr.getCalculatedValues().favMechsProperty(), "\n", pr.getCalculatedValues().bestMechsProperty()));
-            labelMechs.textProperty().bind(pr.getCalculatedValues().favMechsProperty());
-            parent.add(labelUnit, 0, row);
-            parent.add(labelName, 1, row);
-            parent.add(textShortNote, 2, row);
-            parent.add(labelSeen, 3, row);
-            parent.add(labelDamage, 4, row);
-            parent.add(labelSurvival, 5, row);
-            parent.add(labelMechs, 6, row);
+            int col = 0;
+            parent.add(labelUnit, col++, row);
+            parent.add(labelName, col++, row);
+            parent.add(textShortNote, col++, row);
+            for (Stat key : pr.getCalculatedValues().keySet()) {
+                StringExpression value = pr.getCalculatedValues().get(key);
+                Label l = new Label();
+                applyPlayerFormat(l, pr);
+                l.textProperty().bind(value);
+                ColumnConstraints tmp = getColumnConstraint(l);
+                ColumnConstraints cc = parent.getColumnConstraints().get(col);
+                if (cc.getPrefWidth() < tmp.getPrefWidth()) {
+                    cc.setPrefWidth(tmp.getPrefWidth());
+                }
+                parent.add(l, col++, row);
+            }
+
             playersFinished++;
         } catch (Exception e) {
             Logger.error(e);
@@ -425,7 +453,17 @@ public class WatcherTabController {
         grid.add(labelTotal, 3, row);
     }
 
-    private void applyPlayerFormat(Control node, PlayerRuntime pr) {
+    private Label applyHeaderFormat(Label node) {
+        Font fontHeader = Font.font("System", FontWeight.BOLD, 22);
+        node.setFont(fontHeader);
+        node.setTextFill(Color.WHITE);
+        node.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
+        GridPane.setFillWidth(node, true);
+        node.setMaxWidth(Double.MAX_VALUE);
+        return node;
+    }
+
+    private Control applyPlayerFormat(Control node, PlayerRuntime pr) {
         SimpleObjectProperty<Color> frontColor = new SimpleObjectProperty<>(Color.WHITE);
         SimpleObjectProperty<Color> backColor = new SimpleObjectProperty<>(Color.BLACK);
         if (pr != null) {
@@ -451,6 +489,7 @@ public class WatcherTabController {
             tnode.styleProperty().bind(textBinding);
             tnode.setFont(new Font(18));
         }
+        return node;
     }
 
     private void flashBackground(Color flashTo, int duration) {

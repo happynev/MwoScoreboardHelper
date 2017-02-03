@@ -119,7 +119,7 @@ public class PlayerTabController {
             return new SimpleStringProperty(value);
         });
         colPlayerSeen.setCellValueFactory(param -> {
-            return param.getValue().getCalculatedValues().timesSeenProperty();
+            return param.getValue().getCalculatedValues().get(Stat.TIMESSEEN);
         });
         colPlayerUnit.prefWidthProperty().bind(tablePlayers.widthProperty().multiply(0.2));
         colPlayerName.prefWidthProperty().bind(tablePlayers.widthProperty().multiply(0.50));

@@ -34,193 +34,115 @@
       </HBox>
       <HBox VBox.vgrow="ALWAYS">
          <children>
-            <VBox spacing="5.0" HBox.hgrow="ALWAYS" VBox.vgrow="SOMETIMES">
+            <VBox fx:id="panePlayerdata" spacing="5.0" HBox.hgrow="ALWAYS" VBox.vgrow="SOMETIMES">
                <children>
                   <Label style="-fx-text-fill: #0E8DFE;" text="Your Team" VBox.vgrow="NEVER">
                      <font>
                         <Font name="System Bold" size="45.0" />
                      </font>
                   </Label>
-                  <GridPane fx:id="paneMyTeam" maxWidth="1.7976931348623157E308" VBox.vgrow="SOMETIMES">
-                     <rowConstraints>
-                        <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                        <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                        <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                        <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                        <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                        <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                        <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                        <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                        <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                        <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                        <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                        <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                        <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                        <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
-                     </rowConstraints>
-                     <columnConstraints>
-                        <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                        <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
-                        <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
-                        <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-                     </columnConstraints>
-                     <children>
-                        <Label style="-fx-text-fill: #FFFFFF;" text="Unit" GridPane.columnIndex="0">
-                           <font>
-                              <Font size="20.0" />
-                           </font>
-                           <padding>
-                              <Insets left="10.0" right="10.0" />
-                           </padding>
-                        </Label>
-                        <Label style="-fx-text-fill: #FFFFFF;" text="Favourite Mechs" GridPane.columnIndex="6">
-                           <font>
-                              <Font size="20.0" />
-                           </font>
-                           <padding>
-                           <Insets left="10.0" right="10.0" />
-                        </padding>
-                        </Label>
-                        <Label layoutX="52.0" layoutY="10.0" style="-fx-text-fill: #FFFFFF;" text="Survival Rate" GridPane.columnIndex="5">
-                           <font>
-                              <Font size="20.0" />
-                           </font>
-                           <padding>
-                           <Insets left="10.0" right="10.0" />
-                        </padding>
-                        </Label>
-                        <Label layoutX="10.0" layoutY="10.0" style="-fx-text-fill: #FFFFFF;" text="Avg. Damage" GridPane.columnIndex="4">
-                           <font>
-                              <Font size="20.0" />
-                           </font>
-                           <padding>
-                           <Insets left="10.0" right="10.0" />
-                        </padding>
-                        </Label>
-                        <Label layoutX="10.0" layoutY="10.0" style="-fx-text-fill: #FFFFFF;" text="# Seen" GridPane.columnIndex="3">
-                           <font>
-                              <Font size="20.0" />
-                           </font>
-                           <padding>
-                           <Insets left="10.0" right="10.0" />
-                        </padding>
-                        </Label>
-                        <Label layoutX="10.0" layoutY="10.0" style="-fx-text-fill: #FFFFFF;" text="Pilot Name" GridPane.columnIndex="1">
-                           <font>
-                              <Font size="20.0" />
-                           </font>
-                           <padding>
-                           <Insets left="10.0" right="10.0" />
-                        </padding>
-                        </Label>
-                        <Label layoutX="52.0" layoutY="10.0" style="-fx-text-fill: #FFFFFF;" text="Note" GridPane.columnIndex="2">
-                           <font>
-                              <Font size="20.0" />
-                           </font>
-                           <padding>
-                           <Insets left="10.0" right="10.0" />
-                        </padding>
-                        </Label>
-                     </children>
-                     <padding>
-                        <Insets left="20.0" />
-                     </padding>
+                  <GridPane fx:id="paneMyTeam" VBox.vgrow="SOMETIMES">
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
                   </GridPane>
                   <Label layoutX="10.0" layoutY="10.0" style="-fx-text-fill: #D30000;" text="Your Enemy" VBox.vgrow="NEVER">
                      <font>
                         <Font name="System Bold" size="45.0" />
                      </font>
                   </Label>
-                  <GridPane fx:id="paneEnemyTeam" layoutX="10.0" layoutY="81.0" maxWidth="1.7976931348623157E308" VBox.vgrow="SOMETIMES">
-                     <children>
-                        <Label style="-fx-text-fill: #FFFFFF;" text="Unit" GridPane.columnIndex="0">
-                           <font>
-                              <Font size="20.0" />
-                           </font>
-                           <padding>
-                           <Insets left="10.0" right="10.0" />
-                        </padding>
-                        </Label>
-                        <Label style="-fx-text-fill: #FFFFFF;" text="Favourite Mechs" GridPane.columnIndex="6">
-                           <font>
-                              <Font size="20.0" />
-                           </font>
-                           <padding>
-                           <Insets left="10.0" right="10.0" />
-                        </padding>
-                        </Label>
-                        <Label layoutX="52.0" layoutY="10.0" style="-fx-text-fill: #FFFFFF;" text="Survival Rate" GridPane.columnIndex="5">
-                           <font>
-                              <Font size="20.0" />
-                           </font>
-                           <padding>
-                           <Insets left="10.0" right="10.0" />
-                        </padding>
-                        </Label>
-                        <Label layoutX="10.0" layoutY="10.0" style="-fx-text-fill: #FFFFFF;" text="Avg. Damage" GridPane.columnIndex="4">
-                           <font>
-                              <Font size="20.0" />
-                           </font>
-                           <padding>
-                           <Insets left="10.0" right="10.0" />
-                        </padding>
-                        </Label>
-                        <Label layoutX="10.0" layoutY="10.0" style="-fx-text-fill: #FFFFFF;" text="# Seen" GridPane.columnIndex="3">
-                           <font>
-                              <Font size="20.0" />
-                           </font>
-                           <padding>
-                           <Insets left="10.0" right="10.0" />
-                        </padding>
-                        </Label>
-                        <Label layoutX="10.0" layoutY="10.0" style="-fx-text-fill: #FFFFFF;" text="Pilot Name" GridPane.columnIndex="1">
-                           <font>
-                              <Font size="20.0" />
-                           </font>
-                           <padding>
-                           <Insets left="10.0" right="10.0" />
-                        </padding>
-                        </Label>
-                        <Label layoutX="52.0" layoutY="10.0" style="-fx-text-fill: #FFFFFF;" text="Note" GridPane.columnIndex="2">
-                           <font>
-                              <Font size="20.0" />
-                           </font>
-                           <padding>
-                           <Insets left="10.0" right="10.0" />
-                        </padding>
-                        </Label>
-                     </children>
+                  <GridPane fx:id="paneEnemyTeam" layoutX="10.0" layoutY="81.0" VBox.vgrow="SOMETIMES">
                      <columnConstraints>
-                        <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                        <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
-                        <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
-                        <ColumnConstraints hgrow="NEVER" minWidth="10.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                         <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                         <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                         <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                         <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                         <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                         <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                         <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                         <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                         <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                         <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                         <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                         <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                         <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                         <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                         <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                         <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                         <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                         <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                         <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                         <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                         <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                         <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                         <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                         <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                         <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                         <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                         <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                         <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                         <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
                      </columnConstraints>
                      <rowConstraints>
-                        <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                        <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                        <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                        <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                        <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                        <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                        <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                        <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                        <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                        <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                        <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                        <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                        <RowConstraints minHeight="10.0" vgrow="NEVER" />
-                        <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
                      </rowConstraints>
-                     <padding>
-                        <Insets left="20.0" />
-                     </padding>
                   </GridPane>
                </children>
             </VBox>
