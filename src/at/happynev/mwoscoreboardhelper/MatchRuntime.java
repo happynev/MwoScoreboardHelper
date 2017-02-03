@@ -65,7 +65,8 @@ public class MatchRuntime {
     private long timestamp = 0;
     private boolean valid = false;
 
-    public MatchRuntime() {
+    public MatchRuntime(ScreenshotType _type) {
+        type = _type;
         id = -1;
         map.set("SAMPLE MAP");
         server.set("welcome to the test server");
@@ -76,7 +77,7 @@ public class MatchRuntime {
         reward_cbills.set("500000");
         reward_xp.set("5000");
         matchResult.set("VICTORY");
-        matchFinished = true;
+        matchFinished = ScreenshotType.QP_3SUMMARY == type;
         valid = true;
         PlayerRuntime pr = PlayerRuntime.getReferencePlayer();
         playersTeam.add(pr);
@@ -290,8 +291,8 @@ public class MatchRuntime {
         }
     }
 
-    public static MatchRuntime getReferenceMatch() {
-        return new MatchRuntime();
+    public static MatchRuntime getReferenceMatch(ScreenshotType type) {
+        return new MatchRuntime(type);
     }
 
     private static int calculateSimilarity(MatchRuntime match1, MatchRuntime match2) {
@@ -341,13 +342,7 @@ public class MatchRuntime {
     }
 
     public List<Stat> getStatsToDisplay() {
-        List<Stat> ret = new ArrayList<>();
-        ret.addAll(Arrays.asList((Stat[]) PlayerStat.class.getEnumConstants()));
-        if (type == ScreenshotType.QP_3SUMMARY) {
-            ret.addAll(Arrays.asList((Stat[]) MatchStat.class.getEnumConstants()));
-        }
-        //TODO: check settings
-        return ret;
+        return SettingsTabController.getInstance().getStatsToDisplay(type);
     }
 
     private void startBindingWatchDog(ObservableValue<Boolean> binding, int interval, int timeout) {

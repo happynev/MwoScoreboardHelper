@@ -198,9 +198,15 @@ public class PlayerRuntime {
         textShortNote.textProperty().bindBidirectional(shortnote);
         textShortNote.setTooltip(noteTooltip);
         int col = 0;
-        parent.add(labelUnit, col++, row);
-        parent.add(labelName, col++, row);
-        parent.add(textShortNote, col++, row);
+        if (SettingsTabController.getInstance().getLayoutShowUnit()) {
+            parent.add(labelUnit, col++, row);
+        }
+        if (SettingsTabController.getInstance().getLayoutShowName()) {
+            parent.add(labelName, col++, row);
+        }
+        if (SettingsTabController.getInstance().getLayoutShowNote()) {
+            parent.add(textShortNote, col++, row);
+        }
 
         for (Stat key : currentMatch.getStatsToDisplay()) {
             StringExpression value = null;

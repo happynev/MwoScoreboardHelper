@@ -1,5 +1,6 @@
 package at.happynev.mwoscoreboardhelper;
 
+import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
 import at.happynev.mwoscoreboardhelper.tracer.TraceHelpers;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.SimpleObjectProperty;
@@ -15,7 +16,9 @@ import java.io.File;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by Nev on 15.01.2017.
@@ -56,11 +59,19 @@ public class SettingsTabController {
     @FXML
     CheckBox checkShowUnit;
     @FXML
+    CheckBox checkShowName;
+    @FXML
     CheckBox checkShowNote;
     @FXML
-    Pane paneColumnSelection;
+    Pane paneColumnSelectionPrepPlayer;
     @FXML
-    GridPane paneColumnPreview;
+    Pane paneColumnSelectionSummaryMatch;
+    @FXML
+    Pane paneColumnSelectionSummaryPlayer;
+    @FXML
+    GridPane paneColumnPreviewPrep;
+    @FXML
+    GridPane paneColumnPreviewSummary;
     @FXML
     Pane paneMatchDataPreview;
 
@@ -233,6 +244,9 @@ public class SettingsTabController {
         togglePersistentDatabase.selectedProperty().setValue(DbHandler.getInstance().getWriteEnabled());
         pickerPlayerFront.valueProperty().bindBidirectional(playerFrontColor);
         pickerPlayerBack.valueProperty().bindBidirectional(playerBackColor);
+        checkShowUnit.setSelected(Boolean.parseBoolean(loadSetting("layoutShowUnit", "true")));
+        checkShowName.setSelected(Boolean.parseBoolean(loadSetting("layoutShowName", "true")));
+        checkShowNote.setSelected(Boolean.parseBoolean(loadSetting("layoutShowNote", "true")));
         //set actions
         textPollingInterval.textProperty().bind(StringExpression.stringExpression(sliderPollingInterval.valueProperty()));
         buttonSelectScreenshotDir.setOnAction(event -> selectDirectory(textScreenshotDirectory));
@@ -251,6 +265,18 @@ public class SettingsTabController {
         textPollingInterval.textProperty().addListener((observable, oldValue, newValue) -> saveSetting("pollingInterval", newValue));
         checkDeleteScreenshots.selectedProperty().addListener((observable, oldValue, newValue) -> saveSetting("deleteScreenshots", "" + newValue));
         checkAllowPopups.selectedProperty().addListener((observable, oldValue, newValue) -> saveSetting("allowPopups", "" + newValue));
+        checkShowUnit.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            saveSetting("layoutShowUnit", "" + newValue);
+            refreshPreviews();
+        });
+        checkShowName.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            saveSetting("layoutShowName", "" + newValue);
+            refreshPreviews();
+        });
+        checkShowNote.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            saveSetting("layoutShowNote", "" + newValue);
+            refreshPreviews();
+        });
         togglePersistentDatabase.selectedProperty().bindBidirectional(DbHandler.getInstance().writeEnabledProperty());
         playerFrontColor.addListener((observable, oldValue, newValue) -> {
             saveSetting("playerColorFront", Utils.getWebColor(newValue));
@@ -260,7 +286,103 @@ public class SettingsTabController {
             saveSetting("playerColorBack", Utils.getWebColor(newValue));
             PlayerRuntime.getInstance(getPlayername()).refreshDataFromDb();
         });
+        //build dynamic part
+        //Match Prep Playerdata layout
+        for (PlayerStat stat : PlayerStat.class.getEnumConstants()) {
+            String desc = stat.getDescription();
+            String name = stat.toString();
+            String checktitle = name;
+            String checkid = "layout" + ScreenshotType.QP_1PREPARATION + "-" + name;
+            if (!name.equals(desc)) {
+                checktitle = desc + " ('" + name + "')";
+            }
+            CheckBox check = new CheckBox(checktitle);
+            check.setSelected(Boolean.parseBoolean(loadSetting(checkid, "false")));
+            check.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                saveSetting(checkid, "" + newValue);
+                refreshPreviews();
+            });
+            paneColumnSelectionPrepPlayer.getChildren().add(check);
+        }
+        //Match Summary Playerdata layout
+        for (PlayerStat stat : PlayerStat.class.getEnumConstants()) {
+            String desc = stat.getDescription();
+            String name = stat.toString();
+            String checktitle = name;
+            String checkid = "layout" + ScreenshotType.QP_3SUMMARY + "-" + name;
+            if (!name.equals(desc)) {
+                checktitle = desc + " ('" + name + "')";
+            }
+            CheckBox check = new CheckBox(checktitle);
+            check.setSelected(Boolean.parseBoolean(loadSetting(checkid, "false")));
+            check.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                saveSetting(checkid, "" + newValue);
+                refreshPreviews();
+            });
+            paneColumnSelectionSummaryPlayer.getChildren().add(check);
+        }
+        //Match Summary Matchdata layout
+        for (MatchStat stat : MatchStat.class.getEnumConstants()) {
+            String desc = stat.getDescription();
+            String name = stat.toString();
+            String checktitle = name;
+            String checkid = "layout" + ScreenshotType.QP_3SUMMARY + "-" + name;
+            if (!name.equals(desc)) {
+                checktitle = desc + " ('" + name + "')";
+            }
+            CheckBox check = new CheckBox(checktitle);
+            check.setSelected(Boolean.parseBoolean(loadSetting(checkid, "false")));
+            check.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                saveSetting(checkid, "" + newValue);
+                refreshPreviews();
+            });
+            paneColumnSelectionSummaryMatch.getChildren().add(check);
+        }
+        refreshPreviews();
         WatcherTabController.getInstance().setSettingsLoaded(true);
+    }
+
+    private void refreshPreviews() {
+        MatchRuntime matchPrep = MatchRuntime.getReferenceMatch(ScreenshotType.QP_1PREPARATION);
+        MatchRuntime matchSummary = MatchRuntime.getReferenceMatch(ScreenshotType.QP_3SUMMARY);
+        PlayerRuntime player = PlayerRuntime.getReferencePlayer();
+        GuiUtils.prepareGrid(paneColumnPreviewPrep, matchPrep);
+        GuiUtils.prepareGrid(paneColumnPreviewSummary, matchSummary);
+        player.addDataToGrid(paneColumnPreviewPrep, 1, matchPrep);
+        player.addDataToGrid(paneColumnPreviewSummary, 1, matchSummary);
+    }
+
+    public boolean getLayoutShowName() {
+        return checkShowName.isSelected();
+    }
+
+    public boolean getLayoutShowUnit() {
+        return checkShowUnit.isSelected();
+    }
+
+    public boolean getLayoutShowNote() {
+        return checkShowNote.isSelected();
+    }
+
+    public List<Stat> getStatsToDisplay(ScreenshotType type) {
+        List<Stat> ret = new ArrayList<>();
+        if (type == ScreenshotType.QP_3SUMMARY) {
+            for (MatchStat stat : MatchStat.class.getEnumConstants()) {
+                String checkid = "layout" + type + "-" + stat;
+                boolean showStat = Boolean.parseBoolean(loadSetting(checkid, "false"));
+                if (showStat) {
+                    ret.add(stat);
+                }
+            }
+        }
+        for (PlayerStat stat : PlayerStat.class.getEnumConstants()) {
+            String checkid = "layout" + type + "-" + stat;
+            boolean showStat = Boolean.parseBoolean(loadSetting(checkid, "false"));
+            if (showStat) {
+                ret.add(stat);
+            }
+        }
+        return ret;
     }
 
     private int fixMechReferences() {

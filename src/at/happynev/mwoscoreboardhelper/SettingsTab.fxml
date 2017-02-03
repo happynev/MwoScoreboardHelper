@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.text.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
@@ -9,7 +10,6 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 
-
 <ScrollPane hbarPolicy="NEVER" pannable="true" prefViewportHeight="900.0" prefViewportWidth="1500.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="at.happynev.mwoscoreboardhelper.SettingsTabController">
    <content>
       <GridPane hgap="5.0" vgap="5.0">
@@ -18,56 +18,81 @@
             <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
          </columnConstraints>
          <rowConstraints>
-            <RowConstraints minHeight="10.0" vgrow="NEVER" />
-            <RowConstraints minHeight="10.0" vgrow="NEVER" />
-            <RowConstraints minHeight="10.0" vgrow="NEVER" />
-            <RowConstraints minHeight="10.0" vgrow="NEVER" />
-            <RowConstraints minHeight="10.0" vgrow="NEVER" />
-            <RowConstraints minHeight="10.0" vgrow="NEVER" />
-            <RowConstraints minHeight="10.0" vgrow="NEVER" />
-            <RowConstraints minHeight="10.0" vgrow="NEVER" />
-            <RowConstraints minHeight="10.0" vgrow="NEVER" />
-            <RowConstraints minHeight="10.0" vgrow="NEVER" />
-            <RowConstraints minHeight="10.0" vgrow="NEVER" />
-            <RowConstraints minHeight="10.0" vgrow="NEVER" />
-            <RowConstraints minHeight="10.0" vgrow="NEVER" />
+            <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
          </rowConstraints>
          <children>
-            <Label text="Directory to archive match screenshots" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-            <CheckBox fx:id="checkDeleteScreenshots" mnemonicParsing="false" text="Delete Screenshots" GridPane.rowIndex="5" />
-            <Label layoutX="10.0" layoutY="10.0" text="Your own name" GridPane.columnIndex="1" />
-            <TextField fx:id="textPlayerName" promptText="Player Name" />
-            <HBox GridPane.rowIndex="3">
+            <Label text="Directory to archive match screenshots" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+            <CheckBox fx:id="checkDeleteScreenshots" mnemonicParsing="false" text="Delete Screenshots" GridPane.rowIndex="6" />
+            <Label layoutX="10.0" layoutY="10.0" text="Your own name" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <TextField fx:id="textPlayerName" promptText="Player Name" GridPane.rowIndex="1" />
+            <HBox GridPane.rowIndex="4">
                <children>
                   <TextField fx:id="textPostProcessingDirectory" prefColumnCount="50" promptText="Directory" />
                   <Button fx:id="buttonSelectPostProcessingDir" mnemonicParsing="false" text="..." />
                </children>
             </HBox>
-            <HBox layoutX="10.0" layoutY="75.0" GridPane.rowIndex="2">
+            <HBox layoutX="10.0" layoutY="75.0" GridPane.rowIndex="3">
                <children>
                   <TextField fx:id="textScreenshotDirectory" prefColumnCount="50" promptText="Directory" />
                   <Button fx:id="buttonSelectScreenshotDir" mnemonicParsing="false" text="..." />
                </children>
             </HBox>
-            <Label text="Directory to scan for new screenshots" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-            <Label text="Delete screenshots from scan directory after processing (RECOMMENDED)" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-            <HBox layoutX="10.0" layoutY="40.0" GridPane.rowIndex="4">
+            <Label text="Directory to scan for new screenshots" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <Label text="Delete screenshots from scan directory after processing (RECOMMENDED)" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+            <HBox layoutX="10.0" layoutY="40.0" GridPane.rowIndex="5">
                <children>
                   <TextField fx:id="textErrorDirectory" prefColumnCount="50" promptText="Directory" />
                   <Button fx:id="buttonSelectErrorDir" mnemonicParsing="false" text="..." />
                </children>
             </HBox>
-            <Label text="Directory to archive unprocessable screenshots" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-            <Label text="Polling Interval (ms)" GridPane.columnIndex="1" GridPane.rowIndex="6" />
-            <HBox alignment="CENTER" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="6" GridPane.valignment="CENTER">
+            <Label text="Directory to archive unprocessable screenshots" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+            <Label text="Polling Interval (ms)" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+            <HBox alignment="CENTER" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="7" GridPane.valignment="CENTER">
                <children>
                   <TextField fx:id="textPollingInterval" editable="false" prefColumnCount="4" HBox.hgrow="NEVER" />
                   <Slider fx:id="sliderPollingInterval" blockIncrement="100.0" majorTickUnit="100.0" max="5000.0" min="200.0" minorTickCount="0" showTickMarks="true" snapToTicks="true" value="500.0" GridPane.rowIndex="5" HBox.hgrow="SOMETIMES" />
                </children>
             </HBox>
-            <Label text="Data will not be saved if this is disabled. Use for testing" GridPane.columnIndex="1" GridPane.rowIndex="7" />
-            <ToggleButton fx:id="togglePersistentDatabase" mnemonicParsing="false" text="Persistent Database" GridPane.rowIndex="7" />
-            <HBox spacing="20.0" GridPane.rowIndex="1">
+            <Label text="Data will not be saved if this is disabled. Use for testing" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+            <ToggleButton fx:id="togglePersistentDatabase" mnemonicParsing="false" text="Persistent Database" GridPane.rowIndex="8" />
+            <HBox spacing="20.0" GridPane.rowIndex="2">
                <children>
                   <Label maxWidth="1.7976931348623157E308" text="Text" HBox.hgrow="SOMETIMES">
                      <graphic>
@@ -81,15 +106,142 @@
                   </Label>
                </children>
             </HBox>
-            <Label text="Colors to display your own Name" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <HBox GridPane.rowIndex="8">
+            <Label text="Colors to display your own Name" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <HBox GridPane.rowIndex="9">
                <children>
                   <Button fx:id="buttonFixOldData" mnemonicParsing="false" text="Fix old data" GridPane.rowIndex="8" />
                </children>
             </HBox>
-            <Label text="Use this to try find data that can be fixed" GridPane.columnIndex="1" GridPane.rowIndex="8" />
-            <CheckBox fx:id="checkAllowPopups" mnemonicParsing="false" text="allow error popups" GridPane.rowIndex="9" />
-            <Label text="Disable this if you don't want to be interrupted if anything bad happens. You can check the log file afterwards" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="9" />
+            <Label text="Use this to try find data that can be fixed" GridPane.columnIndex="1" GridPane.rowIndex="9" />
+            <CheckBox fx:id="checkAllowPopups" mnemonicParsing="false" text="allow error popups" GridPane.rowIndex="10" />
+            <Label text="Disable this if you don't want to be interrupted if anything bad happens. You can check the log file afterwards" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="10" />
+            <HBox GridPane.rowIndex="13">
+               <children>
+                  <CheckBox fx:id="checkShowUnit" mnemonicParsing="false" selected="true" text="Show Player Unit" />
+                  <CheckBox fx:id="checkShowName" mnemonicParsing="false" selected="true" text="Show Player Name" />
+                  <CheckBox fx:id="checkShowNote" mnemonicParsing="false" selected="true" text="Show Player Notes" />
+               </children>
+            </HBox>
+            <Label text="Basic Player Information" GridPane.columnIndex="1" GridPane.rowIndex="13" />
+            <Label text="Layout Settings" GridPane.rowIndex="12">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+            </Label>
+            <Label text="General Settings">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+            </Label>
+            <Label text="Match Preparation Columns" GridPane.rowIndex="14">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+            </Label>
+            <Label text="Collected Player Data" GridPane.columnIndex="1" GridPane.rowIndex="15" />
+            <Label layoutX="10.0" layoutY="385.0" text="Match Summary Columns" GridPane.rowIndex="16">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+            </Label>
+            <Label text="Match Data" GridPane.columnIndex="1" GridPane.rowIndex="17" />
+            <Label text="Collected Player Data" GridPane.columnIndex="1" GridPane.rowIndex="18" />
+            <Label layoutX="10.0" layoutY="439.0" text="Match Preparation Layout Preview" GridPane.rowIndex="19">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+            </Label>
+            <Label layoutX="10.0" layoutY="515.0" text="Match Summary Layout Preview" GridPane.rowIndex="21">
+               <font>
+                  <Font name="System Bold" size="18.0" />
+               </font>
+            </Label>
+            <VBox fx:id="paneColumnSelectionPrepPlayer" GridPane.rowIndex="15" />
+            <VBox fx:id="paneColumnSelectionSummaryMatch" GridPane.rowIndex="17" />
+            <VBox fx:id="paneColumnSelectionSummaryPlayer" GridPane.rowIndex="18" />
+            <GridPane fx:id="paneColumnPreviewPrep" GridPane.columnSpan="2147483647" GridPane.rowIndex="20">
+              <columnConstraints>
+                 <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                 <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                 <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                 <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                 <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                 <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                 <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                 <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                 <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                 <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                 <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                 <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                 <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                 <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                 <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                 <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                 <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                 <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                 <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                 <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                 <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                 <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                 <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                 <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                 <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                 <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                 <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                 <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                 <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+            </GridPane>
+            <HBox GridPane.columnSpan="2147483647" GridPane.rowIndex="22">
+               <children>
+                  <GridPane fx:id="paneColumnPreviewSummary" layoutX="10.0" layoutY="547.0" HBox.hgrow="SOMETIMES">
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                     </rowConstraints>
+                  </GridPane>
+                  <VBox fx:id="paneMatchDataPreview" spacing="5.0" HBox.hgrow="SOMETIMES">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </VBox>
+               </children>
+            </HBox>
          </children>
       </GridPane>
    </content>

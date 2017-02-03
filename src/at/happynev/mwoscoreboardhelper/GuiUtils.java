@@ -25,23 +25,25 @@ public class GuiUtils {
     public static void prepareGrid(GridPane grid, MatchRuntime match) {
         grid.getChildren().clear();
         grid.getColumnConstraints().clear();
-        PlayerRuntime pr = PlayerRuntime.getReferencePlayer();
         int col = 0;
-        Label labelUnit = applyHeaderFormat(new Label("Unit"));
-        grid.getColumnConstraints().add(getColumnConstraint(labelUnit));
-        labelUnit.setTooltip(new Tooltip(labelUnit.getText()));
-        grid.add(labelUnit, col++, 0);
-
-        Label labelPilotname = applyHeaderFormat(new Label("Pilot Name"));
-        grid.getColumnConstraints().add(getColumnConstraint(labelPilotname));
-        labelPilotname.setTooltip(new Tooltip(labelPilotname.getText()));
-        grid.add(labelPilotname, col++, 0);
-
-        Label labelShortnote = applyHeaderFormat(new Label("Short Note"));
-        grid.getColumnConstraints().add(getColumnConstraint(labelShortnote));
-        labelShortnote.setTooltip(new Tooltip(labelShortnote.getText()));
-        grid.add(labelShortnote, col++, 0);
-
+        if (SettingsTabController.getInstance().getLayoutShowUnit()) {
+            Label labelUnit = applyHeaderFormat(new Label("Unit"));
+            grid.getColumnConstraints().add(getColumnConstraint(labelUnit));
+            labelUnit.setTooltip(new Tooltip(labelUnit.getText()));
+            grid.add(labelUnit, col++, 0);
+        }
+        if (SettingsTabController.getInstance().getLayoutShowName()) {
+            Label labelPilotname = applyHeaderFormat(new Label("Pilot Name"));
+            grid.getColumnConstraints().add(getColumnConstraint(labelPilotname));
+            labelPilotname.setTooltip(new Tooltip(labelPilotname.getText()));
+            grid.add(labelPilotname, col++, 0);
+        }
+        if (SettingsTabController.getInstance().getLayoutShowNote()) {
+            Label labelShortnote = applyHeaderFormat(new Label("Short Note"));
+            grid.getColumnConstraints().add(getColumnConstraint(labelShortnote));
+            labelShortnote.setTooltip(new Tooltip(labelShortnote.getText()));
+            grid.add(labelShortnote, col++, 0);
+        }
         for (Stat key : match.getStatsToDisplay()) {
             Label label = applyHeaderFormat(new Label(key.toString()));
             grid.getColumnConstraints().add(getColumnConstraint(label));
