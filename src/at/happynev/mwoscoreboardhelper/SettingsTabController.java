@@ -59,6 +59,8 @@ public class SettingsTabController {
     Pane paneColumnSelection;
     @FXML
     GridPane paneColumnPreview;
+    @FXML
+    Pane paneMatchDataPreview;
 
     private SimpleObjectProperty<Color> playerBackColor = new SimpleObjectProperty<>(Color.web(DbHandler.getInstance().loadSetting("playerColorBack", "#000000")));
     private SimpleObjectProperty<Color> playerFrontColor = new SimpleObjectProperty<>(Color.web(DbHandler.getInstance().loadSetting("playerColorFront", "#FFFFFF")));

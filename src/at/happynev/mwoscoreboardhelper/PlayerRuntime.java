@@ -58,7 +58,7 @@ public class PlayerRuntime {
         pilotname.set("Mechwarrior12345678901234567890");
         shortnote.set("this is not a real player");
         setupCalculatedValues();
-        matchRecords.add(PlayerMatchRecord.getDummyInstance(false));
+        matchRecords.add(PlayerMatchRecord.getReferenceRecord(false));
     }
 
     public static PlayerRuntime getReferencePlayer() {
@@ -202,7 +202,7 @@ public class PlayerRuntime {
             Label l = new Label();
             applyPlayerFormat(l);
             l.textProperty().bind(value);
-            ColumnConstraints tmp = Utils.getColumnConstraint(l);
+            ColumnConstraints tmp = GuiUtils.getColumnConstraint(l);
             ColumnConstraints cc = parent.getColumnConstraints().get(col);
             if (cc.getPrefWidth() < tmp.getPrefWidth()) {
                 cc.setPrefWidth(tmp.getPrefWidth());

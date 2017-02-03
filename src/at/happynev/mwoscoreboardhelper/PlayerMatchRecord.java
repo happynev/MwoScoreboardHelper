@@ -99,7 +99,7 @@ public class PlayerMatchRecord {
         prep.executeUpdate();
     }
 
-    public static PlayerMatchRecord getDummyInstance(boolean isEnemy) {
+    public static PlayerMatchRecord getReferenceRecord(boolean isEnemy) {
         return new PlayerMatchRecord(isEnemy);
     }
 

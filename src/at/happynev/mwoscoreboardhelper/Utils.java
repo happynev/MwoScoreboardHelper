@@ -62,11 +62,4 @@ public class Utils {
     public static String getWebColor(Color newValue) {
         return newValue.toString().replaceAll("..;?$", "");
     }
-
-    public static ColumnConstraints getColumnConstraint(Label label) {
-        Text measure = new Text(label.getText());
-        double prefWidth = measure.getLayoutBounds().getWidth();
-        ColumnConstraints c = new ColumnConstraints(prefWidth, prefWidth, Double.MAX_VALUE, Priority.SOMETIMES, HPos.LEFT, true);
-        return c;
-    }
 }

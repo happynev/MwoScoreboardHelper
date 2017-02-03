@@ -9,6 +9,13 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.Group;
+import javafx.scene.control.Label;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -26,6 +33,14 @@ import java.util.*;
  * Created by Nev on 15.01.2017.
  */
 public class MatchRuntime {
+    public static final String colorBack = "#A0A0A0";
+    public static final String colorTeam = "#0E8DFE";
+    public static final String styleTeam = "-fx-text-fill: " + colorTeam;// + "; -fx-background-color: " + colorBack + ";";
+    public static final String colorEnemy = "#D30000";
+    public static final String styleEnemy = "-fx-text-fill: " + colorEnemy;// + "; -fx-background-color: " + colorBack + ";";
+    public static final String colorNeutral = "#EDBE34";
+    public static final String styleNeutral = "-fx-text-fill: " + colorNeutral;// + "; -fx-background-color: " + colorBack + ";";
+
     private static final int TRACE_TIMEOUT = 1000 * 30;
     private final SimpleStringProperty matchName = new SimpleStringProperty("");
     private final SimpleStringProperty map = new SimpleStringProperty("");
@@ -50,9 +65,25 @@ public class MatchRuntime {
     private long timestamp = 0;
     private boolean valid = false;
 
+    public MatchRuntime() {
+        map.set("SAMPLE MAP");
+        server.set("welcome to the test server");
+        gameMode.set("SETTINGS ASSAULT");
+        timestamp = System.currentTimeMillis();
+        formattedTimestamp.set(sdf.format(timestamp));
+        battleTime.set("00:00");
+        reward_cbills.set("500000");
+        reward_xp.set("5000");
+        matchResult.set("VICTORY");
+        matchFinished = true;
+        valid = true;
+        PlayerRuntime pr = PlayerRuntime.getReferencePlayer();
+        playersTeam.add(pr);
+        playerRecords.addAll(pr.getMatchRecords());
+    }
+
     public MatchRuntime(final File screenshot, final MatchRuntime previousData) {
         try {
-            final long startProcessing = System.currentTimeMillis();
             timestamp = screenshot.lastModified();
             BufferedImage img = ImageIO.read(screenshot);
             type = ScreenshotType.identifyType(img);
@@ -108,7 +139,7 @@ public class MatchRuntime {
                             } catch (Exception e) {
                                 Logger.error(e);
                                 Logger.log("using dummy match record for " + pi.getPilotName());
-                                prec = PlayerMatchRecord.getDummyInstance(isEnemy);
+                                prec = PlayerMatchRecord.getReferenceRecord(isEnemy);
                             }
                             if (isEnemy) {
                                 playersEnemy.add(pr);
@@ -258,6 +289,10 @@ public class MatchRuntime {
         }
     }
 
+    public static MatchRuntime getReferenceMatch() {
+        return new MatchRuntime();
+    }
+
     private static int calculateSimilarity(MatchRuntime match1, MatchRuntime match2) {
         int score = 0;
         if (match1.getGameMode().equals(match2.getGameMode())) score += 3;
@@ -273,6 +308,35 @@ public class MatchRuntime {
 
     public static MatchRuntime getInstanceFromDb(int id) {
         return new MatchRuntime(id);
+    }
+
+    public static void buildMatchDataLine(GridPane grid, int row, String title, MatchCalculatedValue mc) {
+        Font fontData = Font.font("System", FontWeight.BOLD, 15);
+        Label labelTitle = new Label(title);
+        labelTitle.setFont(fontData);
+        labelTitle.setStyle(styleNeutral);
+        labelTitle.setPadding(PlayerRuntime.DATA_INSETS);
+        //labelTitle.setRotate(45);
+        //
+        Label labelTeam = new Label(mc.teamValue);
+        labelTeam.setFont(fontData);
+        labelTeam.setStyle(styleTeam);
+        labelTeam.setPadding(PlayerRuntime.DATA_INSETS);
+        //
+        Label labelEnemy = new Label(mc.enemyValue);
+        labelEnemy.setFont(fontData);
+        labelEnemy.setStyle(styleEnemy);
+        labelEnemy.setPadding(PlayerRuntime.DATA_INSETS);
+        //
+        Label labelTotal = new Label(mc.totalValue);
+        labelTotal.setFont(fontData);
+        labelTotal.setStyle(styleNeutral);
+        labelTotal.setPadding(PlayerRuntime.DATA_INSETS);
+        //
+        grid.add(labelTitle, 0, row);
+        grid.add(labelTeam, 1, row);
+        grid.add(labelEnemy, 2, row);
+        grid.add(labelTotal, 3, row);
     }
 
     private void startBindingWatchDog(ObservableValue<Boolean> binding, int interval, int timeout) {
@@ -503,5 +567,118 @@ public class MatchRuntime {
 
     public boolean isValid() {
         return valid;
+    }
+
+    public Pane getMatchAnalyticsPane() {
+        Font fontHeader = Font.font("System", FontWeight.BOLD, 20);
+
+        if (matchFinished) {
+            Label labelTeam = new Label("Your Team");
+            labelTeam.setStyle(styleTeam);
+            labelTeam.setFont(fontHeader);
+            labelTeam.setPadding(PlayerRuntime.DATA_INSETS);
+            labelTeam.setRotate(90);
+            //
+            Label labelEnemy = new Label("Your Enemy");
+            labelEnemy.setStyle(styleEnemy);
+            labelEnemy.setFont(fontHeader);
+            labelEnemy.setPadding(PlayerRuntime.DATA_INSETS);
+            labelEnemy.setRotate(90);
+            //
+            Label labelTotal = new Label("Total / Avg");
+            labelTotal.setStyle(styleNeutral);
+            labelTotal.setFont(fontHeader);
+            labelTotal.setPadding(PlayerRuntime.DATA_INSETS);
+            labelTotal.setRotate(90);
+            //
+            Label labelDummy = new Label("");
+            labelDummy.setStyle(styleNeutral);
+            labelDummy.setFont(fontHeader);
+            labelDummy.setPadding(PlayerRuntime.DATA_INSETS);
+            //
+            VBox columnTitles = new VBox();
+            VBox columnTeam = new VBox();
+            VBox columnEnemy = new VBox();
+            VBox columnTotal = new VBox();
+            columnTitles.getChildren().add(labelDummy);
+            columnTeam.getChildren().add(new Group(labelTeam));
+            columnEnemy.getChildren().add(new Group(labelEnemy));
+            columnTotal.getChildren().add(new Group(labelTotal));
+            GridPane grid = new GridPane();
+            int line = 0;
+            grid.add(new Group(labelTeam), 1, 0);
+            grid.add(new Group(labelEnemy), 2, 0);
+            grid.add(new Group(labelTotal), 3, 0);
+            line++;
+            List<PlayerMatchRecord> pmrTeam = new ArrayList<>(12);
+            List<PlayerMatchRecord> pmrEnemy = new ArrayList<>(12);
+            for (PlayerRuntime pr : playersTeam) {
+                PlayerMatchRecord pmr = pr.getMatchRecord(this);
+                if (pmr != null) {
+                    pmrTeam.add(pmr);
+                }
+            }
+            for (PlayerRuntime pr : playersEnemy) {
+                PlayerMatchRecord pmr = pr.getMatchRecord(this);
+                if (pmr != null) {
+                    pmrEnemy.add(pmr);
+                }
+            }
+            MatchCalculatedValue damageDealt = new MatchCalculatedValue() {
+                @Override
+                public void calculate() {
+                    int team = 0;
+                    int enemy = 0;
+                    for (PlayerMatchRecord pmr : pmrTeam) {
+                        team += pmr.getDamage();
+                    }
+                    for (PlayerMatchRecord pmr : pmrEnemy) {
+                        enemy += pmr.getDamage();
+                    }
+                    teamValue = "" + team;
+                    enemyValue = "" + enemy;
+                    totalValue = "" + (team + enemy);
+                }
+            };
+            MatchCalculatedValue score = new MatchCalculatedValue() {
+                @Override
+                public void calculate() {
+                    int team = 0;
+                    int enemy = 0;
+                    for (PlayerMatchRecord pmr : pmrTeam) {
+                        team += pmr.getMatchScore();
+                    }
+                    for (PlayerMatchRecord pmr : pmrEnemy) {
+                        enemy += pmr.getMatchScore();
+                    }
+                    teamValue = "" + team;
+                    enemyValue = "" + enemy;
+                    totalValue = "" + (team + enemy);
+                }
+            };
+            buildMatchDataLine(grid, line++, "Total Score", score);
+            //buildMatchDataLine(grid, line++, "Median Score", score);
+            buildMatchDataLine(grid, line++, "Total Damage", damageDealt);
+            //buildMatchDataLine(grid, line++, "Median Damage", score);
+            //buildMatchDataLine(grid, line++, "Net Weight", score);
+            //buildMatchDataLine(grid, line++, "Avg. Weight", score);
+            //buildMatchDataLine(grid, line++, "Score/Ton", score);
+
+            return grid;
+        } else {
+            return new Pane();
+        }
+    }
+
+    public static abstract class MatchCalculatedValue {
+        String teamValue = "";
+        String enemyValue = "";
+        String totalValue = "";
+
+        public MatchCalculatedValue() {
+            calculate();
+        }
+
+        public abstract void calculate();
     }
 }
