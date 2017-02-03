@@ -6,22 +6,17 @@ import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
-import javafx.beans.binding.StringExpression;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
-import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
-import javafx.scene.control.*;
-import javafx.scene.effect.Bloom;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.control.Label;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 import java.io.File;
@@ -43,9 +38,6 @@ public class WatcherTabController {
     private final static Color defaultBackground = Color.valueOf("404040");
     private final static Color flashRed = Color.MAROON;
     private final static Color flashGreen = Color.GREENYELLOW;
-    private static final Insets PLAYER_INSETS = new Insets(0, 10, 0, 10);
-    private static final Insets DATA_INSETS = new Insets(2, 5, 2, 5);
-    private static final ColumnConstraints GRIDCOLUMNSIZE = new ColumnConstraints(0, 0, Double.MAX_VALUE, Priority.NEVER, HPos.LEFT, true);
     private static WatcherTabController instance;
     private final SimpleObjectProperty<Color> backgroundColor = new SimpleObjectProperty<>(defaultBackground);
     private final Map<Integer, Label> preliminaryPlayerInfo = new HashMap<>(24);
@@ -88,11 +80,38 @@ public class WatcherTabController {
         return instance;
     }
 
-    private static ColumnConstraints getColumnConstraint(Label label) {
-        Text measure = new Text(label.getText());
-        double prefWidth = measure.getLayoutBounds().getWidth();
-        ColumnConstraints c = new ColumnConstraints(prefWidth, prefWidth, Double.MAX_VALUE, Priority.SOMETIMES, HPos.LEFT, true);
-        return c;
+    public static void prepareGrid(GridPane grid) {
+        grid.getChildren().clear();
+        grid.getColumnConstraints().clear();
+        PlayerRuntime pr = PlayerRuntime.getReferencePlayer();
+        int col = 0;
+        Label labelUnit = applyHeaderFormat(new Label("Unit"));
+        grid.getColumnConstraints().add(Utils.getColumnConstraint(labelUnit));
+        grid.add(labelUnit, col++, 0);
+
+        Label labelPilotname = applyHeaderFormat(new Label("Pilot Name"));
+        grid.getColumnConstraints().add(Utils.getColumnConstraint(labelPilotname));
+        grid.add(labelPilotname, col++, 0);
+
+        Label labelShortnote = applyHeaderFormat(new Label("Short Note"));
+        grid.getColumnConstraints().add(Utils.getColumnConstraint(labelShortnote));
+        grid.add(labelShortnote, col++, 0);
+
+        for (Stat key : pr.getCalculatedValues().keySet()) {
+            Label label = applyHeaderFormat(new Label(key.toString()));
+            grid.getColumnConstraints().add(Utils.getColumnConstraint(label));
+            grid.add(label, col++, 0);
+        }
+    }
+
+    private static Label applyHeaderFormat(Label node) {
+        Font fontHeader = Font.font("System", FontWeight.BOLD, 22);
+        node.setFont(fontHeader);
+        node.setTextFill(Color.WHITE);
+        node.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
+        GridPane.setFillWidth(node, true);
+        node.setMaxWidth(Double.MAX_VALUE);
+        return node;
     }
 
     public void stopWatching() {
@@ -201,6 +220,8 @@ public class WatcherTabController {
         paneWatcherTab.setDisable(false);
         if (results.isValid()) {
             playersFinished = 0;
+            preliminaryPlayerInfo.clear();
+            paneMatchAnalytics.getChildren().clear();
             prepareGrid(paneMyTeam);
             prepareGrid(paneEnemyTeam);
             this.currentMatch = results;
@@ -210,12 +231,12 @@ public class WatcherTabController {
             //textMatchName.textProperty().bind(results.matchNameProperty());
             for (int i = 0; i < 24; i++) {
                 Label preliminaryInfo = new Label();
-                applyPlayerFormat(preliminaryInfo, null);
+                PlayerRuntime.getReferencePlayer().applyPlayerFormat(preliminaryInfo);
                 preliminaryInfo.textProperty().bind(results.getPreliminaryInfo().get(i));
                 if (i < 12) {
-                    paneMyTeam.add(preliminaryInfo, 0, 1 + i);
+                    paneMyTeam.add(preliminaryInfo, 0, 1 + i, GridPane.REMAINING, 1);
                 } else {
-                    paneEnemyTeam.add(preliminaryInfo, 0, 1 + i % 12);
+                    paneEnemyTeam.add(preliminaryInfo, 0, 1 + i % 12, GridPane.REMAINING, 1);
                 }
             }
             results.getPlayersTeam().addListener((ListChangeListener<? super PlayerRuntime>) c -> {
@@ -241,32 +262,6 @@ public class WatcherTabController {
         }
     }
 
-    private void prepareGrid(GridPane grid) {
-        grid.getChildren().clear();
-        grid.getColumnConstraints().clear();
-        PlayerRuntime pr = PlayerRuntime.getReferencePlayer();
-        int col = 0;
-        Label labelUnit = applyHeaderFormat(new Label("Unit"));
-        grid.getColumnConstraints().add(getColumnConstraint(labelUnit));
-        grid.add(labelUnit, col++, 0);
-
-        Label labelPilotname = applyHeaderFormat(new Label("Pilot Name"));
-        grid.getColumnConstraints().add(getColumnConstraint(labelPilotname));
-        grid.add(labelPilotname, col++, 0);
-
-        Label labelShortnote = applyHeaderFormat(new Label("Short Note"));
-        grid.getColumnConstraints().add(getColumnConstraint(labelShortnote));
-        grid.add(labelShortnote, col++, 0);
-
-        for (Stat key : pr.getCalculatedValues().keySet()) {
-            Label label = applyHeaderFormat(new Label(key.toString()));
-            grid.getColumnConstraints().add(getColumnConstraint(label));
-            grid.add(label, col++, 0);
-        }
-        preliminaryPlayerInfo.clear();
-        paneMatchAnalytics.getChildren().clear();
-    }
-
     private void buildPlayerGui(PlayerRuntime pr, GridPane parent) {
         try {
             Label preliminaryInfo = preliminaryPlayerInfo.get(pr.getPlayerNumber());
@@ -274,36 +269,7 @@ public class WatcherTabController {
             parent.getChildren().remove(preliminaryInfo);
             int row = pr.getPlayerNumber() % 12;
             row++;//account for header
-
-            Label labelUnit = new Label();
-            Label labelName = new Label();
-            TextField textShortNote = new TextField();
-            applyPlayerFormat(labelUnit, pr);
-            applyPlayerFormat(labelName, pr);
-            applyPlayerFormat(textShortNote, pr);
-            labelName.effectProperty().bind(Bindings.when(labelName.hoverProperty()).then(new Bloom(0)).otherwise((Bloom) null));
-            labelName.setTooltip(new Tooltip("Double-click to jump to player tab"));
-            labelName.setOnMouseClicked(event -> clickPlayer(event, pr));
-            labelUnit.textProperty().bind(pr.unitProperty());
-            labelName.textProperty().bind(pr.pilotnameProperty());
-            textShortNote.textProperty().bindBidirectional(pr.shortnoteProperty());
-            int col = 0;
-            parent.add(labelUnit, col++, row);
-            parent.add(labelName, col++, row);
-            parent.add(textShortNote, col++, row);
-            for (Stat key : pr.getCalculatedValues().keySet()) {
-                StringExpression value = pr.getCalculatedValues().get(key);
-                Label l = new Label();
-                applyPlayerFormat(l, pr);
-                l.textProperty().bind(value);
-                ColumnConstraints tmp = getColumnConstraint(l);
-                ColumnConstraints cc = parent.getColumnConstraints().get(col);
-                if (cc.getPrefWidth() < tmp.getPrefWidth()) {
-                    cc.setPrefWidth(tmp.getPrefWidth());
-                }
-                parent.add(l, col++, row);
-            }
-
+            pr.addPlayerDataToGrid(parent, row);
             playersFinished++;
         } catch (Exception e) {
             Logger.error(e);
@@ -317,12 +283,6 @@ public class WatcherTabController {
         }
     }
 
-    private void clickPlayer(MouseEvent event, PlayerRuntime pr) {
-        if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
-            PlayerTabController.getInstance().selectPlayer(pr);
-        }
-    }
-
     private void buildMatchAnalyticsGui() {
         Font fontHeader = Font.font("System", FontWeight.BOLD, 20);
 
@@ -330,25 +290,25 @@ public class WatcherTabController {
             Label labelTeam = new Label("Your Team");
             labelTeam.setStyle(styleTeam);
             labelTeam.setFont(fontHeader);
-            labelTeam.setPadding(DATA_INSETS);
+            labelTeam.setPadding(PlayerRuntime.DATA_INSETS);
             labelTeam.setRotate(90);
             //
             Label labelEnemy = new Label("Your Enemy");
             labelEnemy.setStyle(styleEnemy);
             labelEnemy.setFont(fontHeader);
-            labelEnemy.setPadding(DATA_INSETS);
+            labelEnemy.setPadding(PlayerRuntime.DATA_INSETS);
             labelEnemy.setRotate(90);
             //
             Label labelTotal = new Label("Total / Avg");
             labelTotal.setStyle(styleNeutral);
             labelTotal.setFont(fontHeader);
-            labelTotal.setPadding(DATA_INSETS);
+            labelTotal.setPadding(PlayerRuntime.DATA_INSETS);
             labelTotal.setRotate(90);
             //
             Label labelDummy = new Label("");
             labelDummy.setStyle(styleNeutral);
             labelDummy.setFont(fontHeader);
-            labelDummy.setPadding(DATA_INSETS);
+            labelDummy.setPadding(PlayerRuntime.DATA_INSETS);
             //
             VBox columnTitles = new VBox();
             VBox columnTeam = new VBox();
@@ -429,67 +389,28 @@ public class WatcherTabController {
         Label labelTitle = new Label(title);
         labelTitle.setFont(fontData);
         labelTitle.setStyle(styleNeutral);
-        labelTitle.setPadding(DATA_INSETS);
+        labelTitle.setPadding(PlayerRuntime.DATA_INSETS);
         //labelTitle.setRotate(45);
         //
         Label labelTeam = new Label(mc.teamValue);
         labelTeam.setFont(fontData);
         labelTeam.setStyle(styleTeam);
-        labelTeam.setPadding(DATA_INSETS);
+        labelTeam.setPadding(PlayerRuntime.DATA_INSETS);
         //
         Label labelEnemy = new Label(mc.enemyValue);
         labelEnemy.setFont(fontData);
         labelEnemy.setStyle(styleEnemy);
-        labelEnemy.setPadding(DATA_INSETS);
+        labelEnemy.setPadding(PlayerRuntime.DATA_INSETS);
         //
         Label labelTotal = new Label(mc.totalValue);
         labelTotal.setFont(fontData);
         labelTotal.setStyle(styleNeutral);
-        labelTotal.setPadding(DATA_INSETS);
+        labelTotal.setPadding(PlayerRuntime.DATA_INSETS);
         //
         grid.add(labelTitle, 0, row);
         grid.add(labelTeam, 1, row);
         grid.add(labelEnemy, 2, row);
         grid.add(labelTotal, 3, row);
-    }
-
-    private Label applyHeaderFormat(Label node) {
-        Font fontHeader = Font.font("System", FontWeight.BOLD, 22);
-        node.setFont(fontHeader);
-        node.setTextFill(Color.WHITE);
-        node.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
-        GridPane.setFillWidth(node, true);
-        node.setMaxWidth(Double.MAX_VALUE);
-        return node;
-    }
-
-    private Control applyPlayerFormat(Control node, PlayerRuntime pr) {
-        SimpleObjectProperty<Color> frontColor = new SimpleObjectProperty<>(Color.WHITE);
-        SimpleObjectProperty<Color> backColor = new SimpleObjectProperty<>(Color.BLACK);
-        if (pr != null) {
-            frontColor.bind(pr.guicolor_frontProperty());
-            backColor.bind(pr.guicolor_backProperty());
-        }
-        ObjectBinding<Background> backBinding = Bindings.createObjectBinding(() -> {
-            BackgroundFill fill = new BackgroundFill(backColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY);
-            return new Background(fill);
-        }, backColor);
-        ObjectBinding<String> textBinding = Bindings.createObjectBinding(() -> "-fx-text-fill:" + Utils.getWebColor(frontColor.get()).replaceAll("0x", "#"), frontColor);
-        node.backgroundProperty().bind(backBinding);
-        GridPane.setFillWidth(node, true);
-        node.setMaxWidth(Double.MAX_VALUE);
-        node.setPadding(PLAYER_INSETS);
-        if (node instanceof Labeled) {
-            Labeled lnode = (Labeled) node;
-            lnode.setFont(new Font(20));
-            lnode.textFillProperty().bind(frontColor);
-        }
-        if (node instanceof TextInputControl) {
-            TextInputControl tnode = (TextInputControl) node;
-            tnode.styleProperty().bind(textBinding);
-            tnode.setFont(new Font(18));
-        }
-        return node;
     }
 
     private void flashBackground(Color flashTo, int duration) {

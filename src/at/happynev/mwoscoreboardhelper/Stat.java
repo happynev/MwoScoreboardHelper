@@ -4,15 +4,15 @@ package at.happynev.mwoscoreboardhelper;
  * Created by Nev on 02.02.2017.
  */
 public enum Stat {
-    FAVMECHS,
-    BESTMECHS,
     TIMESSEEN,
     TIMESFINISHED,
     AVGSCORE,
     AVGDAMAGE,
     SURVIVAL,
     AVGKILLS,
-    AVGASSISTS;
+    AVGASSISTS,
+    FAVMECHS,
+    BESTMECHS;
 
     @Override
     public String toString() {

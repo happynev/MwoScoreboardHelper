@@ -1,8 +1,13 @@
 package at.happynev.mwoscoreboardhelper;
 
+import javafx.geometry.HPos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,5 +61,12 @@ public class Utils {
 
     public static String getWebColor(Color newValue) {
         return newValue.toString().replaceAll("..;?$", "");
+    }
+
+    public static ColumnConstraints getColumnConstraint(Label label) {
+        Text measure = new Text(label.getText());
+        double prefWidth = measure.getLayoutBounds().getWidth();
+        ColumnConstraints c = new ColumnConstraints(prefWidth, prefWidth, Double.MAX_VALUE, Priority.SOMETIMES, HPos.LEFT, true);
+        return c;
     }
 }

@@ -5,6 +5,8 @@ import javafx.beans.binding.StringExpression;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
 
@@ -49,6 +51,14 @@ public class SettingsTabController {
     ColorPicker pickerPlayerFront;
     @FXML
     CheckBox checkAllowPopups;
+    @FXML
+    CheckBox checkShowUnit;
+    @FXML
+    CheckBox checkShowNote;
+    @FXML
+    Pane paneColumnSelection;
+    @FXML
+    GridPane paneColumnPreview;
 
     private SimpleObjectProperty<Color> playerBackColor = new SimpleObjectProperty<>(Color.web(DbHandler.getInstance().loadSetting("playerColorBack", "#000000")));
     private SimpleObjectProperty<Color> playerFrontColor = new SimpleObjectProperty<>(Color.web(DbHandler.getInstance().loadSetting("playerColorFront", "#FFFFFF")));

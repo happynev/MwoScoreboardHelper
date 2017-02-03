@@ -54,13 +54,13 @@ public class PlayerMatchRecord {
     private PlayerMatchRecord(boolean isEnemy) {
         playerId = -1;
         matchId = -1;
-        mech = "";
-        status = "";
-        matchScore = 0;
-        kills = 0;
-        assists = 0;
-        damage = 0;
-        ping = 0;
+        mech = "XXX-1X";
+        status = "DEAD";
+        matchScore = 1000;
+        kills = 10;
+        assists = 10;
+        damage = 1000;
+        ping = 100;
         this.isEnemy = isEnemy;
         timestamp = 0;
     }

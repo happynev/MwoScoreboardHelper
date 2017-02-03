@@ -1,12 +1,21 @@
 package at.happynev.mwoscoreboardhelper;
 
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.ObjectBinding;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
+import javafx.scene.control.*;
+import javafx.scene.effect.Bloom;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
@@ -19,6 +28,8 @@ import java.util.*;
  */
 public class PlayerRuntime {
 
+    static final Insets DATA_INSETS = new Insets(2, 5, 2, 5);
+    private static final Insets PLAYER_INSETS = new Insets(0, 10, 0, 10);
     private static Map<String, PlayerRuntime> playersByName = new HashMap<>();
     private static Map<Integer, PlayerRuntime> playersById = new HashMap<>();
     private final int id;
@@ -43,7 +54,11 @@ public class PlayerRuntime {
 
     private PlayerRuntime() {
         this.id = -1;
+        unit.set("[XXXX]");
+        pilotname.set("Mechwarrior12345678901234567890");
+        shortnote.set("this is not a real player");
         setupCalculatedValues();
+        matchRecords.add(PlayerMatchRecord.getDummyInstance(false));
     }
 
     public static PlayerRuntime getReferencePlayer() {
@@ -130,6 +145,70 @@ public class PlayerRuntime {
             return c;
         });
         return ret;
+    }
+
+    private static void clickPlayer(MouseEvent event, PlayerRuntime pr) {
+        if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
+            PlayerTabController.getInstance().selectPlayer(pr);
+        }
+    }
+
+    public Control applyPlayerFormat(Control node) {
+        SimpleObjectProperty<Color> frontColor = new SimpleObjectProperty<>(Color.WHITE);
+        SimpleObjectProperty<Color> backColor = new SimpleObjectProperty<>(Color.BLACK);
+        frontColor.bind(guicolor_front);
+        backColor.bind(guicolor_back);
+        ObjectBinding<Background> backBinding = Bindings.createObjectBinding(() -> {
+            BackgroundFill fill = new BackgroundFill(backColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY);
+            return new Background(fill);
+        }, backColor);
+        ObjectBinding<String> textBinding = Bindings.createObjectBinding(() -> "-fx-text-fill:" + Utils.getWebColor(frontColor.get()).replaceAll("0x", "#"), frontColor);
+        node.backgroundProperty().bind(backBinding);
+        GridPane.setFillWidth(node, true);
+        node.setMaxWidth(Double.MAX_VALUE);
+        node.setPadding(PLAYER_INSETS);
+        if (node instanceof Labeled) {
+            Labeled lnode = (Labeled) node;
+            lnode.setFont(new Font(20));
+            lnode.textFillProperty().bind(frontColor);
+        }
+        if (node instanceof TextInputControl) {
+            TextInputControl tnode = (TextInputControl) node;
+            tnode.styleProperty().bind(textBinding);
+            tnode.setFont(new Font(18));
+        }
+        return node;
+    }
+
+    public void addPlayerDataToGrid(GridPane parent, int row) {
+        Label labelUnit = new Label();
+        Label labelName = new Label();
+        TextField textShortNote = new TextField();
+        applyPlayerFormat(labelUnit);
+        applyPlayerFormat(labelName);
+        applyPlayerFormat(textShortNote);
+        labelName.effectProperty().bind(Bindings.when(labelName.hoverProperty()).then(new Bloom(0)).otherwise((Bloom) null));
+        labelName.setTooltip(new Tooltip("Double-click to jump to player tab"));
+        labelName.setOnMouseClicked(event -> clickPlayer(event, this));
+        labelUnit.textProperty().bind(unit);
+        labelName.textProperty().bind(pilotname);
+        textShortNote.textProperty().bindBidirectional(shortnote);
+        int col = 0;
+        parent.add(labelUnit, col++, row);
+        parent.add(labelName, col++, row);
+        parent.add(textShortNote, col++, row);
+        for (Stat key : calculatedValues.keySet()) {
+            StringExpression value = calculatedValues.get(key);
+            Label l = new Label();
+            applyPlayerFormat(l);
+            l.textProperty().bind(value);
+            ColumnConstraints tmp = Utils.getColumnConstraint(l);
+            ColumnConstraints cc = parent.getColumnConstraints().get(col);
+            if (cc.getPrefWidth() < tmp.getPrefWidth()) {
+                cc.setPrefWidth(tmp.getPrefWidth());
+            }
+            parent.add(l, col++, row);
+        }
     }
 
     public int mergeInto(PlayerRuntime orig) {
