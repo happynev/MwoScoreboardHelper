@@ -174,8 +174,8 @@ public class SettingsTabController {
     public static void restoreWindowPos(Stage primaryStage) {
         double sceneX = Double.parseDouble(loadSetting("sceneX", "20"));
         double sceneY = Double.parseDouble(loadSetting("sceneY", "20"));
-        double sceneWidth = Double.parseDouble(loadSetting("sceneWidth", "20"));
-        double sceneHeight = Double.parseDouble(loadSetting("sceneHeight", "20"));
+        double sceneWidth = Double.parseDouble(loadSetting("sceneWidth", "1500"));
+        double sceneHeight = Double.parseDouble(loadSetting("sceneHeight", "900"));
         boolean sceneMaximized = Boolean.parseBoolean(loadSetting("sceneMaximized", "false"));
         primaryStage.setX(sceneX);
         primaryStage.setY(sceneY);
@@ -292,6 +292,7 @@ public class SettingsTabController {
     }
 
     public boolean popupsAllowed() {
+        if (checkAllowPopups == null) return true;
         return checkAllowPopups.isSelected();
     }
 

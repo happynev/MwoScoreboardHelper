@@ -66,6 +66,7 @@ public class MatchRuntime {
     private boolean valid = false;
 
     public MatchRuntime() {
+        id = -1;
         map.set("SAMPLE MAP");
         server.set("welcome to the test server");
         gameMode.set("SETTINGS ASSAULT");
@@ -141,13 +142,13 @@ public class MatchRuntime {
                                 Logger.log("using dummy match record for " + pi.getPilotName());
                                 prec = PlayerMatchRecord.getReferenceRecord(isEnemy);
                             }
+                            pr.getMatchRecords().add(prec);
+                            playerRecords.add(prec);
                             if (isEnemy) {
                                 playersEnemy.add(pr);
                             } else {
                                 playersTeam.add(pr);
                             }
-                            pr.getMatchRecords().add(prec);
-                            playerRecords.add(prec);
                             //TODO: just assuming result trace is done by now...
                         } catch (Exception e) {
                             Logger.log("Player info tracer finish trigger, " + pi.getPilotName());
@@ -337,6 +338,16 @@ public class MatchRuntime {
         grid.add(labelTeam, 1, row);
         grid.add(labelEnemy, 2, row);
         grid.add(labelTotal, 3, row);
+    }
+
+    public List<Stat> getStatsToDisplay() {
+        List<Stat> ret = new ArrayList<>();
+        ret.addAll(Arrays.asList((Stat[]) PlayerStat.class.getEnumConstants()));
+        if (type == ScreenshotType.QP_3SUMMARY) {
+            ret.addAll(Arrays.asList((Stat[]) MatchStat.class.getEnumConstants()));
+        }
+        //TODO: check settings
+        return ret;
     }
 
     private void startBindingWatchDog(ObservableValue<Boolean> binding, int interval, int timeout) {
@@ -668,6 +679,15 @@ public class MatchRuntime {
         } else {
             return new Pane();
         }
+    }
+
+    public PlayerMatchRecord getPlayerMatchRecord(PlayerRuntime playerRuntime) {
+        for (PlayerMatchRecord pmr : playerRecords) {
+            if (pmr.getPlayerId() == playerRuntime.getId()) {
+                return pmr;
+            }
+        }
+        return null;
     }
 
     public static abstract class MatchCalculatedValue {

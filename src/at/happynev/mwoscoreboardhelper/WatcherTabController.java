@@ -181,8 +181,8 @@ public class WatcherTabController {
             playersFinished = 0;
             preliminaryPlayerInfo.clear();
             paneMatchAnalytics.getChildren().clear();
-            GuiUtils.prepareGrid(paneMyTeam);
-            GuiUtils.prepareGrid(paneEnemyTeam);
+            GuiUtils.prepareGrid(paneMyTeam, results);
+            GuiUtils.prepareGrid(paneEnemyTeam, results);
             this.currentMatch = results;
             labelMap.textProperty().bind(results.mapProperty());
             labelGamemode.textProperty().bind(results.gameModeProperty());
@@ -228,7 +228,7 @@ public class WatcherTabController {
             parent.getChildren().remove(preliminaryInfo);
             int row = pr.getPlayerNumber() % 12;
             row++;//account for header
-            pr.addPlayerDataToGrid(parent, row);
+            pr.addDataToGrid(parent, row, currentMatch);
             playersFinished++;
         } catch (Exception e) {
             Logger.error(e);

@@ -42,7 +42,7 @@ public class PlayerRuntime {
     private final SimpleStringProperty icon = new SimpleStringProperty("");
     private final SimpleStringProperty shortnote = new SimpleStringProperty("");
     private final ObservableList<PlayerMatchRecord> matchRecords = FXCollections.observableArrayList();
-    private final Map<Stat, StringExpression> calculatedValues = new TreeMap<>();
+    private final Map<PlayerStat, StringExpression> calculatedValues = new TreeMap<>();
     private int playerNumber = -1;
 
     private PlayerRuntime(int id) {
@@ -180,7 +180,8 @@ public class PlayerRuntime {
         return node;
     }
 
-    public void addPlayerDataToGrid(GridPane parent, int row) {
+    public void addDataToGrid(GridPane parent, int row, MatchRuntime currentMatch) {
+        PlayerMatchRecord thisMatchRecord = currentMatch.getPlayerMatchRecord(this);
         Label labelUnit = new Label();
         Label labelName = new Label();
         TextField textShortNote = new TextField();
@@ -192,16 +193,31 @@ public class PlayerRuntime {
         labelName.setOnMouseClicked(event -> clickPlayer(event, this));
         labelUnit.textProperty().bind(unit);
         labelName.textProperty().bind(pilotname);
+        Tooltip noteTooltip = new Tooltip();
+        noteTooltip.textProperty().bind(textShortNote.textProperty());
         textShortNote.textProperty().bindBidirectional(shortnote);
+        textShortNote.setTooltip(noteTooltip);
         int col = 0;
         parent.add(labelUnit, col++, row);
         parent.add(labelName, col++, row);
         parent.add(textShortNote, col++, row);
-        for (Stat key : calculatedValues.keySet()) {
-            StringExpression value = calculatedValues.get(key);
+
+        for (Stat key : currentMatch.getStatsToDisplay()) {
+            StringExpression value = null;
+            if (key instanceof PlayerStat) {
+                value = calculatedValues.get(key);
+            } else if (thisMatchRecord != null && key instanceof MatchStat) {
+                value = thisMatchRecord.getMatchValues().get(key);
+            }
+            if (value == null) {
+                value = new SimpleStringProperty("?");
+            }
             Label l = new Label();
             applyPlayerFormat(l);
             l.textProperty().bind(value);
+            Tooltip tt = new Tooltip();
+            tt.textProperty().bind(value);
+            l.setTooltip(tt);
             ColumnConstraints tmp = GuiUtils.getColumnConstraint(l);
             ColumnConstraints cc = parent.getColumnConstraints().get(col);
             if (cc.getPrefWidth() < tmp.getPrefWidth()) {
@@ -254,7 +270,7 @@ public class PlayerRuntime {
         this.playerNumber = playerNumber;
     }
 
-    public Map<Stat, StringExpression> getCalculatedValues() {
+    public Map<PlayerStat, StringExpression> getCalculatedValues() {
         return calculatedValues;
     }
 
@@ -409,24 +425,26 @@ public class PlayerRuntime {
         final SimpleStringProperty avgKills = new SimpleStringProperty("");
         final SimpleStringProperty avgAssists = new SimpleStringProperty("");
         final SimpleStringProperty survivalRate = new SimpleStringProperty("");
+        final SimpleStringProperty kdr = new SimpleStringProperty("");
 
         calculatedValues.clear();
-        calculatedValues.put(Stat.FAVMECHS, favMechs);
-        calculatedValues.put(Stat.BESTMECHS, bestMechs);
-        calculatedValues.put(Stat.TIMESSEEN, timesSeen);
-        //calculatedValues.put(Stat.TIMESFINISHED, timesFinished);
-        //calculatedValues.put(Stat.AVGDAMAGE, avgDamage);
-        //calculatedValues.put(Stat.AVGSCORE, avgScore);
-        calculatedValues.put(Stat.AVGKILLS, avgKills);
-        calculatedValues.put(Stat.SURVIVAL, survivalRate);
-        calculatedValues.put(Stat.AVGASSISTS, avgAssists);
+        calculatedValues.put(PlayerStat.FAVMECHS, favMechs);
+        calculatedValues.put(PlayerStat.BESTMECHS, bestMechs);
+        calculatedValues.put(PlayerStat.TIMESSEEN, timesSeen);
+        calculatedValues.put(PlayerStat.TIMESFINISHED, timesFinished);
+        calculatedValues.put(PlayerStat.AVGDAMAGE, avgDamage);
+        calculatedValues.put(PlayerStat.AVGSCORE, avgScore);
+        calculatedValues.put(PlayerStat.AVGKILLS, avgKills);
+        calculatedValues.put(PlayerStat.SURVIVAL, survivalRate);
+        calculatedValues.put(PlayerStat.AVGASSISTS, avgAssists);
+        calculatedValues.put(PlayerStat.KDR, kdr);
 
         matchRecords.addListener((ListChangeListener<? super PlayerMatchRecord>) c -> {
             //Utils.log("recalc values for " + pilotname.get());
             int totalDamage = 0;
             int totalScore = 0;
-            double totalAlive = 0;
-            double totalKills = 0;
+            int totalAlive = 0;
+            int totalKills = 0;
             int totalAssists = 0;
             int totalValidMatches = 0;
             Map<String, Integer> mechsSeen = new TreeMap<>();
@@ -467,13 +485,20 @@ public class PlayerRuntime {
                 mechAvgScores.put(e.getKey(), (int) davgScore);
             }
             if (totalValidMatches > 0) {
-                avgDamage.set("" + (totalDamage / totalValidMatches));
-                avgScore.set("" + (totalScore / totalValidMatches));
-                String assists = new BigDecimal(totalAssists / (double) totalValidMatches).setScale(1, BigDecimal.ROUND_HALF_UP).toPlainString();
-                String kills = new BigDecimal(totalKills / (double) totalValidMatches).setScale(1, BigDecimal.ROUND_HALF_UP).toPlainString();
+                avgDamage.set("" + ((double) totalDamage / (double) totalValidMatches));
+                avgScore.set("" + ((double) totalScore / (double) totalValidMatches));
+                String assists = new BigDecimal((double) totalAssists / (double) totalValidMatches).setScale(1, BigDecimal.ROUND_HALF_UP).toPlainString();
+                String kills = new BigDecimal((double) totalKills / (double) totalValidMatches).setScale(1, BigDecimal.ROUND_HALF_UP).toPlainString();
+                int totalDead = totalValidMatches - totalAlive;
+                if (totalDead > 0) {
+                    String kdratio = new BigDecimal((double) totalKills / (double) totalDead).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString();
+                    kdr.set(kdratio);
+                } else {
+                    kdr.set(new BigDecimal(totalKills).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString());
+                }
                 avgKills.set(kills);
                 avgAssists.set(assists);
-                String aliveRatio = new BigDecimal(totalAlive / (double) totalValidMatches).multiply(new BigDecimal(100)).setScale(0, BigDecimal.ROUND_HALF_UP).toPlainString();
+                String aliveRatio = new BigDecimal((double) totalAlive / (double) totalValidMatches).multiply(new BigDecimal(100)).setScale(0, BigDecimal.ROUND_HALF_UP).toPlainString();
                 survivalRate.set(aliveRatio + "%");
             }
             List<Map.Entry<String, Integer>> favMechSorted = sortByValue(mechsSeen);
