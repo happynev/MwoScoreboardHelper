@@ -496,8 +496,10 @@ public class PlayerRuntime {
                 mechAvgScores.put(e.getKey(), (int) davgScore);
             }
             if (totalValidMatches > 0) {
-                avgDamage.set("" + ((double) totalDamage / (double) totalValidMatches));
-                avgScore.set("" + ((double) totalScore / (double) totalValidMatches));
+                int iAvgScore = (int) ((double) totalScore / (double) totalValidMatches);
+                int iTotalDamage = (int) ((double) totalDamage / (double) totalValidMatches);
+                avgDamage.set("" + iTotalDamage);
+                avgScore.set("" + iAvgScore);
                 String assists = new BigDecimal((double) totalAssists / (double) totalValidMatches).setScale(1, BigDecimal.ROUND_HALF_UP).toPlainString();
                 String kills = new BigDecimal((double) totalKills / (double) totalValidMatches).setScale(1, BigDecimal.ROUND_HALF_UP).toPlainString();
                 int totalDead = totalValidMatches - totalAlive;
@@ -511,6 +513,27 @@ public class PlayerRuntime {
                 avgAssists.set(assists);
                 String aliveRatio = new BigDecimal((double) totalAlive / (double) totalValidMatches).multiply(new BigDecimal(100)).setScale(0, BigDecimal.ROUND_HALF_UP).toPlainString();
                 survivalRate.set(aliveRatio + "%");
+                while (c.next()) {
+                    for (PlayerMatchRecord pmr : c.getAddedSubList()) {
+                        if (mechAvgScores.keySet().contains(pmr.getMech())) {
+                            int mechavg = mechAvgScores.get(pmr.getMech());
+                            if (mechavg > 0) {
+                                String mechperf = new BigDecimal((double) pmr.getMatchScore() / (double) mechavg).multiply(new BigDecimal(100)).setScale(0, BigDecimal.ROUND_HALF_UP).toPlainString();
+                                pmr.getMatchValues().put(MatchStat.MATCHMECHPERF, new SimpleStringProperty(mechperf + "%"));
+                            } else {
+                                pmr.getMatchValues().put(MatchStat.MATCHMECHPERF, new SimpleStringProperty("x0%"));
+                            }
+                        } else {
+                            Logger.log("no avg for " + pmr.getMech());
+                        }
+                        if (iAvgScore > 0) {
+                            String perf = new BigDecimal((double) pmr.getMatchScore() / (double) iAvgScore).multiply(new BigDecimal(100)).setScale(0, BigDecimal.ROUND_HALF_UP).toPlainString();
+                            pmr.getMatchValues().put(MatchStat.MATCHPERF, new SimpleStringProperty(perf + "%"));
+                        } else {
+                            pmr.getMatchValues().put(MatchStat.MATCHPERF, new SimpleStringProperty("x%"));
+                        }
+                    }
+                }
             }
             List<Map.Entry<String, Integer>> favMechSorted = sortByValue(mechsSeen);
             List<Map.Entry<String, Integer>> bestMechSorted = sortByValue(mechAvgScores);

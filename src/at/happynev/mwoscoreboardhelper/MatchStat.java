@@ -6,6 +6,8 @@ package at.happynev.mwoscoreboardhelper;
 public enum MatchStat implements Stat {
     MATCHSCORE,
     MATCHDAMAGE,
+    MATCHPERF,
+    MATCHMECHPERF,
     MATCHSTATUS,
     MATCHKILLS,
     MATCHASSISTS,
@@ -32,6 +34,10 @@ public enum MatchStat implements Stat {
                 return "tons";
             case MATCHPING:
                 return "P";
+            case MATCHPERF:
+                return "Score%";
+            case MATCHMECHPERF:
+                return "Mech%";
         }
         return "undefined";
     }
@@ -55,6 +61,9 @@ public enum MatchStat implements Stat {
                 return "tons";
             case MATCHPING:
                 return "Ping";
+            case MATCHPERF:
+                return "Relative score";
+            case MATCHMECHPERF: return "Mech relative Score";
         }
         return "undefined";
     }
