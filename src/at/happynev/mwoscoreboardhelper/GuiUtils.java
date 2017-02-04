@@ -47,7 +47,7 @@ public class GuiUtils {
         for (Stat key : match.getStatsToDisplay()) {
             Label label = applyHeaderFormat(new Label(key.toString()));
             grid.getColumnConstraints().add(getColumnConstraint(label));
-            label.setTooltip(new Tooltip(label.getText()));
+            label.setTooltip(new Tooltip(key.getDescription()));
             grid.add(label, col++, 0);
         }
     }

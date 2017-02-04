@@ -202,6 +202,11 @@ public class PlayerRuntime {
             parent.add(labelUnit, col++, row);
         }
         if (SettingsTabController.getInstance().getLayoutShowName()) {
+            ColumnConstraints tmp = GuiUtils.getColumnConstraint(labelName);
+            ColumnConstraints cc = parent.getColumnConstraints().get(col);
+            if (cc.getMinWidth() < tmp.getPrefWidth()) {
+                cc.setMinWidth(tmp.getPrefWidth());
+            }
             parent.add(labelName, col++, row);
         }
         if (SettingsTabController.getInstance().getLayoutShowNote()) {

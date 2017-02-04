@@ -19,23 +19,23 @@ public enum PlayerStat implements Stat {
     public String toString() {
         switch (this) {
             case FAVMECHS:
-                return "Fav. Mechs[#]";
+                return "Fav. Mechs";
             case BESTMECHS:
                 return "Best Mechs";
             case TIMESSEEN:
-                return "# Seen";
+                return "#Seen";
             case TIMESFINISHED:
-                return "# Stats";
+                return "#Stats";
             case AVGSCORE:
-                return "Avg. Score";
+                return "~Score";
             case AVGDAMAGE:
-                return "Avg. Damage";
+                return "~Dmg";
             case SURVIVAL:
-                return "Survival Rate";
+                return "Survival";
             case AVGKILLS:
-                return "Avg. Kills";
+                return "~K";
             case AVGASSISTS:
-                return "Avg. Assists";
+                return "~A";
             case KDR:
                 return "K/D";
         }
@@ -44,7 +44,29 @@ public enum PlayerStat implements Stat {
 
     @Override
     public String getDescription() {
-        return "desc:" + this.toString();
+        switch (this) {
+            case FAVMECHS:
+                return "Most used Mechs";
+            case BESTMECHS:
+                return "Most effective Mechs";
+            case TIMESSEEN:
+                return "Times encountered";
+            case TIMESFINISHED:
+                return "Number of matches recorded";
+            case AVGSCORE:
+                return "Average. Score";
+            case AVGDAMAGE:
+                return "Average Damage";
+            case SURVIVAL:
+                return "Survival Rate";
+            case AVGKILLS:
+                return "Average Kills";
+            case AVGASSISTS:
+                return "Average Assists";
+            case KDR:
+                return "Kill/Death Ratio";
+        }
+        return "undefined";
     }
 
 }

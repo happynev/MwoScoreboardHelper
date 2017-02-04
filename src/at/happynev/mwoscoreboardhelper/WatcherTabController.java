@@ -238,7 +238,9 @@ public class WatcherTabController {
             //all players traced. ok to proceed with next screenshot
             isProcessing = false;
             Logger.log("Tracing finished");
-            paneMatchAnalytics.getChildren().setAll(currentMatch.getMatchAnalyticsPane());
+            if (SettingsTabController.getInstance().getLayoutShowStatSummary()) {
+                paneMatchAnalytics.getChildren().setAll(currentMatch.getMatchAnalyticsPane());
+            }
         }
     }
 

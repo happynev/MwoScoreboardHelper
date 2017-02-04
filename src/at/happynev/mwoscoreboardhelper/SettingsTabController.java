@@ -74,6 +74,8 @@ public class SettingsTabController {
     GridPane paneColumnPreviewSummary;
     @FXML
     Pane paneMatchDataPreview;
+    @FXML
+    CheckBox checkShowStatSummary;
 
     private SimpleObjectProperty<Color> playerBackColor = new SimpleObjectProperty<>(Color.web(loadSetting("playerColorBack", "#000000")));
     private SimpleObjectProperty<Color> playerFrontColor = new SimpleObjectProperty<>(Color.web(loadSetting("playerColorFront", "#FFFFFF")));
@@ -247,6 +249,7 @@ public class SettingsTabController {
         checkShowUnit.setSelected(Boolean.parseBoolean(loadSetting("layoutShowUnit", "true")));
         checkShowName.setSelected(Boolean.parseBoolean(loadSetting("layoutShowName", "true")));
         checkShowNote.setSelected(Boolean.parseBoolean(loadSetting("layoutShowNote", "true")));
+        checkShowStatSummary.setSelected(Boolean.parseBoolean(loadSetting("layoutShowStatSummary", "true")));
         //set actions
         textPollingInterval.textProperty().bind(StringExpression.stringExpression(sliderPollingInterval.valueProperty()));
         buttonSelectScreenshotDir.setOnAction(event -> selectDirectory(textScreenshotDirectory));
@@ -275,6 +278,10 @@ public class SettingsTabController {
         });
         checkShowNote.selectedProperty().addListener((observable, oldValue, newValue) -> {
             saveSetting("layoutShowNote", "" + newValue);
+            refreshPreviews();
+        });
+        checkShowStatSummary.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            saveSetting("layoutShowStatSummary", "" + newValue);
             refreshPreviews();
         });
         togglePersistentDatabase.selectedProperty().bindBidirectional(DbHandler.getInstance().writeEnabledProperty());
@@ -350,6 +357,14 @@ public class SettingsTabController {
         GuiUtils.prepareGrid(paneColumnPreviewSummary, matchSummary);
         player.addDataToGrid(paneColumnPreviewPrep, 1, matchPrep);
         player.addDataToGrid(paneColumnPreviewSummary, 1, matchSummary);
+        paneMatchDataPreview.getChildren().clear();
+        if (getLayoutShowStatSummary()) {
+            paneMatchDataPreview.getChildren().add(matchSummary.getMatchAnalyticsPane());
+        }
+    }
+
+    public boolean getLayoutShowStatSummary() {
+        return checkShowStatSummary.isSelected();
     }
 
     public boolean getLayoutShowName() {

@@ -50,10 +50,6 @@ public class PlayerMatchRecord {
             matchValues.put(MatchStat.MATCHPING, new SimpleStringProperty("" + ping));
             matchValues.put(MatchStat.MATCHSCORE, new SimpleStringProperty("" + matchScore));
             matchValues.put(MatchStat.MATCHSTATUS, new SimpleStringProperty(status));
-            MechRuntime mr = MechRuntime.getMechByShortName(mech);
-            if (mr != null) {
-                matchValues.put(MatchStat.MATCHTONS, new SimpleStringProperty("" + mr.getTons()));
-            }
         } else {
             throw new Exception("Match Record for " + playerId + "/" + matchId + " not found");
         }
