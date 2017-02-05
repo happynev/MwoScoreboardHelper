@@ -144,6 +144,7 @@
                         <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
                      </rowConstraints>
                   </GridPane>
+                  <Label maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
                </children>
             </VBox>
             <VBox fx:id="paneMatchAnalytics" spacing="5.0" HBox.hgrow="SOMETIMES">

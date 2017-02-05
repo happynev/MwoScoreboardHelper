@@ -105,7 +105,11 @@ public class MatchRuntime {
             }
             SimpleBooleanProperty mapDataFinished = new SimpleBooleanProperty(false);
             initChangeListeners();
-            filename = "Match-" + type + "." + screenshot.getName();
+            if (!screenshot.getName().contains(ScreenshotType.QP_1PREPARATION.toString()) && !screenshot.getName().contains(ScreenshotType.QP_3SUMMARY.toString())) {
+                filename = SettingsTabController.getPlayername() + "-match-" + type + "." + screenshot.getName();
+            } else {
+                filename = screenshot.getName();
+            }
             for (int i = 0; i < 24; i++) {
                 PlayerInfoTracer pi = new PlayerInfoTracer(img, i, off);
                 final int p = i;

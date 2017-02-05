@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
@@ -11,19 +12,32 @@
 
 <VBox xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="at.happynev.mwoscoreboardhelper.SqlTabController">
    <children>
-      <TextArea fx:id="textSql" promptText="Sql Query" VBox.vgrow="SOMETIMES" />
+      <HBox VBox.vgrow="SOMETIMES">
+         <children>
+            <TextArea fx:id="textSql" promptText="Sql Query" HBox.hgrow="ALWAYS" VBox.vgrow="SOMETIMES" />
+            <VBox spacing="5.0">
+               <children>
+                  <Label fx:id="labelTableInfo" alignment="TOP_LEFT" maxHeight="1.7976931348623157E308" text="table info" HBox.hgrow="SOMETIMES" VBox.vgrow="ALWAYS">
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </VBox.margin>
+                  </Label>
+                  <RadioButton fx:id="radioQuery" mnemonicParsing="false" text="Query" VBox.vgrow="NEVER">
+                     <toggleGroup>
+                        <ToggleGroup fx:id="sqlType" />
+                     </toggleGroup>
+                  </RadioButton>
+                  <RadioButton fx:id="radioUpdate" mnemonicParsing="false" text="Update/Insert" toggleGroup="$sqlType" VBox.vgrow="NEVER" />
+                  <Button fx:id="buttonExecuteQuery" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Execute SQL" VBox.vgrow="NEVER" />
+               </children>
+            </VBox>
+         </children>
+      </HBox>
       <HBox VBox.vgrow="NEVER">
          <children>
             <Label fx:id="labelStatus" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
-            <RadioButton fx:id="radioQuery" mnemonicParsing="false" text="Query">
-               <toggleGroup>
-                  <ToggleGroup fx:id="sqlType" />
-               </toggleGroup>
-            </RadioButton>
-            <RadioButton fx:id="radioUpdate" mnemonicParsing="false" text="Update/Insert" toggleGroup="$sqlType" />
-            <Button fx:id="buttonExecuteQuery" mnemonicParsing="false" text="Execute SQL" />
          </children>
       </HBox>
-      <VBox fx:id="paneResult" VBox.vgrow="SOMETIMES" />
+      <VBox fx:id="paneResult" maxHeight="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
    </children>
 </VBox>

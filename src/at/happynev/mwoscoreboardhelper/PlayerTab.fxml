@@ -14,7 +14,7 @@
 
 <HBox spacing="10.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="at.happynev.mwoscoreboardhelper.PlayerTabController">
    <children>
-      <VBox>
+      <VBox HBox.hgrow="NEVER">
          <children>
             <GridPane>
                <columnConstraints>
@@ -33,7 +33,7 @@
             <TableView fx:id="tablePlayers" HBox.hgrow="SOMETIMES" VBox.vgrow="ALWAYS" />
          </children>
       </VBox>
-      <VBox alignment="TOP_CENTER" spacing="20.0" HBox.hgrow="NEVER">
+      <VBox alignment="TOP_CENTER" spacing="20.0" HBox.hgrow="SOMETIMES">
          <children>
             <HBox fx:id="panePlayername" alignment="CENTER" spacing="10.0" GridPane.columnSpan="2147483647" GridPane.valignment="CENTER" VBox.vgrow="SOMETIMES">
                <children>
@@ -106,7 +106,7 @@
             </VBox>
          </children>
       </VBox>
-      <VBox HBox.hgrow="ALWAYS">
+      <VBox HBox.hgrow="SOMETIMES">
          <children>
             <Label text="Statistics" />
             <TableView fx:id="tableStatistics" VBox.vgrow="ALWAYS" />

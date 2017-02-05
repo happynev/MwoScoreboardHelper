@@ -1,15 +1,8 @@
 package at.happynev.mwoscoreboardhelper;
 
-import javafx.geometry.HPos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,6 +18,11 @@ public class Utils {
     public static File getHomeDir() {
         File f = new File(System.getProperty("user.home"), "/.MwoScoreboardHelper");
         if (!f.isDirectory()) f.mkdirs();
+        return f;
+    }
+
+    public static File getInstallDir() {
+        File f = new File(".").getAbsoluteFile();
         return f;
     }
 

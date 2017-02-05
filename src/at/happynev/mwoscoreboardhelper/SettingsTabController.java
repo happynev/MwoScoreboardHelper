@@ -124,7 +124,7 @@ public class SettingsTabController {
             }
             rs.close();
         } catch (SQLException e) {
-            Logger.error(e);
+            Logger.dberror(e);
         }
         return ret;
     }
