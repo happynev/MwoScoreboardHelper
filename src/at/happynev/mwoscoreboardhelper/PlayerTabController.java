@@ -1,6 +1,5 @@
 package at.happynev.mwoscoreboardhelper;
 
-import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
 import at.happynev.mwoscoreboardhelper.tracer.TraceHelpers;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -20,7 +19,6 @@ import javafx.scene.paint.Color;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -111,7 +109,7 @@ public class PlayerTabController {
     private void buildPlayerTable() {
         TableColumn<PlayerRuntime, String> colPlayerName = new TableColumn<>("Pilot Name");
         TableColumn<PlayerRuntime, String> colPlayerUnit = new TableColumn<>("Unit");
-        TableColumn<PlayerRuntime, String> colPlayerSeen = new TableColumn<>("# Seen");
+        TableColumn<PlayerRuntime, Number> colPlayerSeen = new TableColumn<>("# Seen");
         colPlayerName.setCellValueFactory(param -> {
             String value = param.getValue().getPilotname();
             return new SimpleStringProperty(value);
@@ -120,9 +118,7 @@ public class PlayerTabController {
             String value = param.getValue().getUnit();
             return new SimpleStringProperty(value);
         });
-        colPlayerSeen.setCellValueFactory(param -> {
-            return param.getValue().getCalculatedValues().get(PlayerStat.TIMESSEEN);
-        });
+        colPlayerSeen.setCellValueFactory(param -> Bindings.size(param.getValue().getMatchRecords()));
         colPlayerUnit.prefWidthProperty().bind(tablePlayers.widthProperty().multiply(0.2));
         colPlayerName.prefWidthProperty().bind(tablePlayers.widthProperty().multiply(0.50));
         colPlayerSeen.prefWidthProperty().bind(tablePlayers.widthProperty().multiply(0.25));
