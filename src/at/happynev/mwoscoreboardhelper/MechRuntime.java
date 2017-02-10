@@ -72,7 +72,11 @@ public class MechRuntime {
                 return mr;
             }
         }
-        return null;
+        return getReferenceMech();
+    }
+
+    private static MechRuntime getReferenceMech() {
+        return new MechRuntime("-1", "Dummy mech", "Dummy mech", "XXX-1X", "Dummy", 0, 50.0, 0, "None", "", new ArrayList<>());
     }
 
     private static void bulkLoadFromDb() {

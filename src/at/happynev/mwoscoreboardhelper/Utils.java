@@ -8,7 +8,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.channels.FileChannel;
+import java.util.Arrays;
 import java.util.Optional;
 
 /**
@@ -24,6 +26,26 @@ public class Utils {
     public static File getInstallDir() {
         File f = new File(".").getAbsoluteFile();
         return f;
+    }
+
+    public static BigDecimal getMedianValue(BigDecimal[] values) {
+        BigDecimal ret = BigDecimal.ZERO;
+        if (values.length > 0) {
+            for (int i = 0; i < values.length; i++) {
+                //safety padding
+                if (values[i] == null) values[i] = BigDecimal.ZERO;
+            }
+            Arrays.sort(values, (o1, o2) -> o1.compareTo(o2));
+            if (values.length % 2 == 0) {
+                BigDecimal mid1 = values[values.length / 2];
+                BigDecimal mid2 = values[(values.length / 2) + 1];
+                ret = mid1.add(mid2).divide(BigDecimal.valueOf(2));
+            } else {
+                int mid = (values.length + 1) / 2;
+                ret = values[mid];
+            }
+        }
+        return ret;
     }
 
     public static void copyFile(File sourceFile, File destFile) throws IOException {

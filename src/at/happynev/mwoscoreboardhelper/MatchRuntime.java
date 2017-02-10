@@ -22,6 +22,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -650,6 +651,31 @@ public class MatchRuntime {
                     totalValue = "" + (team + enemy);
                 }
             };
+            MatchCalculatedValue medianDamage = new MatchCalculatedValue() {
+                @Override
+                public void calculate() {
+                    BigDecimal[] damageTeam = new BigDecimal[12];
+                    BigDecimal[] damageEnemy = new BigDecimal[12];
+                    BigDecimal[] damageTotal = new BigDecimal[24];
+                    int i = 0;
+                    for (PlayerMatchRecord pmr : pmrTeam) {
+                        BigDecimal dam = new BigDecimal(pmr.getDamage());
+                        damageTeam[i] = dam;
+                        damageTotal[i] = dam;
+                        i++;
+                    }
+                    i = 0;
+                    for (PlayerMatchRecord pmr : pmrEnemy) {
+                        BigDecimal dam = new BigDecimal(pmr.getDamage());
+                        damageEnemy[i] = dam;
+                        damageTotal[i + 12] = dam;
+                        i++;
+                    }
+                    teamValue = "" + Utils.getMedianValue(damageTeam).toPlainString();
+                    enemyValue = "" + Utils.getMedianValue(damageEnemy).toPlainString();
+                    totalValue = "" + Utils.getMedianValue(damageTotal).toPlainString();
+                }
+            };
             MatchCalculatedValue score = new MatchCalculatedValue() {
                 @Override
                 public void calculate() {
@@ -666,13 +692,136 @@ public class MatchRuntime {
                     totalValue = "" + (team + enemy);
                 }
             };
+            MatchCalculatedValue medianScore = new MatchCalculatedValue() {
+                @Override
+                public void calculate() {
+                    BigDecimal[] scoreTeam = new BigDecimal[12];
+                    BigDecimal[] scoreEnemy = new BigDecimal[12];
+                    BigDecimal[] scoreTotal = new BigDecimal[24];
+                    int i = 0;
+                    for (PlayerMatchRecord pmr : pmrTeam) {
+                        BigDecimal dam = new BigDecimal(pmr.getMatchScore());
+                        scoreTeam[i] = dam;
+                        scoreTotal[i] = dam;
+                        i++;
+                    }
+                    i = 0;
+                    for (PlayerMatchRecord pmr : pmrEnemy) {
+                        BigDecimal dam = new BigDecimal(pmr.getMatchScore());
+                        scoreEnemy[i] = dam;
+                        scoreTotal[i + 12] = dam;
+                        i++;
+                    }
+                    teamValue = "" + Utils.getMedianValue(scoreTeam).toPlainString();
+                    enemyValue = "" + Utils.getMedianValue(scoreEnemy).toPlainString();
+                    totalValue = "" + Utils.getMedianValue(scoreTotal).toPlainString();
+                }
+            };
+            MatchCalculatedValue weight = new MatchCalculatedValue() {
+                @Override
+                public void calculate() {
+                    int team = 0;
+                    int enemy = 0;
+                    for (PlayerMatchRecord pmr : pmrTeam) {
+                        MechRuntime mech = MechRuntime.getMechByShortName(pmr.getMech());
+                        team += mech.getTons();
+                    }
+                    for (PlayerMatchRecord pmr : pmrEnemy) {
+                        enemy += MechRuntime.getMechByShortName(pmr.getMech()).getTons();
+                    }
+                    teamValue = team + "";
+                    enemyValue = enemy + "";
+                    totalValue = (team + enemy) + "";
+                }
+            };
+            MatchCalculatedValue scorePerTon = new MatchCalculatedValue() {
+                @Override
+                public void calculate() {
+                    try {
+                        teamValue = new BigDecimal(score.teamValue).divide(new BigDecimal(weight.teamValue), 2, BigDecimal.ROUND_HALF_UP).toPlainString();
+                        enemyValue = new BigDecimal(score.enemyValue).divide(new BigDecimal(weight.enemyValue), 2, BigDecimal.ROUND_HALF_UP).toPlainString();
+                        totalValue = new BigDecimal(score.totalValue).divide(new BigDecimal(weight.totalValue), 2, BigDecimal.ROUND_HALF_UP).toPlainString();
+                    } catch (Exception e) {
+                        teamValue = "0";
+                        enemyValue = "0";
+                        totalValue = "0";
+                    }
+                }
+            };
+            MatchCalculatedValue numLights = new MatchCalculatedValue() {
+                @Override
+                public void calculate() {
+                    int team = 0;
+                    int enemy = 0;
+                    for (PlayerMatchRecord pmr : pmrTeam) {
+                        if ("Light".equals(MechRuntime.getMechByShortName(pmr.getMech()).getWeightClass())) team++;
+                    }
+                    for (PlayerMatchRecord pmr : pmrEnemy) {
+                        if ("Light".equals(MechRuntime.getMechByShortName(pmr.getMech()).getWeightClass())) enemy++;
+                    }
+                    teamValue = team + "";
+                    enemyValue = enemy + "";
+                    totalValue = (team + enemy) + "";
+                }
+            };
+            MatchCalculatedValue numMediums = new MatchCalculatedValue() {
+                @Override
+                public void calculate() {
+                    int team = 0;
+                    int enemy = 0;
+                    for (PlayerMatchRecord pmr : pmrTeam) {
+                        if ("Medium".equals(MechRuntime.getMechByShortName(pmr.getMech()).getWeightClass())) team++;
+                    }
+                    for (PlayerMatchRecord pmr : pmrEnemy) {
+                        if ("Medium".equals(MechRuntime.getMechByShortName(pmr.getMech()).getWeightClass())) enemy++;
+                    }
+                    teamValue = team + "";
+                    enemyValue = enemy + "";
+                    totalValue = (team + enemy) + "";
+                }
+            };
+            MatchCalculatedValue numHeavies = new MatchCalculatedValue() {
+                @Override
+                public void calculate() {
+                    int team = 0;
+                    int enemy = 0;
+                    for (PlayerMatchRecord pmr : pmrTeam) {
+                        if ("Heavy".equals(MechRuntime.getMechByShortName(pmr.getMech()).getWeightClass())) team++;
+                    }
+                    for (PlayerMatchRecord pmr : pmrEnemy) {
+                        if ("Heavy".equals(MechRuntime.getMechByShortName(pmr.getMech()).getWeightClass())) enemy++;
+                    }
+                    teamValue = team + "";
+                    enemyValue = enemy + "";
+                    totalValue = (team + enemy) + "";
+                }
+            };
+            MatchCalculatedValue numAssaults = new MatchCalculatedValue() {
+                @Override
+                public void calculate() {
+                    int team = 0;
+                    int enemy = 0;
+                    for (PlayerMatchRecord pmr : pmrTeam) {
+                        if ("Assault".equals(MechRuntime.getMechByShortName(pmr.getMech()).getWeightClass())) team++;
+                    }
+                    for (PlayerMatchRecord pmr : pmrEnemy) {
+                        if ("Assault".equals(MechRuntime.getMechByShortName(pmr.getMech()).getWeightClass())) enemy++;
+                    }
+                    teamValue = team + "";
+                    enemyValue = enemy + "";
+                    totalValue = (team + enemy) + "";
+                }
+            };
             buildMatchDataLine(grid, line++, "Total Score", score);
-            //buildMatchDataLine(grid, line++, "Median Score", score);
+            buildMatchDataLine(grid, line++, "Median Score", medianScore);
             buildMatchDataLine(grid, line++, "Total Damage", damageDealt);
-            //buildMatchDataLine(grid, line++, "Median Damage", score);
-            //buildMatchDataLine(grid, line++, "Net Weight", score);
-            //buildMatchDataLine(grid, line++, "Avg. Weight", score);
-            //buildMatchDataLine(grid, line++, "Score/Ton", score);
+            buildMatchDataLine(grid, line++, "Median Damage", medianDamage);
+            buildMatchDataLine(grid, line++, "Net Weight", weight);
+            buildMatchDataLine(grid, line++, "Score/Ton", scorePerTon);
+            buildMatchDataLine(grid, line++, "Light Mechs", numLights);
+            buildMatchDataLine(grid, line++, "Medium Mechs", numMediums);
+            buildMatchDataLine(grid, line++, "Heavy Mechs", numHeavies);
+            buildMatchDataLine(grid, line++, "Assault Mechs", numAssaults);
 
             return grid;
         } else {
