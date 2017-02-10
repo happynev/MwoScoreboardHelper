@@ -1,6 +1,7 @@
 package at.happynev.mwoscoreboardhelper;
 
 import at.happynev.mwoscoreboardhelper.tracer.TraceHelpers;
+import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
@@ -202,10 +203,10 @@ public class MechRuntime {
     public static String findMatchingMech(String mech) {
         if (mech.isEmpty()) return "";
         String preparedMech = mech.replaceAll("\\(?[S5I8RP]\\)", "").replaceAll("\\s*", ""); //(S)pecial, (S)team, (I)nvasion, (R)esistance, (P)hoenix mechs not in smurfy data
-        String guess = TraceHelpers.guessValue(preparedMech, knownShortNames);
-        if (!knownShortNames.contains(guess)) {
+        String guess = TraceHelpers.guessValue(preparedMech, getKnownShortNames());
+        if (!getKnownShortNames().contains(guess) || StringUtils.getLevenshteinDistance(mech, guess) > 2) {
             //try again for some (L) variants
-            guess = TraceHelpers.guessValue(preparedMech.replaceAll("\\(L\\)", ""), knownShortNames);
+            guess = TraceHelpers.guessValue(preparedMech.replaceAll("\\(L\\)", ""), getKnownShortNames());
         }
         if (!mech.equals(guess)) {
             Logger.log("changed mech: " + mech + "-->" + guess);

@@ -31,20 +31,6 @@ public class TraceHelpers {
         //mapAmbiguousChars.put("W", "(?:W|VV)");
     }
 
-    /*
-        public static String guessValue(String input, Collection<String> possibleValues) {
-            String bestMatch = input;
-            int bestSimilarity = Integer.MAX_VALUE;
-            for (String possible : findSimilarLookingStrings(input, possibleValues)) {
-                int score = StringUtils.getLevenshteinDistance(input, possible);
-                if (score < bestSimilarity) {
-                    bestSimilarity = score;
-                    bestMatch = possible;
-                }
-            }
-            return bestMatch;
-        }
-    */
     public static String guessValue(String input, Collection<String> possibleValues) {
         String bestMatch = input;
         int bestSimilarity = Integer.MAX_VALUE;
