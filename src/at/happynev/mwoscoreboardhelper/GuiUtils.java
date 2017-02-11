@@ -15,6 +15,14 @@ import javafx.scene.text.Text;
  */
 public class GuiUtils {
 
+    public static final String colorBack = "#A0A0A0";
+    public static final String colorTeam = "#0E8DFE";
+    public static final String styleTeam = "-fx-text-fill: " + colorTeam;// + "; -fx-background-color: " + colorBack + ";";
+    public static final String colorEnemy = "#D30000";
+    public static final String styleEnemy = "-fx-text-fill: " + colorEnemy;// + "; -fx-background-color: " + colorBack + ";";
+    public static final String colorNeutral = "#EDBE34";
+    public static final String styleNeutral = "-fx-text-fill: " + colorNeutral;// + "; -fx-background-color: " + colorBack + ";";
+
     public static ColumnConstraints getColumnConstraint(Label label) {
         Text measure = new Text(label.getText());
         double prefWidth = measure.getLayoutBounds().getWidth();

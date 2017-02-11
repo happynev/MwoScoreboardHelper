@@ -238,8 +238,14 @@ public class WatcherTabController {
             //all players traced. ok to proceed with next screenshot
             isProcessing = false;
             Logger.log("Tracing finished");
+            paneMatchAnalytics.getChildren().clear();
             if (SettingsTabController.getInstance().getLayoutShowStatSummary()) {
-                paneMatchAnalytics.getChildren().setAll(currentMatch.getMatchAnalyticsPane());
+                paneMatchAnalytics.getChildren().add(currentMatch.getMatchAnalyticsPane());
+                Pane spacer = new Pane();
+                spacer.setMaxHeight(Double.MAX_VALUE);
+                VBox.setVgrow(spacer, Priority.ALWAYS);
+                paneMatchAnalytics.getChildren().add(spacer);
+                paneMatchAnalytics.getChildren().add(SessionRuntime.getSessionStatsPane());
             }
         }
     }

@@ -102,6 +102,7 @@ public class PlayerRuntime {
         ResultSet rs = prepSelect.executeQuery();
         PlayerRuntime ret = null;
         int _id = -1;
+        boolean firstTime = false;
         if (rs.next()) {
             _id = rs.getInt(1);
         } else {
@@ -116,10 +117,13 @@ public class PlayerRuntime {
                 }
             }
             rsid.close();
+            firstTime = true;
         }
         rs.close();
         ret = new PlayerRuntime(_id);
-
+        if (firstTime && !ret.getPilotname().equals(SettingsTabController.getPlayername())) {
+            SessionRuntime.playersNew.add(ret);
+        }
         return ret;
     }
 

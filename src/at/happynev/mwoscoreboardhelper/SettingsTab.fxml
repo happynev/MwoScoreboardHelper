@@ -252,7 +252,7 @@
                   </VBox>
                </children>
             </HBox>
-            <CheckBox fx:id="checkShowStatSummary" mnemonicParsing="false" selected="true" text="Show Stat Summary" GridPane.rowIndex="13" />
+            <CheckBox fx:id="checkShowStatSummary" mnemonicParsing="false" selected="true" text="Show Stat Summary Column" GridPane.rowIndex="13" />
          </children>
       </GridPane>
    </content>

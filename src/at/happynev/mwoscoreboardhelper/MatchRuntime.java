@@ -34,13 +34,6 @@ import java.util.*;
  * Created by Nev on 15.01.2017.
  */
 public class MatchRuntime {
-    public static final String colorBack = "#A0A0A0";
-    public static final String colorTeam = "#0E8DFE";
-    public static final String styleTeam = "-fx-text-fill: " + colorTeam;// + "; -fx-background-color: " + colorBack + ";";
-    public static final String colorEnemy = "#D30000";
-    public static final String styleEnemy = "-fx-text-fill: " + colorEnemy;// + "; -fx-background-color: " + colorBack + ";";
-    public static final String colorNeutral = "#EDBE34";
-    public static final String styleNeutral = "-fx-text-fill: " + colorNeutral;// + "; -fx-background-color: " + colorBack + ";";
 
     private static final int TRACE_TIMEOUT = 1000 * 30;
     private final SimpleStringProperty matchName = new SimpleStringProperty("");
@@ -95,8 +88,13 @@ public class MatchRuntime {
             Offsets off = Offsets.getInstance(type, img);
             if (type == ScreenshotType.QP_1PREPARATION) {
                 matchFinished = false;
+                if (previousData != null && !previousData.isMatchFinished()) {
+                    //no summary in between?
+                    SessionRuntime.totalMatches++;
+                }
             } else if (type == ScreenshotType.QP_3SUMMARY) {
                 matchFinished = true;
+                SessionRuntime.totalMatches++;
             } else if (type == ScreenshotType.UNDEFINED) {
                 throw new Exception("Screenshot cannot be identified");
             }
@@ -122,7 +120,7 @@ public class MatchRuntime {
                         try {
                             boolean isVictory = "VICTORY".equals(matchResult.get());
                             boolean isDefeat = "DEFEAT".equals(matchResult.get());
-                            boolean isDraw = "DRAW".equals(matchResult.get());
+                            boolean isDraw = "TIE".equals(matchResult.get());
                             boolean isEnemy = false;
                             //Logger.log("player trace finished, victory=" + isVictory + " defeat=" + isDefeat);
                             if (isVictory) {
@@ -131,7 +129,7 @@ public class MatchRuntime {
                                 isEnemy = p < 12;
                             } else if (isDraw) {
                                 //just assuming, didn't have an example
-                                isEnemy = p >= 12;
+                                isEnemy = p < 12;
                             } else {
                                 //unknown result... just assign anywhere
                                 isEnemy = p >= 12;
@@ -139,6 +137,11 @@ public class MatchRuntime {
 
                             PlayerRuntime pr = PlayerRuntime.getInstance(pi.getPilotName());
                             pr.unitProperty().set(pi.getUnitTag());
+                            if (!pr.getPilotname().equals(SettingsTabController.getPlayername()) && !SessionRuntime.playersNew.contains(pr)) {
+                                //don't count players that were seen firsttime in this session as known
+                                SessionRuntime.playersKnown.add(pr);
+                            }
+
                             pr.setPlayerNumber(p);
                             PlayerMatchRecord prec = null;
                             try {
@@ -155,7 +158,9 @@ public class MatchRuntime {
                             } else {
                                 playersTeam.add(pr);
                             }
-                            //TODO: just assuming result trace is done by now...
+                            if (pr.getPilotname().equals(SettingsTabController.getPlayername())) {
+                                SessionRuntime.sessionRecords.add(prec);
+                            }
                         } catch (Exception e) {
                             Logger.log("Player info tracer finish trigger, " + pi.getPilotName());
                             Logger.error(e);
@@ -185,6 +190,11 @@ public class MatchRuntime {
                             } else if (loser.contains("enemy")) {
                                 realResult = "VICTORY";
                             }
+                        }
+                        if (realResult.equals("VICTORY")) {
+                            SessionRuntime.wins++;
+                        } else if (realResult.equals("DEFEAT")) {
+                            SessionRuntime.losses++;
                         }
                         matchResult.set(realResult);
                         mapDataFinished.set(true);
@@ -321,13 +331,13 @@ public class MatchRuntime {
         Font fontData = Font.font("System", FontWeight.BOLD, 15);
         Label labelTitle = new Label(title);
         labelTitle.setFont(fontData);
-        labelTitle.setStyle(styleNeutral);
+        labelTitle.setStyle(GuiUtils.styleNeutral);
         labelTitle.setPadding(PlayerRuntime.DATA_INSETS);
         //labelTitle.setRotate(45);
         //
         Label labelTeam = new Label(mc.teamValue);
         labelTeam.setFont(fontData);
-        labelTeam.setStyle(styleTeam);
+        labelTeam.setStyle(GuiUtils.styleTeam);
         labelTeam.setPadding(PlayerRuntime.DATA_INSETS);
         //
         grid.add(labelTitle, 0, row);
@@ -336,12 +346,12 @@ public class MatchRuntime {
         if (matchFinished) {
             Label labelEnemy = new Label(mc.enemyValue);
             labelEnemy.setFont(fontData);
-            labelEnemy.setStyle(styleEnemy);
+            labelEnemy.setStyle(GuiUtils.styleEnemy);
             labelEnemy.setPadding(PlayerRuntime.DATA_INSETS);
             //
             Label labelTotal = new Label(mc.totalValue);
             labelTotal.setFont(fontData);
-            labelTotal.setStyle(styleNeutral);
+            labelTotal.setStyle(GuiUtils.styleNeutral);
             labelTotal.setPadding(PlayerRuntime.DATA_INSETS);
             //
             grid.add(labelEnemy, 2, row);
@@ -587,7 +597,7 @@ public class MatchRuntime {
         Font fontHeader = Font.font("System", FontWeight.BOLD, 20);
 
         Label labelTeam = new Label("Your Team");
-        labelTeam.setStyle(styleTeam);
+        labelTeam.setStyle(GuiUtils.styleTeam);
         labelTeam.setFont(fontHeader);
         labelTeam.setPadding(PlayerRuntime.DATA_INSETS);
         labelTeam.setRotate(90);
@@ -602,19 +612,19 @@ public class MatchRuntime {
             VBox columnEnemy = new VBox();
             VBox columnTotal = new VBox();
             Label labelEnemy = new Label("Your Enemy");
-            labelEnemy.setStyle(styleEnemy);
+            labelEnemy.setStyle(GuiUtils.styleEnemy);
             labelEnemy.setFont(fontHeader);
             labelEnemy.setPadding(PlayerRuntime.DATA_INSETS);
             labelEnemy.setRotate(90);
             //
             Label labelTotal = new Label("Total / Avg");
-            labelTotal.setStyle(styleNeutral);
+            labelTotal.setStyle(GuiUtils.styleNeutral);
             labelTotal.setFont(fontHeader);
             labelTotal.setPadding(PlayerRuntime.DATA_INSETS);
             labelTotal.setRotate(90);
             //
             Label labelDummy = new Label("");
-            labelDummy.setStyle(styleNeutral);
+            labelDummy.setStyle(GuiUtils.styleNeutral);
             labelDummy.setFont(fontHeader);
             labelDummy.setPadding(PlayerRuntime.DATA_INSETS);
             columnTitles.getChildren().add(labelDummy);
@@ -839,12 +849,14 @@ public class MatchRuntime {
             buildMatchDataLine(grid, line++, "Median Damage", medianDamage, matchFinished);
             buildMatchDataLine(grid, line++, "Score/Ton", scorePerTon, matchFinished);
         }
-        buildMatchDataLine(grid, line++, "Net Weight", weight, matchFinished);
+        buildMatchDataLine(grid, line++, "Total Weight", weight, matchFinished);
         buildMatchDataLine(grid, line++, "Light Mechs", numLights, matchFinished);
         buildMatchDataLine(grid, line++, "Medium Mechs", numMediums, matchFinished);
         buildMatchDataLine(grid, line++, "Heavy Mechs", numHeavies, matchFinished);
         buildMatchDataLine(grid, line++, "Assault Mechs", numAssaults, matchFinished);
-        buildMatchDataLine(grid, line++, "Missing Mechs", numMissing, matchFinished);
+        if (!numMissing.totalValue.equals("0")) {
+            buildMatchDataLine(grid, line++, "Missing Mechs", numMissing, matchFinished);
+        }
 
         return grid;
     }
