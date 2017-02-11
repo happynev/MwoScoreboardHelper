@@ -73,6 +73,8 @@ public class SettingsTabController {
     @FXML
     GridPane paneColumnPreviewSummary;
     @FXML
+    Pane paneMatchDataPrepPreview;
+    @FXML
     Pane paneMatchDataPreview;
     @FXML
     CheckBox checkShowStatSummary;
@@ -357,8 +359,10 @@ public class SettingsTabController {
         GuiUtils.prepareGrid(paneColumnPreviewSummary, matchSummary);
         player.addDataToGrid(paneColumnPreviewPrep, 1, matchPrep);
         player.addDataToGrid(paneColumnPreviewSummary, 1, matchSummary);
+        paneMatchDataPrepPreview.getChildren().clear();
         paneMatchDataPreview.getChildren().clear();
         if (getLayoutShowStatSummary()) {
+            paneMatchDataPrepPreview.getChildren().add(matchPrep.getMatchAnalyticsPane());
             paneMatchDataPreview.getChildren().add(matchSummary.getMatchAnalyticsPane());
         }
     }
