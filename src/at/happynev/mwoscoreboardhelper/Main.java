@@ -33,8 +33,6 @@ public class Main extends Application {
         Logger.log("db server: " + dbserver.getURL());
         DbHandler.getInstance();//pre-init
         URL loc = this.getClass().getResource("ScoreboardHelper.fxml");
-        System.out.println("atlas=" + MechRuntime.findMatchingMech("AS7-K(L)"));
-        //if (1 == 1) System.exit(0);
         Parent root = FXMLLoader.load(loc);
         Scene scene = new Scene(root);
         primaryStage.setTitle("ScoreboardHelper");

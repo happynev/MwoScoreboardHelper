@@ -252,7 +252,10 @@ public class MechRuntime {
         if (tons >= 40) {
             return "Medium";
         }
-        return "Light";
+        if (tons >= 20) {
+            return "Light";
+        }
+        return "None";
     }
 
     public String getId() {
