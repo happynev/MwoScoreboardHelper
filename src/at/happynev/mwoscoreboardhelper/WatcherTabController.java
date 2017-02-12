@@ -165,22 +165,24 @@ public class WatcherTabController {
         if (!isProcessing) {
             File f = getNextScreenshot();
             if (f != null) {
-                try {
-                    loadScreenshot(f);
-                } catch (Exception e) {
-                    Logger.error(e);
-                }
+                loadScreenshot(f);
             }
         }
     }
 
-    private void loadScreenshot(File f) throws Exception {
+    private void loadScreenshot(File f) {
         isProcessing = true;
         paneWatcherTab.setDisable(true);
         labelLastScreenshot.setText(f.getName());
-        MatchRuntime results = new MatchRuntime(new ScreenshotFileHandler(f));
+        ScreenshotFileHandler sshandler = null;
+        try {
+            sshandler = new ScreenshotFileHandler(f);
+        } catch (Exception e) {
+            Logger.warning("Error identifying screenhot " + f.getName() + ": " + e.getMessage());
+        }
         paneWatcherTab.setDisable(false);
-        if (results.isValid()) {
+        if (sshandler != null) {
+            MatchRuntime results = new MatchRuntime(sshandler);
             playersFinished = 0;
             preliminaryPlayerInfo.clear();
             paneMatchAnalytics.getChildren().clear();
@@ -203,14 +205,14 @@ public class WatcherTabController {
             results.getPlayersTeam().addListener((ListChangeListener<? super PlayerRuntime>) c -> {
                 c.next();
                 c.getAddedSubList().forEach(o -> {
-                    Logger.log("friend player " + o.getPilotname() + " finished tracing");
+                    //Logger.log("friend player " + o.getPilotname() + " finished tracing");
                     buildPlayerGui(o, paneMyTeam, results);
                 });
             });
             results.getPlayersEnemy().addListener((ListChangeListener<? super PlayerRuntime>) c -> {
                 c.next();
                 c.getAddedSubList().forEach(o -> {
-                    Logger.log("enemy  player " + o.getPilotname() + " finished tracing");
+                    //Logger.log("enemy  player " + o.getPilotname() + " finished tracing");
                     buildPlayerGui(o, paneEnemyTeam, results);
                 });
             });
@@ -218,8 +220,6 @@ public class WatcherTabController {
         } else {
             flashBackground(flashRed, 2000);
             isProcessing = false;
-            //clean?
-            //textMatchName.textProperty().unbind();
         }
     }
 

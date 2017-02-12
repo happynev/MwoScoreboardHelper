@@ -80,6 +80,21 @@ public class PlayerRuntime {
         return ret;
     }
 
+    public static PlayerRuntime getInstance(int _id) {
+        PlayerRuntime ret = playersById.get(_id);
+        if (ret == null) {
+            try {
+                ret = new PlayerRuntime(_id);
+            } catch (Exception e) {
+                Logger.error(e);
+                return null;
+            }
+            playersById.put(ret.getId(), ret);
+            playersByName.put(ret.getPilotname(), ret);
+        }
+        return ret;
+    }
+
     public static List<String> getAllPlayerNames() {
         List<String> ret = new ArrayList<>();
         try {
@@ -327,6 +342,8 @@ public class PlayerRuntime {
                 if (icon.getValue() == null) icon.setValue("");
                 shortnote.setValue(rs.getString(7));
                 if (shortnote.getValue() == null) shortnote.setValue("");
+            } else {
+                throw new IllegalArgumentException("no player with id " + this.id);
             }
             rs.close();
             if (pilotname.get().equals(SettingsTabController.getPlayername())) {

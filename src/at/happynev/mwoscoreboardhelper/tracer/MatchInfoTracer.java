@@ -24,7 +24,7 @@ public class MatchInfoTracer extends AsyncTracer {
             winningTeam = null;
             losingTeam = null;
             matchResult = null;
-        } else if (off.getType() == ScreenshotType.QP_3SUMMARY) {
+        } else if (off.getType() == ScreenshotType.QP_4SUMMARY) {
             map = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.map())), OcrConfig.DEFAULT);
             battleTime = new TraceableImage(extractYellow(Offsets.getSubImage(screenshot, off.battleTime())), OcrConfig.TIME);
             winningTeam = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.winningTeam())), OcrConfig.TEAMS);

@@ -182,7 +182,7 @@ public class QuickplaySummaryOffsets_16_10 extends Offsets {
 
     @Override
     public ScreenshotType getType() {
-        return ScreenshotType.QP_3SUMMARY;
+        return ScreenshotType.QP_4SUMMARY;
     }
 
     @Override

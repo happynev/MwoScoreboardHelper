@@ -318,7 +318,7 @@ public class SettingsTabController {
             String desc = stat.getDescription();
             String name = stat.toString();
             String checktitle = name;
-            String checkid = "layout" + ScreenshotType.QP_3SUMMARY + "-" + name;
+            String checkid = "layout" + ScreenshotType.QP_4SUMMARY + "-" + name;
             if (!name.equals(desc)) {
                 checktitle = desc + " ('" + name + "')";
             }
@@ -335,7 +335,7 @@ public class SettingsTabController {
             String desc = stat.getDescription();
             String name = stat.toString();
             String checktitle = name;
-            String checkid = "layout" + ScreenshotType.QP_3SUMMARY + "-" + name;
+            String checkid = "layout" + ScreenshotType.QP_4SUMMARY + "-" + name;
             if (!name.equals(desc)) {
                 checktitle = desc + " ('" + name + "')";
             }
@@ -353,7 +353,7 @@ public class SettingsTabController {
 
     private void refreshPreviews() {
         MatchRuntime matchPrep = MatchRuntime.getReferenceMatch(ScreenshotType.QP_1PREPARATION);
-        MatchRuntime matchSummary = MatchRuntime.getReferenceMatch(ScreenshotType.QP_3SUMMARY);
+        MatchRuntime matchSummary = MatchRuntime.getReferenceMatch(ScreenshotType.QP_4SUMMARY);
         PlayerRuntime player = PlayerRuntime.getReferencePlayer();
         GuiUtils.prepareGrid(paneColumnPreviewPrep, matchPrep);
         GuiUtils.prepareGrid(paneColumnPreviewSummary, matchSummary);
@@ -385,7 +385,7 @@ public class SettingsTabController {
 
     public List<Stat> getStatsToDisplay(ScreenshotType type) {
         List<Stat> ret = new ArrayList<>();
-        if (type == ScreenshotType.QP_3SUMMARY) {
+        if (type == ScreenshotType.QP_4SUMMARY) {
             for (MatchStat stat : MatchStat.class.getEnumConstants()) {
                 String checkid = "layout" + type + "-" + stat;
                 boolean showStat = Boolean.parseBoolean(loadSetting(checkid, "false"));

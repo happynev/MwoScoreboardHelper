@@ -23,10 +23,12 @@ public class ScreenshotFileHandler {
 
     public ScreenshotFileHandler(File screenshot) throws Exception {
         this.screenshot = screenshot;
-        timestamp = screenshot.lastModified();
+        long tmptimestamp = screenshot.lastModified();
+        timestamp = tmptimestamp - (tmptimestamp % 1000);//strip millis for db
         img = ImageIO.read(screenshot);
         type = ScreenshotType.identifyType(img);
         offsets = Offsets.getInstance(type, img);
+        markProcessed();
         if (type == ScreenshotType.UNDEFINED) {
             throw new Exception("Screenshot cannot be identified");
         }
@@ -44,10 +46,22 @@ public class ScreenshotFileHandler {
         return new PlayerInfoTracer(img, playerNum, offsets);
     }
 
-    public void postProcessFile(int matchId) {
+    public void markProcessed() {
+        try {
+            PreparedStatement prep = DbHandler.getInstance().prepareStatement("insert into processed(filename,processing_time) values(?,?)");
+            prep.setString(1, screenshot.getName());
+            prep.setTimestamp(2, new Timestamp(timestamp));
+            prep.executeUpdate();
+            WatcherTabController.getInstance().getAlreadyProcessed().add(screenshot.getName());
+        } catch (Exception e) {
+            Logger.error(e);
+        }
+    }
+
+    public void archiveFile(int matchId) {
         String fileName = "";
         File archivedMatch = new File(SettingsTabController.getPostProcessedDirectory(), "match-" + matchId);
-        if (!screenshot.getName().contains(ScreenshotType.QP_1PREPARATION.toString()) && !screenshot.getName().contains(ScreenshotType.QP_3SUMMARY.toString())) {
+        if (!screenshot.getName().contains(ScreenshotType.QP_1PREPARATION.toString()) && !screenshot.getName().contains(ScreenshotType.QP_4SUMMARY.toString())) {
             fileName = SettingsTabController.getPlayername() + "-match-" + type + "." + screenshot.getName();
         } else {
             fileName = screenshot.getName();
@@ -62,17 +76,6 @@ public class ScreenshotFileHandler {
             boolean success = screenshot.renameTo(arch);
             if (!success) {
                 Logger.alertPopup("Failed to move " + screenshot.getName() + " to " + arch.toString());
-            }
-        } else {
-            try {
-                PreparedStatement prep = DbHandler.getInstance().prepareStatement("insert into processed(filename,processing_time) values(?,?)");
-                prep.setString(1, screenshot.getName());
-                prep.setTimestamp(2, new Timestamp(timestamp));
-                prep.executeUpdate();
-                WatcherTabController.getInstance().getAlreadyProcessed().add(screenshot.getName());
-                Utils.copyFile(screenshot, arch);
-            } catch (Exception e) {
-                Logger.error(e);
             }
         }
     }

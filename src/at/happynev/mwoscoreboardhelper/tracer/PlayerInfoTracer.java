@@ -29,7 +29,7 @@ public class PlayerInfoTracer extends AsyncTracer {
         } else {
             mech = null;
         }
-        if (off.getType() == ScreenshotType.QP_3SUMMARY) {
+        if (off.getType() == ScreenshotType.QP_4SUMMARY) {
             matchScore = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.playerMatchScore(player))), OcrConfig.NUMERIC);
             kills = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.playerKills(player))), OcrConfig.NUMERIC);
             assists = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.playerAssists(player))), OcrConfig.NUMERIC);

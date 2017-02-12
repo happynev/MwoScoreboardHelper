@@ -50,7 +50,7 @@ public class PreviewTabController {
                 paneResults.getChildren().add(new Label("Screenshot identified as " + type));
                 Offsets off = Offsets.getInstance(type, img);
                 if (type == ScreenshotType.QP_1PREPARATION) {
-                } else if (type == ScreenshotType.QP_3SUMMARY) {
+                } else if (type == ScreenshotType.QP_4SUMMARY) {
                 } else {
                     for (TraceableImage tr : ScreenshotType.getLastCheck()) {
                         paneResults.getChildren().add(new HBox(new ImageView(SwingFXUtils.toFXImage(tr.getImage(), null)), new Label(" --> " + tr.getValue())));

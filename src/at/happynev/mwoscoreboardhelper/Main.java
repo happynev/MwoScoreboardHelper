@@ -16,7 +16,7 @@ public class Main extends Application {
     }
 
     public static int getDbVersion() {
-        return 1;
+        return 2;
     }
 
     public static String getVersion() {

@@ -17,11 +17,10 @@ import java.util.TreeMap;
  */
 public class PlayerMatchRecord {
     private final int playerId;
-    private final int matchId;
-
     private final boolean isEnemy;
     private final long timestamp;
     private final Map<MatchStat, StringExpression> matchValues = new TreeMap<>();
+    private int matchId;
 
     public PlayerMatchRecord(int playerId, int matchId) throws Exception {
         this.playerId = playerId;
@@ -79,7 +78,6 @@ public class PlayerMatchRecord {
 
     public PlayerMatchRecord(PlayerRuntime player, PlayerInfoTracer info, MatchRuntime match, boolean isEnemy) throws IllegalArgumentException, SQLException {
         playerId = player.getId();
-        matchId = match.getId();
         if (!info.getFinished()) {
             throw new IllegalArgumentException("PlayerInfoTracer is not ready");
         }
@@ -96,18 +94,6 @@ public class PlayerMatchRecord {
         int ping = info.getPing();
         timestamp = match.getTimestamp();
         this.isEnemy = isEnemy;
-        PreparedStatement prep = DbHandler.getInstance().prepareStatement("insert into player_matchdata(player_data_id,match_data_id,mech,status,score,kills,assists,damage,ping,enemy) values(?,?,?,?,?,?,?,?,?,?)");
-        prep.setInt(1, playerId);
-        prep.setInt(2, matchId);
-        prep.setString(3, mech);
-        prep.setString(4, status);
-        prep.setInt(5, matchScore);
-        prep.setInt(6, kills);
-        prep.setInt(7, assists);
-        prep.setInt(8, damage);
-        prep.setInt(9, ping);
-        prep.setBoolean(10, this.isEnemy);
-        prep.executeUpdate();
         matchValues.put(MatchStat.MATCHMECH, new SimpleStringProperty(mech));
         matchValues.put(MatchStat.MATCHASSISTS, new SimpleStringProperty("" + assists));
         matchValues.put(MatchStat.MATCHDAMAGE, new SimpleStringProperty("" + damage));
@@ -123,6 +109,30 @@ public class PlayerMatchRecord {
 
     public static PlayerMatchRecord getReferenceRecord(boolean isEnemy) {
         return new PlayerMatchRecord(isEnemy);
+    }
+
+    public void saveData(int matchId) throws SQLException {
+        this.matchId = matchId;
+        try {
+            PreparedStatement prep = DbHandler.getInstance().prepareStatement("insert into player_matchdata(player_data_id,match_data_id,mech,status,score,kills,assists,damage,ping,enemy) values(?,?,?,?,?,?,?,?,?,?)");
+            prep.setInt(1, playerId);
+            prep.setInt(2, matchId);
+            prep.setString(3, matchValues.get(MatchStat.MATCHMECH).getValue());
+            prep.setString(4, matchValues.get(MatchStat.MATCHSTATUS).getValue());
+            prep.setInt(5, Integer.parseInt(matchValues.get(MatchStat.MATCHSCORE).getValue()));
+            prep.setInt(6, Integer.parseInt(matchValues.get(MatchStat.MATCHKILLS).getValue()));
+            prep.setInt(7, Integer.parseInt(matchValues.get(MatchStat.MATCHASSISTS).getValue()));
+            prep.setInt(8, Integer.parseInt(matchValues.get(MatchStat.MATCHDAMAGE).getValue()));
+            prep.setInt(9, Integer.parseInt(matchValues.get(MatchStat.MATCHPING).getValue()));
+            prep.setBoolean(10, this.isEnemy);
+            prep.executeUpdate();
+        } catch (SQLException e) {
+            if (e.getMessage().contains("PRIMARY_KEY")) {
+                //ok, don't overwrite anything
+            } else {
+                throw e;
+            }
+        }
     }
 
     public Map<MatchStat, StringExpression> getMatchValues() {
