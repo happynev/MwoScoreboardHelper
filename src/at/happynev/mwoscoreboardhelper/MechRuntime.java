@@ -206,12 +206,19 @@ public class MechRuntime {
 
     public static String findMatchingMech(String mech) {
         if (mech.isEmpty()) return "";
-        String preparedMech = mech.replaceAll("\\(?[S5I8RPL]\\)", "").replaceAll("\\s*", ""); //(S)pecial, (S)team, (I)nvasion, (R)esistance, (P)hoenix mechs not in smurfy data
-        //specially check loyalty variants, some are in smurfy data, some not
-        Set<String> loyaltyvariants = new HashSet<>(getKnownShortNames());
-        loyaltyvariants.removeIf(s -> !s.endsWith("(L)"));
-        String firstguess = TraceHelpers.guessValue(preparedMech, loyaltyvariants);
-        String guess = TraceHelpers.guessValue(firstguess, getKnownShortNames());
+        Set<String> specialvariants = new HashSet<>(getKnownShortNames());
+        specialvariants.removeIf(s -> !s.matches(".*\\([^)]+\\)$"));
+        String specialguess = TraceHelpers.guessValue(mech, specialvariants);
+        String noPostfixMech = mech.replaceAll("\\(?[SIRPL]\\)", "").replaceAll("\\s*", ""); //(S)pecial, (S)team, (I)nvasion, (R)esistance, (P)hoenix mechs not in smurfy data, some (L)oyalty
+        String normalguess = TraceHelpers.guessValue(noPostfixMech, getKnownShortNames());
+        String guess = "";
+        int distSpecial = StringUtils.getLevenshteinDistance(specialguess, mech);
+        int distNormal = StringUtils.getLevenshteinDistance(normalguess, noPostfixMech);
+        if (distSpecial <= distNormal) {
+            guess = specialguess;
+        } else {
+            guess = normalguess;
+        }
         if (!mech.equals(guess)) {
             Logger.log("changed mech: " + mech + "-->" + guess);
         }
