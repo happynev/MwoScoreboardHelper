@@ -1,10 +1,11 @@
 package at.happynev.mwoscoreboardhelper;
 
-import at.happynev.mwoscoreboardhelper.tracer.*;
-import javafx.beans.binding.Bindings;
+import at.happynev.mwoscoreboardhelper.tracer.MatchInfoTracer;
+import at.happynev.mwoscoreboardhelper.tracer.PlayerInfoTracer;
+import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
+import at.happynev.mwoscoreboardhelper.tracer.TraceHelpers;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -17,8 +18,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
@@ -26,7 +25,6 @@ import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -53,8 +51,8 @@ public class MatchRuntime {
     private final ObservableList<PlayerMatchRecord> playerRecords = FXCollections.observableArrayList();
     private final Map<Integer, SimpleStringProperty> preliminaryInfo = new HashMap<>(24);
     private final Set<String> gameModes = new HashSet<>(Arrays.asList("SKIRMISH", "DOMINATION", "ASSAULT", "CONQUEST", "INCURSION", "INVASION", "ESCORT"));
+    private ScreenshotType type;
     private boolean matchFinished;
-    private ScreenshotType type = null;
     private int id = 0;
     private long timestamp = 0;
     private boolean valid = false;
@@ -78,39 +76,24 @@ public class MatchRuntime {
         playerRecords.addAll(pr.getMatchRecords());
     }
 
-    public MatchRuntime(final File screenshot, final MatchRuntime previousData) {
+    public MatchRuntime(final ScreenshotFileHandler screenshot) {
         try {
-            timestamp = screenshot.lastModified();
-            BufferedImage img = ImageIO.read(screenshot);
-            type = ScreenshotType.identifyType(img);
+            timestamp = screenshot.getTimestamp();
             formattedTimestamp.setValue(sdf.format(timestamp));
-            String filename = "";
-            Offsets off = Offsets.getInstance(type, img);
+            type = screenshot.getType();
             if (type == ScreenshotType.QP_1PREPARATION) {
                 matchFinished = false;
-                if (previousData != null && !previousData.isMatchFinished()) {
-                    //no summary in between?
-                    SessionRuntime.totalMatches++;
-                }
             } else if (type == ScreenshotType.QP_3SUMMARY) {
                 matchFinished = true;
                 SessionRuntime.totalMatches++;
-            } else if (type == ScreenshotType.UNDEFINED) {
-                throw new Exception("Screenshot cannot be identified");
             }
-            final MatchInfoTracer tracer = new MatchInfoTracer(img, off);
-            if (id == 0) {
-                id = createMatchEntry();
-            }
+            final MatchInfoTracer tracer = screenshot.getMatchTracer();
+            id = createOrLoadMatchEntry();
             SimpleBooleanProperty mapDataFinished = new SimpleBooleanProperty(false);
             initChangeListeners();
-            if (!screenshot.getName().contains(ScreenshotType.QP_1PREPARATION.toString()) && !screenshot.getName().contains(ScreenshotType.QP_3SUMMARY.toString())) {
-                filename = SettingsTabController.getPlayername() + "-match-" + type + "." + screenshot.getName();
-            } else {
-                filename = screenshot.getName();
-            }
+
             for (int i = 0; i < 24; i++) {
-                PlayerInfoTracer pi = new PlayerInfoTracer(img, i, off);
+                PlayerInfoTracer pi = screenshot.getPlayerInfoTracer(i);
                 final int p = i;
                 preliminaryInfo.put(p, pi.progressProperty());
                 BooleanBinding allFinished = BooleanBinding.booleanExpression(pi.finishedProperty()).and(mapDataFinished);
@@ -204,28 +187,9 @@ public class MatchRuntime {
                 }
             });
             //matchName.bind(Bindings.concat(formattedTimestamp, " ", map, " - ", gameMode));
-            File archivedMatch = new File(SettingsTabController.getPostProcessedDirectory(), id + "-" + sdfDir.format(timestamp));
-
-            archivedMatch.mkdirs();
-            boolean deleteScreenshots = SettingsTabController.isDeleteScreenshots();
-            File arch = new File(archivedMatch, filename);
-            if (deleteScreenshots) {
-                if (arch.exists()) {
-                    arch.delete();
-                }
-                boolean success = screenshot.renameTo(arch);
-                if (!success) {
-                    Logger.alertPopup("Failed to move " + screenshot.getName() + " to " + arch.toString());
-                }
-            } else {
-                PreparedStatement prep = DbHandler.getInstance().prepareStatement("insert into processed(filename,processing_time) values(?,?)");
-                prep.setString(1, screenshot.getName());
-                prep.setTimestamp(2, new Timestamp(timestamp));
-                prep.executeUpdate();
-                WatcherTabController.getInstance().getAlreadyProcessed().add(screenshot.getName());
-                Utils.copyFile(screenshot, arch);
-            }
+            screenshot.postProcessFile(id);
             valid = true;
+            /*
             try {
                 //set up duplicate check for when tracing finishes
                 BooleanBinding expr = Bindings.size(playerRecords).isEqualTo(24).and(mapDataFinished);
@@ -264,9 +228,10 @@ public class MatchRuntime {
                 }
             } catch (Exception e) {
                 Logger.error(e);
-            }
+            }*/
         } catch (Exception e) {
-            handleLoadError(e, screenshot);
+            //handleLoadError(e, screenshot.get);
+            Logger.error(e);
         }
     }
 
@@ -435,7 +400,7 @@ public class MatchRuntime {
     public void saveData() {
         try {
             if (id == 0) {
-                id = createMatchEntry();
+                id = createOrLoadMatchEntry();
             }
             PreparedStatement prep = DbHandler.getInstance().prepareStatement("insert into match_data(gamemode,map,matchResult,reward_cbills,reward_xp,matchname,battletime,maptimeofday) values(?,?,?,?,?,?,?,?)");
             prep.setString(1, gameMode.getValue());
@@ -571,7 +536,7 @@ public class MatchRuntime {
         }
     }
 
-    private int createMatchEntry() throws Exception {
+    private int createOrLoadMatchEntry() throws Exception {
 
         PreparedStatement prep = DbHandler.getInstance().prepareStatement("insert into MATCH_DATA(matchtime,matchname) values(?,?)", true);
         prep.setString(1, sdf.format(timestamp));

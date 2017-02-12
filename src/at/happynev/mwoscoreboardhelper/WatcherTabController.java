@@ -60,7 +60,6 @@ public class WatcherTabController {
     private int playersFinished = 0;
     private boolean isProcessing = false;
     private Set<String> alreadyProcessed;
-    private MatchRuntime currentMatch = null;
 
     public WatcherTabController() {
         instance = this;
@@ -166,16 +165,20 @@ public class WatcherTabController {
         if (!isProcessing) {
             File f = getNextScreenshot();
             if (f != null) {
-                loadScreenshot(f);
+                try {
+                    loadScreenshot(f);
+                } catch (Exception e) {
+                    Logger.error(e);
+                }
             }
         }
     }
 
-    private void loadScreenshot(File f) {
+    private void loadScreenshot(File f) throws Exception {
         isProcessing = true;
         paneWatcherTab.setDisable(true);
         labelLastScreenshot.setText(f.getName());
-        MatchRuntime results = new MatchRuntime(f, currentMatch);
+        MatchRuntime results = new MatchRuntime(new ScreenshotFileHandler(f));
         paneWatcherTab.setDisable(false);
         if (results.isValid()) {
             playersFinished = 0;
@@ -183,7 +186,6 @@ public class WatcherTabController {
             paneMatchAnalytics.getChildren().clear();
             GuiUtils.prepareGrid(paneMyTeam, results);
             GuiUtils.prepareGrid(paneEnemyTeam, results);
-            this.currentMatch = results;
             labelMap.textProperty().bind(results.mapProperty());
             labelGamemode.textProperty().bind(results.gameModeProperty());
             labelTimestamp.textProperty().bind(results.formattedTimestampProperty());
@@ -202,14 +204,14 @@ public class WatcherTabController {
                 c.next();
                 c.getAddedSubList().forEach(o -> {
                     Logger.log("friend player " + o.getPilotname() + " finished tracing");
-                    buildPlayerGui(o, paneMyTeam);
+                    buildPlayerGui(o, paneMyTeam, results);
                 });
             });
             results.getPlayersEnemy().addListener((ListChangeListener<? super PlayerRuntime>) c -> {
                 c.next();
                 c.getAddedSubList().forEach(o -> {
                     Logger.log("enemy  player " + o.getPilotname() + " finished tracing");
-                    buildPlayerGui(o, paneEnemyTeam);
+                    buildPlayerGui(o, paneEnemyTeam, results);
                 });
             });
             flashBackground(flashGreen, 1500);
@@ -221,14 +223,14 @@ public class WatcherTabController {
         }
     }
 
-    private void buildPlayerGui(PlayerRuntime pr, GridPane parent) {
+    private void buildPlayerGui(PlayerRuntime pr, GridPane parent, MatchRuntime match) {
         try {
             Label preliminaryInfo = preliminaryPlayerInfo.get(pr.getPlayerNumber());
             preliminaryPlayerInfo.remove(pr.getPlayerNumber());
             parent.getChildren().remove(preliminaryInfo);
             int row = pr.getPlayerNumber() % 12;
             row++;//account for header
-            pr.addDataToGrid(parent, row, currentMatch);
+            pr.addDataToGrid(parent, row, match);
             playersFinished++;
         } catch (Exception e) {
             Logger.error(e);
@@ -240,7 +242,7 @@ public class WatcherTabController {
             Logger.log("Tracing finished");
             paneMatchAnalytics.getChildren().clear();
             if (SettingsTabController.getInstance().getLayoutShowStatSummary()) {
-                paneMatchAnalytics.getChildren().add(currentMatch.getMatchAnalyticsPane());
+                paneMatchAnalytics.getChildren().add(match.getMatchAnalyticsPane());
                 Pane spacer = new Pane();
                 spacer.setMaxHeight(Double.MAX_VALUE);
                 VBox.setVgrow(spacer, Priority.ALWAYS);
