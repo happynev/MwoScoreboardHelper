@@ -206,12 +206,12 @@ public class MechRuntime {
 
     public static String findMatchingMech(String mech) {
         if (mech.isEmpty()) return "";
-        String preparedMech = mech.replaceAll("\\(?[S5I8RP]\\)", "").replaceAll("\\s*", ""); //(S)pecial, (S)team, (I)nvasion, (R)esistance, (P)hoenix mechs not in smurfy data
-        String guess = TraceHelpers.guessValue(preparedMech, getKnownShortNames());
-        if (!getKnownShortNames().contains(guess) || StringUtils.getLevenshteinDistance(mech, guess) > 2) {
-            //try again for some (L) variants
-            guess = TraceHelpers.guessValue(preparedMech.replaceAll("\\(L\\)", ""), getKnownShortNames());
-        }
+        String preparedMech = mech.replaceAll("\\(?[S5I8RPL]\\)", "").replaceAll("\\s*", ""); //(S)pecial, (S)team, (I)nvasion, (R)esistance, (P)hoenix mechs not in smurfy data
+        //specially check loyalty variants, some are in smurfy data, some not
+        Set<String> loyaltyvariants = new HashSet<>(getKnownShortNames());
+        loyaltyvariants.removeIf(s -> !s.endsWith("(L)"));
+        String firstguess = TraceHelpers.guessValue(preparedMech, loyaltyvariants);
+        String guess = TraceHelpers.guessValue(firstguess, getKnownShortNames());
         if (!mech.equals(guess)) {
             Logger.log("changed mech: " + mech + "-->" + guess);
         }
