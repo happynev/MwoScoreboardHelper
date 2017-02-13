@@ -54,6 +54,7 @@ public class MatchRuntime {
     private final Map<Integer, SimpleStringProperty> preliminaryInfo = new HashMap<>(24);
     private final Set<String> gameModes = new HashSet<>(Arrays.asList("SKIRMISH", "DOMINATION", "ASSAULT", "CONQUEST", "INCURSION", "INVASION", "ESCORT"));
     private final Map<ScreenshotType, ScreenshotFileHandler> matchScreenshots = new HashMap<>();
+    private final SimpleBooleanProperty tracingFinished = new SimpleBooleanProperty(false);
     private ScreenshotType type;
     private boolean matchFinished;
     private int id = 0;
@@ -218,6 +219,14 @@ public class MatchRuntime {
         }
     }
 
+    public boolean getTracingFinished() {
+        return tracingFinished.get();
+    }
+
+    public SimpleBooleanProperty tracingFinishedProperty() {
+        return tracingFinished;
+    }
+
     private void setupFinishListeners(ScreenshotFileHandler screenshot) {
         SimpleBooleanProperty mapDataFinished = new SimpleBooleanProperty(false);
         MatchInfoTracer tracer = screenshot.getMatchTracer();
@@ -225,16 +234,16 @@ public class MatchRuntime {
             PlayerInfoTracer pi = screenshot.getPlayerInfoTracer(i);
             final int p = i;
             preliminaryInfo.put(p, pi.progressProperty());
-            BooleanBinding allFinished = BooleanBinding.booleanExpression(pi.finishedProperty()).and(mapDataFinished);
-            startBindingWatchDog(allFinished, 300, TRACE_TIMEOUT);
-            allFinished.addListener((observable, oldValue, newValue) -> {
+            BooleanBinding mapAndPlayerFinished = BooleanBinding.booleanExpression(pi.finishedProperty()).and(mapDataFinished);
+            startBindingWatchDog(mapAndPlayerFinished, 300, TRACE_TIMEOUT);
+            mapAndPlayerFinished.addListener((observable, oldValue, newValue) -> {
                 if (newValue) {
                     try {
                         boolean isVictory = "VICTORY".equals(matchResult.get());
                         boolean isDefeat = "DEFEAT".equals(matchResult.get());
                         boolean isDraw = "TIE".equals(matchResult.get());
                         boolean isEnemy = false;
-                        //Logger.log("player trace finished, victory=" + isVictory + " defeat=" + isDefeat);
+                        Logger.log("player trace finished for " + pi.getPilotName());
                         if (isVictory) {
                             isEnemy = p >= 12;
                         } else if (isDefeat) {
@@ -265,13 +274,15 @@ public class MatchRuntime {
                         }
                         pr.getMatchRecords().add(prec);
                         playerRecords.add(prec);
+                        System.out.println("player " + pi.getPilotName() + " assigned to team");
+                        if (pr.getPilotname().equals(SettingsTabController.getPlayername())) {
+                            SessionRuntime.sessionRecords.add(prec);
+                        }
+                        //last because other triggers depend on it
                         if (isEnemy) {
                             playersEnemy.add(pr);
                         } else {
                             playersTeam.add(pr);
-                        }
-                        if (pr.getPilotname().equals(SettingsTabController.getPlayername())) {
-                            SessionRuntime.sessionRecords.add(prec);
                         }
                     } catch (Exception e) {
                         Logger.log("Player info tracer finish trigger, " + pi.getPilotName());
@@ -316,9 +327,9 @@ public class MatchRuntime {
             }
         });
         //set up duplicate check for when tracing finishes
-        BooleanBinding expr = Bindings.size(playerRecords).isEqualTo(24).and(mapDataFinished);
-        startBindingWatchDog(expr, 300, TRACE_TIMEOUT);
-        expr.addListener((observable, oldValue, newValue) -> {
+        tracingFinished.bind(Bindings.size(playersTeam).isEqualTo(12).and(Bindings.size(playersEnemy).isEqualTo(12)).and(mapDataFinished));
+        startBindingWatchDog(tracingFinished, 300, TRACE_TIMEOUT);
+        tracingFinished.addListener((observable, oldValue, newValue) -> {
             if (newValue) {
                 System.out.println("do duplicate check now");
                 MatchRuntime oldRuntime = findSavedMatch();
@@ -678,16 +689,21 @@ public class MatchRuntime {
         line++;
         List<PlayerMatchRecord> pmrTeam = new ArrayList<>(12);
         List<PlayerMatchRecord> pmrEnemy = new ArrayList<>(12);
+        System.out.println("init " + playersTeam.size() + "/" + playersEnemy.size());
         for (PlayerRuntime pr : playersTeam) {
             PlayerMatchRecord pmr = pr.getMatchRecord(this);
             if (pmr != null) {
                 pmrTeam.add(pmr);
+            } else {
+                Logger.warning("cannot find player in match: " + pr.getPilotname());
             }
         }
         for (PlayerRuntime pr : playersEnemy) {
             PlayerMatchRecord pmr = pr.getMatchRecord(this);
             if (pmr != null) {
                 pmrEnemy.add(pmr);
+            } else {
+                Logger.warning("cannot find player in match: " + pr.getPilotname());
             }
         }
         MatchCalculatedValue damageDealt = new MatchCalculatedValue() {

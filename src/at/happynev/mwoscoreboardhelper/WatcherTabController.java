@@ -216,6 +216,20 @@ public class WatcherTabController {
                     buildPlayerGui(o, paneEnemyTeam, results);
                 });
             });
+            results.tracingFinishedProperty().addListener((observable, oldValue, newValue) -> {
+                //all players traced. ok to proceed with next screenshot
+                isProcessing = false;
+                Logger.log("Tracing finished");
+                paneMatchAnalytics.getChildren().clear();
+                if (SettingsTabController.getInstance().getLayoutShowStatSummary()) {
+                    paneMatchAnalytics.getChildren().add(results.getMatchAnalyticsPane());
+                    Pane spacer = new Pane();
+                    spacer.setMaxHeight(Double.MAX_VALUE);
+                    VBox.setVgrow(spacer, Priority.ALWAYS);
+                    paneMatchAnalytics.getChildren().add(spacer);
+                    paneMatchAnalytics.getChildren().add(SessionRuntime.getSessionStatsPane());
+                }
+            });
             flashBackground(flashGreen, 1500);
         } else {
             flashBackground(flashRed, 2000);
@@ -235,20 +249,6 @@ public class WatcherTabController {
         } catch (Exception e) {
             Logger.error(e);
             paneMyTeam.getChildren().add(new Label("Error adding player '" + pr.getPilotname() + "':" + e.toString()));
-        }
-        if (playersFinished == 24) {
-            //all players traced. ok to proceed with next screenshot
-            isProcessing = false;
-            Logger.log("Tracing finished");
-            paneMatchAnalytics.getChildren().clear();
-            if (SettingsTabController.getInstance().getLayoutShowStatSummary()) {
-                paneMatchAnalytics.getChildren().add(match.getMatchAnalyticsPane());
-                Pane spacer = new Pane();
-                spacer.setMaxHeight(Double.MAX_VALUE);
-                VBox.setVgrow(spacer, Priority.ALWAYS);
-                paneMatchAnalytics.getChildren().add(spacer);
-                paneMatchAnalytics.getChildren().add(SessionRuntime.getSessionStatsPane());
-            }
         }
     }
 

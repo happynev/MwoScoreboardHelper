@@ -72,6 +72,9 @@ public class MechRuntime {
                 return mr;
             }
         }
+        if (!"XXX-1X".equals(_short)) {
+            Logger.warning("No Mech instance for '" + _short + "'");
+        }
         return getReferenceMech();
     }
 
