@@ -32,7 +32,7 @@ public class TraceHelpers {
     }
 
     public static String guessValue(String input, Collection<String> possibleValues) {
-        String bestMatch = input;
+        String bestMatch = "";
         int bestSimilarity = Integer.MAX_VALUE;
         List<String> similar = findSimilarStrings(input, possibleValues, (input.length() + 1) / 2);
         List<String> similarLooking = findSimilarLookingStrings(input, similar);
