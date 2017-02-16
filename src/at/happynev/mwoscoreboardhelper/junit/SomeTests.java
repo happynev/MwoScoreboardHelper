@@ -25,6 +25,9 @@ public class SomeTests {
         Assert.assertEquals("WHM-6D", MechRuntime.findMatchingMech("WHM-8D"));
         Assert.assertEquals("WHM-6D", MechRuntime.findMatchingMech("WHM-GD"));
         Assert.assertEquals("KGC-000B", MechRuntime.findMatchingMech("KGC-OOOB"));
+        Assert.assertEquals("UM-R60", MechRuntime.findMatchingMech("UM-RGU"));
+        Assert.assertEquals("MDD-B", MechRuntime.findMatchingMech("MIJIJ-B"));
+        //TEE-PRIME-->EXE-PRIME ???
     }
 
     @Test
@@ -34,6 +37,7 @@ public class SomeTests {
         Assert.assertEquals("CN9-A(NCIX)", MechRuntime.findMatchingMech("CN9-WNClX)"));
         Assert.assertEquals("MAD-IIC", MechRuntime.findMatchingMech("MAD-IIC(S)"));
         Assert.assertEquals("MAD-IIC", MechRuntime.findMatchingMech("MAD-IICIS)"));
+        Assert.assertEquals("MAD-3R", MechRuntime.findMatchingMech("MAD-3R5)"));
         Assert.assertEquals("BLR-1G", MechRuntime.findMatchingMech("BLR-1G(P)"));
     }
 

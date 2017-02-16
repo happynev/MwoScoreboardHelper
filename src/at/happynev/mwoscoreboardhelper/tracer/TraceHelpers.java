@@ -23,7 +23,7 @@ public class TraceHelpers {
         mapAmbiguousChars.put("[TlI1tJ]", "[TlI1tJ]");
         mapAmbiguousChars.put("[2Z7z]", "[2Z7z]");
         mapAmbiguousChars.put("[G68B3E]", "[G68B3E]");
-        mapAmbiguousChars.put("[QDCO0og9]", "[QDCO0og9]");
+        mapAmbiguousChars.put("[QDCO0og9U]", "[QDCO0og9U]");
         mapAmbiguousChars.put("[yv]", "[yv]");
         mapAmbiguousChars.put("[HR]", "[HR]");
         mapAmbiguousChars.put("[S5]", "[S5]");

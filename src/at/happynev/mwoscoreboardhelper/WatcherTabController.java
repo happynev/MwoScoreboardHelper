@@ -102,16 +102,12 @@ public class WatcherTabController {
         paneMyTeam.backgroundProperty().bind(backgroundBinding);
         paneEnemyTeam.backgroundProperty().bind(backgroundBinding);
         toggleAutowatch.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            if (!SettingsTabController.getScreenshotDirectory().isDirectory() || SettingsTabController.getPlayername().isEmpty()) {
-                Logger.alertPopup("Make sure to set Playername and Screenshot directory on the Settings tab");
+            SettingsTabController.setAutowatchEnabled(newValue);
+            startWatcher(SettingsTabController.getInstance().getTextPollingInterval().getText());
+            if (newValue) {
+                toggleAutowatch.setText("Watcher Active");
             } else {
-                SettingsTabController.setAutowatchEnabled(newValue);
-                startWatcher(SettingsTabController.getInstance().getTextPollingInterval().getText());
-                if (newValue) {
-                    toggleAutowatch.setText("Watcher Active");
-                } else {
-                    toggleAutowatch.setText("Watcher Inactive");
-                }
+                toggleAutowatch.setText("Watcher Inactive");
             }
         });
         startWatcher(SettingsTabController.getInstance().getTextPollingInterval().getText());
@@ -138,9 +134,14 @@ public class WatcherTabController {
 
     private File getNextScreenshot() {
         File f = null;
-        for (File ls : SettingsTabController.getScreenshotDirectory().listFiles((dir, name) -> name.endsWith(".jpeg") || name.endsWith(".jpg") || name.endsWith(".png"))) {
-            if (!alreadyProcessed.contains(ls.getName())) {
-                return ls;
+        if (!SettingsTabController.getScreenshotDirectory().isDirectory() || SettingsTabController.getPlayername().isEmpty()) {
+            Logger.alertPopup("Make sure to set Playername and Screenshot directory on the Settings tab");
+            toggleAutowatch.setSelected(false);
+        } else {
+            for (File ls : SettingsTabController.getScreenshotDirectory().listFiles((dir, name) -> name.endsWith(".jpeg") || name.endsWith(".jpg") || name.endsWith(".png"))) {
+                if (!alreadyProcessed.contains(ls.getName())) {
+                    return ls;
+                }
             }
         }
         return f;
@@ -218,16 +219,18 @@ public class WatcherTabController {
             });
             results.tracingFinishedProperty().addListener((observable, oldValue, newValue) -> {
                 //all players traced. ok to proceed with next screenshot
-                isProcessing = false;
-                Logger.log("Tracing finished");
-                paneMatchAnalytics.getChildren().clear();
-                if (SettingsTabController.getInstance().getLayoutShowStatSummary()) {
-                    paneMatchAnalytics.getChildren().add(results.getMatchAnalyticsPane());
-                    Pane spacer = new Pane();
-                    spacer.setMaxHeight(Double.MAX_VALUE);
-                    VBox.setVgrow(spacer, Priority.ALWAYS);
-                    paneMatchAnalytics.getChildren().add(spacer);
-                    paneMatchAnalytics.getChildren().add(SessionRuntime.getSessionStatsPane());
+                if (newValue) {
+                    isProcessing = false;
+                    Logger.log("tracingfinished listener:" + newValue);
+                    paneMatchAnalytics.getChildren().clear();
+                    if (SettingsTabController.getInstance().getLayoutShowStatSummary()) {
+                        paneMatchAnalytics.getChildren().add(results.getMatchAnalyticsPane());
+                        Pane spacer = new Pane();
+                        spacer.setMaxHeight(Double.MAX_VALUE);
+                        VBox.setVgrow(spacer, Priority.ALWAYS);
+                        paneMatchAnalytics.getChildren().add(spacer);
+                        paneMatchAnalytics.getChildren().add(SessionRuntime.getSessionStatsPane());
+                    }
                 }
             });
             flashBackground(flashGreen, 1500);

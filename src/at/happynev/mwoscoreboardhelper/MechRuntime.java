@@ -72,26 +72,27 @@ public class MechRuntime {
                 return mr;
             }
         }
-        if (!"XXX-1X".equals(_short)) {
+        if (!"XXX-1X".equals(_short) && !_short.isEmpty()) {
             Logger.warning("No Mech instance for '" + _short + "'");
         }
         return getReferenceMech();
     }
 
-    private static MechRuntime getReferenceMech() {
+    public static MechRuntime getReferenceMech() {
         return new MechRuntime("-1", "Dummy mech", "Dummy mech", "XXX-1X", "Dummy", 0, 50.0, 0, "None", "", new ArrayList<>());
     }
 
     private static void bulkLoadFromDb() {
         try {
             PreparedStatement prep = DbHandler.getInstance().prepareStatement("select api_id,internal_name,name,short_name,chassis,tons,max_speed,max_armor,faction,specialtype from mech_data");
-            PreparedStatement prepPmr = DbHandler.getInstance().prepareStatement("select player_data_id,match_data_id from player_matchdata where mech=?");
+            String pmrQuery = "select player_data_id,match_data_id from player_matchdata where mech=?";
             ResultSet rs = prep.executeQuery();
             mechsPerFaction.clear();
             mechsPerChassis.clear();
             mechsPerWeightClass.clear();
             knownMechs.clear();
             knownShortNames.clear();
+
             while (rs.next()) {
                 String _id = rs.getString("api_id");
                 String _internal = rs.getString("internal_name");
@@ -104,7 +105,7 @@ public class MechRuntime {
                 String _faction = rs.getString("faction");
                 String _special = rs.getString("specialtype");
                 List<PlayerMatchRecord> tmpPmr = new ArrayList<>();
-                prepPmr.clearParameters();
+                PreparedStatement prepPmr = DbHandler.getInstance().prepareStatement(pmrQuery);
                 prepPmr.setString(1, _short);
                 ResultSet rsPmr = prepPmr.executeQuery();
                 while (rsPmr.next()) {
@@ -113,6 +114,7 @@ public class MechRuntime {
                     tmpPmr.add(new PlayerMatchRecord(pid, mid));
                 }
                 rsPmr.close();
+                DbHandler.getInstance().dumpPreparedStatement(pmrQuery); //otherwise DB overflows
                 MechRuntime mr = new MechRuntime(_id, _internal, _name, _short, _chassis, _tons, _speed, _armor, _faction, _special, tmpPmr);
                 knownMechs.put(mr.getId(), mr);
                 knownShortNames.add(mr.getShortName());

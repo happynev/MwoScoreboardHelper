@@ -81,6 +81,9 @@ public class PlayerRuntime {
     }
 
     public static PlayerRuntime getInstance(int _id) {
+        if (_id == -1) {
+            return getReferencePlayer();
+        }
         PlayerRuntime ret = playersById.get(_id);
         if (ret == null) {
             try {
@@ -545,7 +548,7 @@ public class PlayerRuntime {
                                 pmr.getMatchValues().put(MatchStat.MATCHMECHPERF, new SimpleStringProperty("x0%"));
                             }
                         } else {
-                            Logger.log("no avg for " + pmr.getMech());
+                            //Logger.log("no avg for " + pmr.getMech());
                         }
                         if (iAvgScore > 0) {
                             String perf = new BigDecimal((double) pmr.getMatchScore() / (double) iAvgScore).multiply(new BigDecimal(100)).setScale(0, BigDecimal.ROUND_HALF_UP).toPlainString();
@@ -563,5 +566,9 @@ public class PlayerRuntime {
             timesSeen.set("" + matchRecords.size());
             timesFinished.set("" + totalValidMatches);
         });
+    }
+
+    public void removeMatchRecord(int oldMatchId) {
+        matchRecords.removeIf(pmr -> pmr.getMatchId() == oldMatchId);
     }
 }

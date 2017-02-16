@@ -16,7 +16,21 @@ public class Logger {
         alert.setHeaderText(e.getMessage());
         //alertPopup.setContentText();
         alert.showAndWait();
-        logger.error("Fehler hat passiert", e);
+        logger.error(getSource() + "Fehler hat passiert", e);
+    }
+
+    private static String getSource() {
+        boolean sawLogger = false;
+        for (StackTraceElement stackline : Thread.currentThread().getStackTrace()) {
+            if (!sawLogger) {
+                if (stackline.getClassName().contains("Logger")) {
+                    sawLogger = true;
+                }
+            } else if (!stackline.getClassName().contains("Logger")) {
+                return stackline.getClassName().replaceAll(".*\\.", "") + "." + stackline.getMethodName() + "():";
+            }
+        }
+        return "?:?\t";
     }
 
     public static void error(Throwable e) {
@@ -27,11 +41,11 @@ public class Logger {
             //alertPopup.setContentText();
             alert.showAndWait();
         }
-        logger.error("Fehler hat passiert", e);
+        logger.error(getSource() + "Fehler hat passiert", e);
     }
 
     public static void infoPopup(String info) {
-        logger.info("User Info: " + info);
+        logger.info(getSource() + "User Info: " + info);
         if (SettingsTabController.getInstance().popupsAllowed()) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Info");
@@ -42,7 +56,7 @@ public class Logger {
     }
 
     public static void log(String s) {
-        logger.info(s);
+        logger.info(getSource() + s);
     }
 
     public static void alertPopup(String info) {
@@ -57,6 +71,6 @@ public class Logger {
     }
 
     public static void warning(String s) {
-        logger.warn(s);
+        logger.warn(getSource() + s);
     }
 }

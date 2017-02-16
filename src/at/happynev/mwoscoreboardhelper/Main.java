@@ -15,6 +15,8 @@ public class Main extends Application {
         Logger.log("############################# Application STARTED ###########################");
     }
 
+    private Server dbserver;
+
     public static int getDbVersion() {
         return 2;
     }
@@ -29,27 +31,40 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Server dbserver = Server.createTcpServer("-tcpPort", "9124", "-tcpAllowOthers", "-baseDir", Utils.getHomeDir().toString()).start();
+        dbserver = Server.createTcpServer("-tcpPort", "9124", "-tcpAllowOthers", "-baseDir", Utils.getHomeDir().toString()).start();
         Logger.log("db server: " + dbserver.getURL());
         DbHandler.getInstance();//pre-init
         URL loc = this.getClass().getResource("ScoreboardHelper.fxml");
-        Parent root = FXMLLoader.load(loc);
-        Scene scene = new Scene(root);
-        primaryStage.setTitle("ScoreboardHelper");
-        primaryStage.setScene(scene);
-        SettingsTabController.restoreWindowPos(primaryStage);
+        try {
+            Parent root = FXMLLoader.load(loc);
+            Scene scene = new Scene(root);
+            primaryStage.setTitle("ScoreboardHelper");
+            primaryStage.setScene(scene);
+            SettingsTabController.restoreWindowPos(primaryStage);
+        } catch (Exception e) {
+            Logger.error(e);
+            Logger.alertPopup("error loading GUI. exiting:");
+            shutdown();
+        }
 
         primaryStage.setOnCloseRequest(
                 event -> {
-                    try {
-                        WatcherTabController.getInstance().stopWatching();
+                    WatcherTabController.getInstance().stopWatching();
+                    if (dbserver != null) {
                         SettingsTabController.saveWindowPos(primaryStage);
-                    } catch (Exception e) {
-                        Logger.error(e);
+                        shutdown();
                     }
-                    dbserver.stop();
-                    Logger.log("######## Application closing ########");
-                });
+                }
+
+        );
         primaryStage.show();
+    }
+
+    private void shutdown() {
+        if (dbserver != null) {
+            dbserver.stop();
+        }
+        dbserver = null;
+        Logger.log("######## Application closing ########");
     }
 }

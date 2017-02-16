@@ -58,7 +58,7 @@ public class PlayerMatchRecord {
     private PlayerMatchRecord(boolean isEnemy) {
         playerId = -1;
         matchId = -1;
-        String mech = "XXX-1X";
+        String mech = MechRuntime.getReferenceMech().getShortName();
         String status = "DEAD";
         int matchScore = 1000;
         int kills = 10;
@@ -101,10 +101,7 @@ public class PlayerMatchRecord {
         matchValues.put(MatchStat.MATCHPING, new SimpleStringProperty("" + ping));
         matchValues.put(MatchStat.MATCHSCORE, new SimpleStringProperty("" + matchScore));
         matchValues.put(MatchStat.MATCHSTATUS, new SimpleStringProperty(status));
-        MechRuntime mr = MechRuntime.getMechByShortName(mech);
-        if (mr != null) {
-            matchValues.put(MatchStat.MATCHTONS, new SimpleStringProperty("" + mr.getTons()));
-        }
+        matchValues.put(MatchStat.MATCHTONS, new SimpleStringProperty("" + MechRuntime.getMechByShortName(mech).getTons()));
     }
 
     public static PlayerMatchRecord getReferenceRecord(boolean isEnemy) {

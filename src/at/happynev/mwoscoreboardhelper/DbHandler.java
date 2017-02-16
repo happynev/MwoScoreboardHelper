@@ -18,6 +18,7 @@ public class DbHandler {
     private final String dburl = "jdbc:h2:tcp://localhost:9124/mwoscoreboarddb";
     private Connection con = null;
     private Map<String, PreparedStatement> cachedStatements = new HashMap<>();
+    private Map<PreparedStatement, Integer> statementUsage = new HashMap<>();
     private BooleanProperty writeEnabled = new SimpleBooleanProperty(true);
 
     private DbHandler() {
@@ -30,6 +31,21 @@ public class DbHandler {
             ourInstance = new DbHandler();
         }
         return ourInstance;
+    }
+
+    public synchronized void dumpPreparedStatement(String sql) {
+        if (cachedStatements.containsKey(sql)) {
+            try {
+                PreparedStatement prep = cachedStatements.get(sql);
+                statementUsage.remove(prep);
+                prep.close();
+            } catch (SQLException e) {
+                Logger.warning("failed to close prep stmt for " + sql);
+            }
+            cachedStatements.remove(sql);
+        } else {
+            Logger.warning("tried to dump non-existing sql:" + sql);
+        }
     }
 
     private void saveSetting(String key, String value) {
@@ -143,16 +159,22 @@ public class DbHandler {
 
     public synchronized PreparedStatement prepareStatement(String sql, boolean returnKey) throws SQLException {
         PreparedStatement prep = cachedStatements.get(sql);
-        if (prep == null) {
+        if (prep == null || prep.isClosed()) {
             if (returnKey) {
                 prep = con.prepareStatement(sql);
             } else {
                 prep = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             }
-            //Utils.log(this, "set up new prepared stmt: " + sql);
             cachedStatements.put(sql, prep);
+            statementUsage.put(prep, 0);
         } else {
             prep.clearParameters();
+        }
+        statementUsage.put(prep, statementUsage.get(prep) + 1);
+        if (statementUsage.get(prep) > 1000) {
+            //safety precaution. sometimes prep statement gets closed inexplicably after lots of use
+            dumpPreparedStatement(sql);
+            prep = prepareStatement(sql, returnKey);
         }
         return prep;
     }

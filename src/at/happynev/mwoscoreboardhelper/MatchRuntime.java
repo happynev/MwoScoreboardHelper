@@ -243,7 +243,7 @@ public class MatchRuntime {
                         boolean isDefeat = "DEFEAT".equals(matchResult.get());
                         boolean isDraw = "TIE".equals(matchResult.get());
                         boolean isEnemy = false;
-                        Logger.log("player trace finished for " + pi.getPilotName());
+                        Logger.log("player trace finished for " + pi.getPilotName() + " mech:" + pi.getMech());
                         if (isVictory) {
                             isEnemy = p >= 12;
                         } else if (isDefeat) {
@@ -274,7 +274,6 @@ public class MatchRuntime {
                         }
                         pr.getMatchRecords().add(prec);
                         playerRecords.add(prec);
-                        System.out.println("player " + pi.getPilotName() + " assigned to team");
                         if (pr.getPilotname().equals(SettingsTabController.getPlayername())) {
                             SessionRuntime.sessionRecords.add(prec);
                         }
@@ -299,27 +298,30 @@ public class MatchRuntime {
                     gameMode.set(TraceHelpers.guessValue(tracer.getGameMode().replaceAll(".*:", ""), gameModes));
                     battleTime.set(tracer.getBattleTime());
                     server.set(tracer.getServer());
-                    String realResult = "";
-                    realResult = tracer.getMatchResult();
-                    if (!realResult.matches("VICTORY|DEFEAT|DRAW")) {
-                        String winner = tracer.getWinningTeam().toLowerCase();
-                        String loser = tracer.getLosingTeam().toLowerCase();
-                        if (winner.contains("team")) {
-                            realResult = "VICTORY";
-                        } else if (winner.contains("enemy")) {
-                            realResult = "DEFEAT";
-                        } else if (loser.contains("team")) {
-                            realResult = "DEFEAT";
-                        } else if (loser.contains("enemy")) {
-                            realResult = "VICTORY";
+                    if (type == ScreenshotType.QP_4SUMMARY) {
+                        String realResult = "";
+                        realResult = tracer.getMatchResult();
+                        if (!realResult.matches("VICTORY|DEFEAT|TIE")) {
+                            String winner = tracer.getWinningTeam().toLowerCase();
+                            String loser = tracer.getLosingTeam().toLowerCase();
+                            if (winner.contains("team")) {
+                                realResult = "VICTORY";
+                            } else if (winner.contains("enemy")) {
+                                realResult = "DEFEAT";
+                            } else if (loser.contains("team")) {
+                                realResult = "DEFEAT";
+                            } else if (loser.contains("enemy")) {
+                                realResult = "VICTORY";
+                            }
                         }
+                        if (realResult.equals("VICTORY")) {
+                            SessionRuntime.wins++;
+                        } else if (realResult.equals("DEFEAT")) {
+                            SessionRuntime.losses++;
+                        }
+                        SessionRuntime.totalMatches++;
+                        matchResult.set(realResult);
                     }
-                    if (realResult.equals("VICTORY")) {
-                        SessionRuntime.wins++;
-                    } else if (realResult.equals("DEFEAT")) {
-                        SessionRuntime.losses++;
-                    }
-                    matchResult.set(realResult);
                     mapDataFinished.set(true);
                 }
             } catch (Exception e) {
@@ -330,14 +332,16 @@ public class MatchRuntime {
         tracingFinished.bind(Bindings.size(playersTeam).isEqualTo(12).and(Bindings.size(playersEnemy).isEqualTo(12)).and(mapDataFinished));
         startBindingWatchDog(tracingFinished, 300, TRACE_TIMEOUT);
         tracingFinished.addListener((observable, oldValue, newValue) -> {
+            Logger.log("tracingfinished:" + newValue);
             if (newValue) {
-                System.out.println("do duplicate check now");
                 MatchRuntime oldRuntime = findSavedMatch();
                 int newId;
                 if (oldRuntime != null) {
                     newId = oldRuntime.getId();
                     Logger.log("Screenshot identified as existing match " + newId);
                     WatcherTabController.getInstance().labelStatusInfo.setText("Assigned to previously saved Match: " + oldRuntime.toString());
+                    //delete incomplete/outdated records, possibly from prep screenshot
+                    cleanPreviousMatchRecords(newId);
                 } else {
                     newId = createMatchEntry();
                     Logger.log("Screenshot is a new match " + newId);
@@ -350,8 +354,6 @@ public class MatchRuntime {
                     //remember seen players
                     savePlayerMatchRecords();
                 } else if (type == ScreenshotType.QP_4SUMMARY) {
-                    //delete incomplete/outdated records, possibly from prep screenshot
-                    cleanPreviousMatchRecords();
                     //save player match records
                     savePlayerMatchRecords();
                     //add missing matchdata
@@ -389,12 +391,17 @@ public class MatchRuntime {
         updateIfEmpty("maptimeofday", this.mapTimeOfDay.get());
     }
 
-    private void cleanPreviousMatchRecords() {
+    private void cleanPreviousMatchRecords(int oldMatchId) {
         try {
             PreparedStatement prep = DbHandler.getInstance().prepareStatement("delete from player_matchdata where match_data_id=?");
-            prep.setInt(1, id);
+            prep.setInt(1, oldMatchId);
             int del = prep.executeUpdate();
             Logger.log("cleaned " + del + " old player records");
+            List<PlayerRuntime> players = new ArrayList<>(playersTeam);
+            players.addAll(playersEnemy);
+            for (PlayerRuntime pr : players) {
+                pr.removeMatchRecord(oldMatchId);
+            }
         } catch (SQLException e) {
             Logger.error(e);
         }
@@ -689,7 +696,6 @@ public class MatchRuntime {
         line++;
         List<PlayerMatchRecord> pmrTeam = new ArrayList<>(12);
         List<PlayerMatchRecord> pmrEnemy = new ArrayList<>(12);
-        System.out.println("init " + playersTeam.size() + "/" + playersEnemy.size());
         for (PlayerRuntime pr : playersTeam) {
             PlayerMatchRecord pmr = pr.getMatchRecord(this);
             if (pmr != null) {
@@ -889,10 +895,12 @@ public class MatchRuntime {
                 int team = 0;
                 int enemy = 0;
                 for (PlayerMatchRecord pmr : pmrTeam) {
-                    if ("None".equals(MechRuntime.getMechByShortName(pmr.getMech()).getWeightClass())) team++;
+                    MechRuntime mr = MechRuntime.getMechByShortName(pmr.getMech());
+                    if ("None".equals(mr.getWeightClass())) team++;
                 }
                 for (PlayerMatchRecord pmr : pmrEnemy) {
-                    if ("None".equals(MechRuntime.getMechByShortName(pmr.getMech()).getWeightClass())) enemy++;
+                    MechRuntime mr = MechRuntime.getMechByShortName(pmr.getMech());
+                    if ("None".equals(mr.getWeightClass())) enemy++;
                 }
                 teamValue = team + "";
                 enemyValue = enemy + "";
