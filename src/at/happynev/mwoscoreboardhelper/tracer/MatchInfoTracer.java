@@ -16,20 +16,20 @@ public class MatchInfoTracer extends AsyncTracer {
     private final TraceableImage matchResult;
 
     public MatchInfoTracer(BufferedImage screenshot, Offsets off) {
-        gameMode = new TraceableImage(extractYellow(Offsets.getSubImage(screenshot, off.getElementLocation(ScreenElement.GAMEMODE))), OcrConfig.DEFAULT);
+        gameMode = new TraceableImage(extractYellow(Offsets.getSubImage(screenshot, off.getElementLocation(ScreenGameElement.GAMEMODE))), OcrConfig.DEFAULT);
         if (off.getType() == ScreenshotType.QP_1PREPARATION) {
-            map = new TraceableImage(extractYellow(Offsets.getSubImage(screenshot, off.getElementLocation(ScreenElement.MAP))), OcrConfig.DEFAULT);
-            server = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.getElementLocation(ScreenElement.SERVER))), OcrConfig.DEFAULT);
+            map = new TraceableImage(extractYellow(Offsets.getSubImage(screenshot, off.getElementLocation(ScreenGameElement.MAP))), OcrConfig.DEFAULT);
+            server = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.getElementLocation(ScreenGameElement.SERVER))), OcrConfig.DEFAULT);
             battleTime = null;
             winningTeam = null;
             losingTeam = null;
             matchResult = null;
         } else if (off.getType() == ScreenshotType.QP_4SUMMARY) {
-            map = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.getElementLocation(ScreenElement.MAP))), OcrConfig.DEFAULT);
-            battleTime = new TraceableImage(extractYellow(Offsets.getSubImage(screenshot, off.getElementLocation(ScreenElement.BATTLETIME))), OcrConfig.TIME);
-            winningTeam = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.getElementLocation(ScreenElement.WINNINGTEAM))), OcrConfig.TEAMS);
-            losingTeam = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.getElementLocation(ScreenElement.LOSINGTEAM))), OcrConfig.TEAMS);
-            matchResult = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.getElementLocation(ScreenElement.MATCHRESULT))), OcrConfig.MATCHRESULT);
+            map = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.getElementLocation(ScreenGameElement.MAP))), OcrConfig.DEFAULT);
+            battleTime = new TraceableImage(extractYellow(Offsets.getSubImage(screenshot, off.getElementLocation(ScreenGameElement.BATTLETIME))), OcrConfig.TIME);
+            winningTeam = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.getElementLocation(ScreenGameElement.WINNINGTEAM))), OcrConfig.TEAMS);
+            losingTeam = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.getElementLocation(ScreenGameElement.LOSINGTEAM))), OcrConfig.TEAMS);
+            matchResult = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.getElementLocation(ScreenGameElement.MATCHRESULT))), OcrConfig.MATCHRESULT);
             server = null;
         } else {
             map = null;

@@ -37,7 +37,7 @@ public enum OcrConfig {
                 tess.setTessVariable("tessedit_char_whitelist", "YourEnemyTa");
                 break;
             case MATCHRESULT:
-                tess.setTessVariable("tessedit_char_whitelist", "VICTORYDEFEAT");
+                tess.setTessVariable("tessedit_char_whitelist", alphaCharsCAPS);
                 break;
             case STATUS:
                 tess.setTessVariable("tessedit_char_whitelist", "ALIVED");

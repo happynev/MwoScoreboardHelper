@@ -15,7 +15,9 @@ public abstract class Offsets {
             new QuickplaySummaryOffsets_16_9(1),
             new QuickplaySummaryOffsets_16_10(1),
             new QuickplayPreparationOffsets_16_9(1),
-            new QuickplayPreparationOffsets_16_10(1)
+            new QuickplayPreparationOffsets_16_10(1),
+            new QuickplayRewardsOffsets_16_9(1),
+            new QuickplayRewardsOffsets_16_10(1)
     ));
 
     public final static Offsets getInstance(ScreenshotType type, BufferedImage img) {
@@ -69,9 +71,15 @@ public abstract class Offsets {
         return ret;
     }
 
-    public abstract Rectangle getElementLocation(ScreenElement element);
+    public abstract Rectangle getElementLocation(ScreenGameElement element);
 
     public abstract Rectangle getPlayerElementLocation(ScreenPlayerElement element, int playerNumber);
+
+    public abstract Rectangle getPerformanceName(int line);
+
+    public abstract Rectangle getPerformanceValue(int line);
+
+    public abstract Rectangle getRewardLocation(ScreenRewardElement element);
 
     public static class Rectangle {
         public int x = 0;

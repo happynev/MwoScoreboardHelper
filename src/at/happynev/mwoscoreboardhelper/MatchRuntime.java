@@ -86,8 +86,11 @@ public class MatchRuntime {
             Logger.warning("replacing " + type.toString());
         }
         matchScreenshots.put(type, screenshot);
-        final MatchInfoTracer tracer = screenshot.getMatchTracer();
-        setupFinishListeners(screenshot);
+        if (type == ScreenshotType.QP_1PREPARATION || type == ScreenshotType.QP_4SUMMARY) {
+            setupMatchFinishListeners(screenshot);
+        } else if (type == ScreenshotType.QP_3REWARDS) {
+            setupRewardFinishListeners(screenshot);
+        }
     }
 
     private MatchRuntime(int id) {
@@ -227,7 +230,11 @@ public class MatchRuntime {
         return tracingFinished;
     }
 
-    private void setupFinishListeners(ScreenshotFileHandler screenshot) {
+    private void setupRewardFinishListeners(ScreenshotFileHandler screenshot) {
+
+    }
+
+    private void setupMatchFinishListeners(ScreenshotFileHandler screenshot) {
         SimpleBooleanProperty mapDataFinished = new SimpleBooleanProperty(false);
         MatchInfoTracer tracer = screenshot.getMatchTracer();
         for (int i = 0; i < 24; i++) {

@@ -69,7 +69,7 @@ public class QuickplayPreparationOffsets_16_9 extends Offsets {
     }
 
     @Override
-    public Rectangle getElementLocation(ScreenElement element) {
+    public Rectangle getElementLocation(ScreenGameElement element) {
         switch (element) {
             case MAP:
                 return map();
@@ -100,6 +100,21 @@ public class QuickplayPreparationOffsets_16_9 extends Offsets {
             default:
                 throw new IllegalArgumentException(element + " not applicable for " + getType());
         }
+    }
+
+    @Override
+    public Rectangle getPerformanceName(int line) {
+        throw new IllegalArgumentException("performance not applicable for " + getType());
+    }
+
+    @Override
+    public Rectangle getPerformanceValue(int line) {
+        throw new IllegalArgumentException("performance not applicable for " + getType());
+    }
+
+    @Override
+    public Rectangle getRewardLocation(ScreenRewardElement element) {
+        throw new IllegalArgumentException(element + " not applicable for " + getType());
     }
 
     private Rectangle map() {

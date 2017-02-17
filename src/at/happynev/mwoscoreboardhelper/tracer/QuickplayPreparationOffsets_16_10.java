@@ -57,8 +57,9 @@ public class QuickplayPreparationOffsets_16_10 extends Offsets {
     public QuickplayPreparationOffsets_16_10(double scale) {
         scaleFactor = scale;
     }
+
     @Override
-    public Rectangle getElementLocation(ScreenElement element) {
+    public Rectangle getElementLocation(ScreenGameElement element) {
         switch (element) {
             case MAP:
                 return map();
@@ -90,6 +91,7 @@ public class QuickplayPreparationOffsets_16_10 extends Offsets {
                 throw new IllegalArgumentException(element + " not applicable for " + getType());
         }
     }
+
     @Override
     public int getAbsoluteWidth() {
         return WIDTH;
@@ -127,7 +129,8 @@ public class QuickplayPreparationOffsets_16_10 extends Offsets {
     protected Offsets getScaledInstance(int width, int height) {
         return new QuickplayPreparationOffsets_16_10(width, height);
     }
-    private  Rectangle server() {
+
+    private Rectangle server() {
         return new Rectangle(SERVER_OFFSET_X, SERVER_OFFSET_Y, SERVER_WIDTH, SERVER_HEIGHT, scaleFactor);
     }
 
@@ -194,5 +197,20 @@ public class QuickplayPreparationOffsets_16_10 extends Offsets {
     @Override
     public ScreenshotType getType() {
         return ScreenshotType.QP_1PREPARATION;
+    }
+
+    @Override
+    public Rectangle getPerformanceName(int line) {
+        throw new IllegalArgumentException("performance not applicable for " + getType());
+    }
+
+    @Override
+    public Rectangle getPerformanceValue(int line) {
+        throw new IllegalArgumentException("performance not applicable for " + getType());
+    }
+
+    @Override
+    public Rectangle getRewardLocation(ScreenRewardElement element) {
+        throw new IllegalArgumentException(element + " not applicable for " + getType());
     }
 }
