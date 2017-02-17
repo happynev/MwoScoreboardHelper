@@ -24,20 +24,20 @@ public enum ScreenshotType {
     public static ScreenshotType identifyType(BufferedImage screenshot) {
         lastCheck.clear();
         //try prep first, most time critical
-        TraceableImage checkType = new TraceableImage(Offsets.getSubImage(screenshot, Offsets.getInstance(QP_1PREPARATION, screenshot).typeIdentifier()), OcrConfig.DEFAULT);
+        TraceableImage checkType = new TraceableImage(Offsets.getSubImage(screenshot, Offsets.getInstance(QP_1PREPARATION, screenshot).getElementLocation(ScreenElement.TYPEIDENTIFIER)), OcrConfig.DEFAULT);
         lastCheck.add(checkType);
         checkType.performTrace();
         String ident = checkType.getValue();
         if ("Your Team".equals(ident)) {
             return QP_1PREPARATION;
         } else {
-            TraceableImage checkType2 = new TraceableImage(Offsets.getSubImage(screenshot, Offsets.getInstance(QP_4SUMMARY, screenshot).typeIdentifier()), OcrConfig.DEFAULT);
+            TraceableImage checkType2 = new TraceableImage(Offsets.getSubImage(screenshot, Offsets.getInstance(QP_4SUMMARY, screenshot).getElementLocation(ScreenElement.TYPEIDENTIFIER)), OcrConfig.DEFAULT);
             lastCheck.add(checkType2);
             checkType2.performTrace();
             String ident2 = checkType2.getValue();
             if ("Exit Match".equals(ident2)) {
                 //TODO check QP vs FP
-                TraceableImage checkType3 = new TraceableImage(Offsets.getSubImage(screenshot, Offsets.getInstance(QP_4SUMMARY, screenshot).winningTeam()), OcrConfig.DEFAULT);
+                TraceableImage checkType3 = new TraceableImage(Offsets.getSubImage(screenshot, Offsets.getInstance(QP_4SUMMARY, screenshot).getElementLocation(ScreenElement.WINNINGTEAM)), OcrConfig.DEFAULT);
                 lastCheck.add(checkType3);
                 checkType3.performTrace();
                 String ident3 = checkType3.getValue();

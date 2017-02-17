@@ -20,9 +20,9 @@ public class PlayerInfoTracer extends AsyncTracer {
     private final TraceableImage ping;
 
     public PlayerInfoTracer(BufferedImage screenshot, int player, Offsets off) {
-        pilotName = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.playerPilotName(player))), OcrConfig.DEFAULT);
-        unitTag = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.playerUnit(player))), OcrConfig.UNIT);
-        BufferedImage mechImg = Offsets.getSubImage(screenshot, off.playerMech(player));
+        pilotName = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.getPlayerElementLocation(ScreenPlayerElement.PILOTNAME, player))), OcrConfig.DEFAULT);
+        unitTag = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.getPlayerElementLocation(ScreenPlayerElement.UNIT, player))), OcrConfig.UNIT);
+        BufferedImage mechImg = Offsets.getSubImage(screenshot, off.getPlayerElementLocation(ScreenPlayerElement.MECH, player));
         if (mechImg != null) {
             //enemy team in preparation screen
             mech = new TraceableImage(mechImg, OcrConfig.MECHS);//s -> s.replaceAll(".*?(READY|NOT READY|Disconnected|CONNECTING)?.*", "$1").replaceAll("^\\s*$", "DEAD")
@@ -30,12 +30,12 @@ public class PlayerInfoTracer extends AsyncTracer {
             mech = null;
         }
         if (off.getType() == ScreenshotType.QP_4SUMMARY) {
-            matchScore = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.playerMatchScore(player))), OcrConfig.NUMERIC);
-            kills = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.playerKills(player))), OcrConfig.NUMERIC);
-            assists = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.playerAssists(player))), OcrConfig.NUMERIC);
-            damage = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.playerDamage(player))), OcrConfig.NUMERIC);
-            status = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.playerStatus(player))), OcrConfig.STATUS);
-            ping = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.playerPing(player))), OcrConfig.NUMERIC);
+            matchScore = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.getPlayerElementLocation(ScreenPlayerElement.MATCHSCORE, player))), OcrConfig.NUMERIC);
+            kills = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.getPlayerElementLocation(ScreenPlayerElement.KILLS, player))), OcrConfig.NUMERIC);
+            assists = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.getPlayerElementLocation(ScreenPlayerElement.ASSISTS, player))), OcrConfig.NUMERIC);
+            damage = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.getPlayerElementLocation(ScreenPlayerElement.DAMAGE, player))), OcrConfig.NUMERIC);
+            status = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.getPlayerElementLocation(ScreenPlayerElement.STATUS, player))), OcrConfig.STATUS);
+            ping = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.getPlayerElementLocation(ScreenPlayerElement.PING, player))), OcrConfig.NUMERIC);
         } else {
             matchScore = null;
             kills = null;

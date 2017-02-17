@@ -69,18 +69,45 @@ public class QuickplayPreparationOffsets_16_9 extends Offsets {
     }
 
     @Override
-    public Rectangle map() {
+    public Rectangle getElementLocation(ScreenElement element) {
+        switch (element) {
+            case MAP:
+                return map();
+            case GAMEMODE:
+                return gameMode();
+            case SERVER:
+                return server();
+            case TYPEIDENTIFIER:
+                return typeIdentifier();
+            default:
+                throw new IllegalArgumentException(element + " not applicable for " + getType());
+        }
+    }
+
+    @Override
+    public Rectangle getPlayerElementLocation(ScreenPlayerElement element, int playerNumber) {
+        switch (element) {
+            case UNIT:
+                return playerUnit(playerNumber);
+            case PILOTNAME:
+                return playerPilotName(playerNumber);
+            case MECH:
+                return playerMech(playerNumber);
+            case STATUS:
+                return playerStatus(playerNumber);
+            case PING:
+                return playerPing(playerNumber);
+            default:
+                throw new IllegalArgumentException(element + " not applicable for " + getType());
+        }
+    }
+
+    private Rectangle map() {
         return new Rectangle(MAP_OFFSET_X, MAP_OFFSET_Y, MAP_WIDTH, MAP_HEIGHT, scaleFactor);
     }
 
-    @Override
-    public Rectangle gameMode() {
+    private Rectangle gameMode() {
         return new Rectangle(GAMEMODE_OFFSET_X, GAMEMODE_OFFSET_Y, GAMEMODE_WIDTH, GAMEMODE_HEIGHT, scaleFactor);
-    }
-
-    @Override
-    public Rectangle battleTime() {
-        return new Rectangle(0, 0, 0, 0, scaleFactor);
     }
 
     private int getPlayerLineOffset(int p) {
@@ -97,33 +124,15 @@ public class QuickplayPreparationOffsets_16_9 extends Offsets {
         return (int) playerLineOffset;
     }
 
-    @Override
-    public Rectangle winningTeam() {
-        return new Offsets.Rectangle(0, 0, 0, 0, scaleFactor);
-    }
-
-    @Override
-    public Rectangle losingTeam() {
-        return new Offsets.Rectangle(0, 0, 0, 0, scaleFactor);
-    }
-
-    @Override
-    public Rectangle matchResult() {
-        return new Offsets.Rectangle(0, 0, 0, 0, scaleFactor);
-    }
-
-    @Override
-    public Rectangle server() {
+    private Rectangle server() {
         return new Rectangle(SERVER_OFFSET_X, SERVER_OFFSET_Y, SERVER_WIDTH, SERVER_HEIGHT, scaleFactor);
     }
 
-    @Override
-    public Rectangle typeIdentifier() {
+    private Rectangle typeIdentifier() {
         return new Rectangle(IDENT_OFFSET_X, IDENT_OFFSET_Y, IDENT_WIDTH, IDENT_HEIGHT, scaleFactor);
     }
 
-    @Override
-    public Rectangle playerUnit(int i) {
+    private Rectangle playerUnit(int i) {
         int x = 0;
         if (i < 12) {
             x = FIRST_PLAYERFIELD_OFFSET_FRIEND;
@@ -133,8 +142,7 @@ public class QuickplayPreparationOffsets_16_9 extends Offsets {
         return new Rectangle(x, getPlayerLineOffset(i), PLAYER_UNIT_WIDTH, PLAYER_LINE_HEIGHT, scaleFactor);
     }
 
-    @Override
-    public Rectangle playerPilotName(int i) {
+    private Rectangle playerPilotName(int i) {
         int x = 0;
         int w = 0;
         if (i < 12) {
@@ -147,8 +155,7 @@ public class QuickplayPreparationOffsets_16_9 extends Offsets {
         return new Rectangle(x, getPlayerLineOffset(i), w, PLAYER_LINE_HEIGHT, scaleFactor);
     }
 
-    @Override
-    public Rectangle playerMech(int i) {
+    private Rectangle playerMech(int i) {
         int x = 0;
         if (i < 12) {
             x = FIRST_PLAYERFIELD_OFFSET_FRIEND + PLAYER_UNIT_WIDTH + PLAYER_PILOTNAME_WIDTH_FRIEND;
@@ -158,8 +165,7 @@ public class QuickplayPreparationOffsets_16_9 extends Offsets {
         return new Rectangle(x, getPlayerLineOffset(i), PLAYER_MECH_WIDTH, PLAYER_LINE_HEIGHT, scaleFactor);
     }
 
-    @Override
-    public Rectangle playerStatus(int i) {
+    private Rectangle playerStatus(int i) {
         int x = 0;
         int w = 0;
         if (i < 12) {
@@ -172,28 +178,7 @@ public class QuickplayPreparationOffsets_16_9 extends Offsets {
         return new Rectangle(x, getPlayerLineOffset(i), w, PLAYER_LINE_HEIGHT, scaleFactor);
     }
 
-    @Override
-    public Rectangle playerMatchScore(int i) {
-        return new Rectangle(0, 0, 0, 0, scaleFactor);
-    }
-
-    @Override
-    public Rectangle playerKills(int i) {
-        return new Rectangle(0, 0, 0, 0, scaleFactor);
-    }
-
-    @Override
-    public Rectangle playerAssists(int i) {
-        return new Rectangle(0, 0, 0, 0, scaleFactor);
-    }
-
-    @Override
-    public Rectangle playerDamage(int i) {
-        return new Rectangle(0, 0, 0, 0, scaleFactor);
-    }
-
-    @Override
-    public Rectangle playerPing(int i) {
+    private Rectangle playerPing(int i) {
         int x = 0;
         if (i < 12) {
             x = FIRST_PLAYERFIELD_OFFSET_FRIEND + PLAYER_UNIT_WIDTH + PLAYER_PILOTNAME_WIDTH_FRIEND + PLAYER_MECH_WIDTH + PLAYER_STATUS_WIDTH_FRIEND;

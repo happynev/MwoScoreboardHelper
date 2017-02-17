@@ -90,18 +90,15 @@ public class QuickplaySummaryOffsets_16_10 extends Offsets {
         return HEIGHT;
     }
 
-    @Override
-    public Rectangle map() {
+    private Rectangle map() {
         return new Rectangle(MAP_OFFSET_X, MAP_OFFSET_Y, MAP_WIDTH, MAP_HEIGHT, scaleFactor);
     }
 
-    @Override
-    public Rectangle gameMode() {
+    private Rectangle gameMode() {
         return new Rectangle(GAMEMODE_OFFSET_X, GAMEMODE_OFFSET_Y, GAMEMODE_WIDTH, GAMEMODE_HEIGHT, scaleFactor);
     }
 
-    @Override
-    public Rectangle battleTime() {
+    private Rectangle battleTime() {
         return new Rectangle(BATTLETIME_OFFSET_X, BATTLETIME_OFFSET_Y, BATTLETIME_WIDTH, BATTLETIME_HEIGHT, scaleFactor);
     }
 
@@ -110,8 +107,7 @@ public class QuickplaySummaryOffsets_16_10 extends Offsets {
         return new QuickplaySummaryOffsets_16_10(width, height);
     }
 
-    @Override
-    public Rectangle typeIdentifier() {
+    private Rectangle typeIdentifier() {
         return new Rectangle(IDENT_OFFSET_X, IDENT_OFFSET_Y, IDENT_WIDTH, IDENT_HEIGHT, scaleFactor);
     }
 
@@ -130,53 +126,39 @@ public class QuickplaySummaryOffsets_16_10 extends Offsets {
         return (int) playerLineOffset;
     }
 
-    @Override
-    public Rectangle server() {
-        return new Rectangle(0, 0, 0, 0, scaleFactor);
-    }
-
-    @Override
-    public Rectangle playerUnit(int i) {
+    private Rectangle playerUnit(int i) {
         return new Rectangle(PLAYER_UNIT_OFFSET, getPlayerLineOffset(i), PLAYER_UNIT_WIDTH, PLAYER_LINE_HEIGHT, scaleFactor);
     }
 
-    @Override
-    public Rectangle playerPilotName(int i) {
+    private Rectangle playerPilotName(int i) {
         return new Rectangle(PLAYER_PILOTNAME_OFFSET, getPlayerLineOffset(i), PLAYER_PILOTNAME_WIDTH, PLAYER_LINE_HEIGHT, scaleFactor);
     }
 
-    @Override
-    public Rectangle playerMech(int i) {
+    private Rectangle playerMech(int i) {
         return new Rectangle(PLAYER_MECH_OFFSET, getPlayerLineOffset(i), PLAYER_MECH_WIDTH, PLAYER_LINE_HEIGHT, scaleFactor);
     }
 
-    @Override
-    public Rectangle playerStatus(int i) {
+    private Rectangle playerStatus(int i) {
         return new Rectangle(PLAYER_STATUS_OFFSET, getPlayerLineOffset(i), PLAYER_STATUS_WIDTH, PLAYER_LINE_HEIGHT, scaleFactor);
     }
 
-    @Override
-    public Rectangle playerMatchScore(int i) {
+    private Rectangle playerMatchScore(int i) {
         return new Rectangle(PLAYER_MATCHSCORE_OFFSET, getPlayerLineOffset(i), PLAYER_MATCHSCORE_WIDTH, PLAYER_LINE_HEIGHT, scaleFactor);
     }
 
-    @Override
-    public Rectangle playerKills(int i) {
+    private Rectangle playerKills(int i) {
         return new Rectangle(PLAYER_KILLS_OFFSET, getPlayerLineOffset(i), PLAYER_KILLS_WIDTH, PLAYER_LINE_HEIGHT, scaleFactor);
     }
 
-    @Override
-    public Rectangle playerAssists(int i) {
+    private Rectangle playerAssists(int i) {
         return new Rectangle(PLAYER_ASSISTS_OFFSET, getPlayerLineOffset(i), PLAYER_ASSISTS_WIDTH, PLAYER_LINE_HEIGHT, scaleFactor);
     }
 
-    @Override
-    public Rectangle playerDamage(int i) {
+    private Rectangle playerDamage(int i) {
         return new Rectangle(PLAYER_DAMAGE_OFFSET, getPlayerLineOffset(i), PLAYER_DAMAGE_WIDTH, PLAYER_LINE_HEIGHT, scaleFactor);
     }
 
-    @Override
-    public Rectangle playerPing(int i) {
+    private Rectangle playerPing(int i) {
         return new Rectangle(PLAYER_PING_OFFSET, getPlayerLineOffset(i), PLAYER_PING_WIDTH, PLAYER_LINE_HEIGHT, scaleFactor);
     }
 
@@ -185,18 +167,64 @@ public class QuickplaySummaryOffsets_16_10 extends Offsets {
         return ScreenshotType.QP_4SUMMARY;
     }
 
-    @Override
-    public Rectangle winningTeam() {
+    private Rectangle winningTeam() {
         return new Rectangle(TEAM_OFFSETX, TEAM_OFFSET_WINNER, TEAM_RESULT_WIDTH, TEAM_RESULT_HEIGHT, scaleFactor);
     }
 
-    @Override
-    public Rectangle losingTeam() {
+    private Rectangle losingTeam() {
         return new Rectangle(TEAM_OFFSETX, TEAM_OFFSET_LOSER, TEAM_RESULT_WIDTH, TEAM_RESULT_HEIGHT, scaleFactor);
     }
 
-    @Override
-    public Rectangle matchResult() {
+    private Rectangle matchResult() {
         return new Rectangle(MATCH_RESULT_X, MATCH_RESULT_Y, MATCH_RESULT_WIDTH, MATCH_RESULT_HEIGHT, scaleFactor);
+    }
+
+    @Override
+    public Rectangle getElementLocation(ScreenElement element) {
+        switch (element) {
+            case MAP:
+                return map();
+            case GAMEMODE:
+                return gameMode();
+            case BATTLETIME:
+                return battleTime();
+            case TYPEIDENTIFIER:
+                return typeIdentifier();
+            case WINNINGTEAM:
+                return winningTeam();
+            case LOSINGTEAM:
+                return losingTeam();
+            case MATCHRESULT:
+                return matchResult();
+            default:
+                throw new IllegalArgumentException(element + " not applicable for " + getType());
+        }
+    }
+
+    @Override
+    public Rectangle getPlayerElementLocation(ScreenPlayerElement element, int playerNumber) {
+        switch (element) {
+            case UNIT:
+                return playerUnit(playerNumber);
+            case PILOTNAME:
+                return playerPilotName(playerNumber);
+            case MECH:
+                return playerMech(playerNumber);
+            case STATUS:
+                return playerStatus(playerNumber);
+            case MATCHSCORE:
+                return playerMatchScore(playerNumber);
+            case KILLS:
+                return playerKills(playerNumber);
+            case ASSISTS:
+                return playerAssists(playerNumber);
+            case DAMAGE:
+                return playerDamage(playerNumber);
+            case PING:
+                return playerPing(playerNumber);
+
+            default:
+                throw new IllegalArgumentException(element + " not applicable for " + getType());
+        }
     }
 }

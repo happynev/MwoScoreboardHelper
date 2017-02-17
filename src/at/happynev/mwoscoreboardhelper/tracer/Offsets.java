@@ -46,45 +46,10 @@ public abstract class Offsets {
 
     protected static boolean doubleEquals(double a, double b) {
         if (a - b > MARGIN) return false;
-        if (a - b < -MARGIN) return false;
-        return true;
+        return a - b >= -MARGIN;
     }
 
     protected abstract Offsets getScaledInstance(int width, int height);
-
-    public abstract Rectangle map();
-
-    public abstract Rectangle gameMode();
-
-    public abstract Rectangle battleTime();
-
-    public abstract Rectangle server();
-
-    public abstract Rectangle typeIdentifier();
-
-    public abstract Rectangle playerUnit(int i);
-
-    public abstract Rectangle playerPilotName(int i);
-
-    public abstract Rectangle playerMech(int i);
-
-    public abstract Rectangle playerStatus(int i);
-
-    public abstract Rectangle playerMatchScore(int i);
-
-    public abstract Rectangle playerKills(int i);
-
-    public abstract Rectangle playerAssists(int i);
-
-    public abstract Rectangle playerDamage(int i);
-
-    public abstract Rectangle playerPing(int i);
-
-    public abstract Rectangle winningTeam();
-
-    public abstract Rectangle losingTeam();
-
-    public abstract Rectangle matchResult();
 
     public abstract ScreenshotType getType();
 
@@ -103,6 +68,10 @@ public abstract class Offsets {
         double ret = calculateAspect(getAbsoluteWidth(), getAbsoluteHeight());
         return ret;
     }
+
+    public abstract Rectangle getElementLocation(ScreenElement element);
+
+    public abstract Rectangle getPlayerElementLocation(ScreenPlayerElement element, int playerNumber);
 
     public static class Rectangle {
         public int x = 0;

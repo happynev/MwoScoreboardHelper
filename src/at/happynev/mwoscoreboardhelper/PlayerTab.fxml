@@ -50,8 +50,9 @@
                </children>
             </HBox>
             <Label maxHeight="1.7976931348623157E308" VBox.vgrow="SOMETIMES" />
-            <VBox GridPane.columnSpan="2147483647" GridPane.rowIndex="1">
+            <VBox spacing="5.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="1">
                <children>
+                  <Label fx:id="labelSeenInfo" layoutX="10.0" layoutY="10.0" />
                   <Label text="Note (visible on Watcher screen)" />
                   <TextField fx:id="textShortNote" GridPane.rowIndex="1" />
                   <Label text="More Notes" />

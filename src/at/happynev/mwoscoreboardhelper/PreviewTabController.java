@@ -78,7 +78,9 @@ public class PreviewTabController {
                         labelLosingTeam.setText(match.getLosingTeam());
                         labelMatchResult.setText(match.getMatchResult());
                         paneResults.getChildren().add(0, new Label("map:" + match.getMapImage().getTraceDuration() + "ms"));
-                        paneResults.getChildren().add(0, new Label("time:" + match.getBattleTimeImage().getTraceDuration() + "ms"));
+                        if (type == ScreenshotType.QP_4SUMMARY) {
+                            paneResults.getChildren().add(0, new Label("time:" + match.getBattleTimeImage().getTraceDuration() + "ms"));
+                        }
                     }
                 });
                 matchInfo.getChildren().add(new VBox(new ImageView(SwingFXUtils.toFXImage(match.getMapImage().getImage(), null)), labelMap));

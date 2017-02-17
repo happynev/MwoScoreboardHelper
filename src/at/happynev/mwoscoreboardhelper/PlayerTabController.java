@@ -15,6 +15,7 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import org.apache.commons.lang3.time.FastDateFormat;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -45,6 +46,8 @@ public class PlayerTabController {
     @FXML
     Label labelPilotname;
     @FXML
+    Label labelSeenInfo;
+    @FXML
     ListView<PlayerRuntime> listPossibleDuplicates;
     @FXML
     Button buttonMergeDuplicate;
@@ -59,6 +62,8 @@ public class PlayerTabController {
     @FXML
     Button buttonJumpToDuplicate;
 
+    FastDateFormat fdfSeen = FastDateFormat.getInstance("yyyy-MM-dd HH:mm");
+
     public PlayerTabController() {
         instance = this;
     }
@@ -68,6 +73,26 @@ public class PlayerTabController {
             instance = new PlayerTabController();
         }
         return instance;
+    }
+
+    private static long findFirstSeen(PlayerRuntime pr) {
+        long first = Long.MAX_VALUE;
+        for (PlayerMatchRecord pmr : pr.getMatchRecords()) {
+            if (pmr.getTimestamp() < first) {
+                first = pmr.getTimestamp();
+            }
+        }
+        return first;
+    }
+
+    private static long findLastSeen(PlayerRuntime pr) {
+        long last = 0;
+        for (PlayerMatchRecord pmr : pr.getMatchRecords()) {
+            if (pmr.getTimestamp() > last) {
+                last = pmr.getTimestamp();
+            }
+        }
+        return last;
     }
 
     @FXML
@@ -139,6 +164,7 @@ public class PlayerTabController {
             oldPlayer.guicolor_frontProperty().unbindBidirectional(pickerFront.valueProperty());
         }
         labelUnit.textProperty().set("");
+        labelSeenInfo.textProperty().set("");
         labelPilotname.textProperty().set("");
         textShortNote.textProperty().set("");
         textNotes.textProperty().set("");
@@ -157,6 +183,7 @@ public class PlayerTabController {
             pickerFront.valueProperty().bindBidirectional(newPlayer.guicolor_frontProperty());
             tablePlayerMatches.setItems(newPlayer.getMatchRecords());
             listPossibleDuplicates.getItems().addAll(findDuplicates(newPlayer));
+            labelSeenInfo.setText("Seen " + newPlayer.getMatchRecords().size() + " times between " + fdfSeen.format(findFirstSeen(newPlayer)) + " and " + fdfSeen.format(findLastSeen(newPlayer)));
         }
     }
 
