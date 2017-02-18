@@ -60,7 +60,10 @@ public abstract class SessionRuntime {
         }
         long totalRuntime = System.currentTimeMillis() - started;
         BigDecimal hourFactor = new BigDecimal(totalRuntime).divide(new BigDecimal(60 * 60 * 1000), 5, BigDecimal.ROUND_HALF_UP);
-        BigDecimal matchPerHour = new BigDecimal(totalMatches).divide(hourFactor, 1, BigDecimal.ROUND_HALF_UP);
+        BigDecimal matchPerHour = BigDecimal.ZERO;
+        if (totalMatches > 0) {
+            new BigDecimal(totalMatches).divide(hourFactor, 1, BigDecimal.ROUND_HALF_UP);
+        }
         buildSessionDataLine(grid, row++, "New Players", "" + playersNew.size());
         buildSessionDataLine(grid, row++, "Known Players", "" + playersKnown.size());
         buildSessionDataLine(grid, row++, "Matches played", "" + totalMatches);

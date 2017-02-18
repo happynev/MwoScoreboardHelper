@@ -1,9 +1,6 @@
 package at.happynev.mwoscoreboardhelper;
 
-import at.happynev.mwoscoreboardhelper.tracer.MatchInfoTracer;
-import at.happynev.mwoscoreboardhelper.tracer.PlayerInfoTracer;
-import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
-import at.happynev.mwoscoreboardhelper.tracer.TraceHelpers;
+import at.happynev.mwoscoreboardhelper.tracer.*;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -55,6 +52,7 @@ public class MatchRuntime {
     private final Set<String> gameModes = new HashSet<>(Arrays.asList("SKIRMISH", "DOMINATION", "ASSAULT", "CONQUEST", "INCURSION", "INVASION", "ESCORT"));
     private final Map<ScreenshotType, ScreenshotFileHandler> matchScreenshots = new HashMap<>();
     private final SimpleBooleanProperty tracingFinished = new SimpleBooleanProperty(false);
+    private PersonalMatchRecord personalRecord = null;
     private ScreenshotType type;
     private boolean matchFinished;
     private int id = 0;
@@ -86,6 +84,7 @@ public class MatchRuntime {
             Logger.warning("replacing " + type.toString());
         }
         matchScreenshots.put(type, screenshot);
+
         if (type == ScreenshotType.QP_1PREPARATION || type == ScreenshotType.QP_4SUMMARY) {
             setupMatchFinishListeners(screenshot);
         } else if (type == ScreenshotType.QP_3REWARDS) {
@@ -134,6 +133,8 @@ public class MatchRuntime {
                 }
             }
             rsPlayers.close();
+            int playerid = PlayerRuntime.getInstance(SettingsTabController.getPlayername()).getId();
+            personalRecord = new PersonalMatchRecord(playerid, id);
             //TODO: check screenshot archive
         } catch (Exception e) {
             handleLoadError(e, null);
@@ -231,7 +232,23 @@ public class MatchRuntime {
     }
 
     private void setupRewardFinishListeners(ScreenshotFileHandler screenshot) {
-
+        RewardInfoTracer tracer = screenshot.getRewardInfoTracer();
+        tracingFinished.bind(tracer.finishedProperty());
+        tracer.finishedProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                if (newValue) {
+                    map.set(tracer.getMap());
+                    gameMode.set(TraceHelpers.guessValue(tracer.getGameMode().replaceAll(".*:", ""), gameModes));
+                    battleTime.set(tracer.getBattleTime());
+                    PlayerRuntime player = PlayerRuntime.getInstance(SettingsTabController.getPlayername());
+                    personalRecord = new PersonalMatchRecord(player, tracer, this);
+                    saveOrUpdateMatch();
+                    screenshot.archiveFile(id);
+                }
+            } catch (Exception e) {
+                Logger.error(e);
+            }
+        });
     }
 
     private void setupMatchFinishListeners(ScreenshotFileHandler screenshot) {
@@ -246,9 +263,9 @@ public class MatchRuntime {
             mapAndPlayerFinished.addListener((observable, oldValue, newValue) -> {
                 if (newValue) {
                     try {
-                        boolean isVictory = "VICTORY".equals(matchResult.get());
-                        boolean isDefeat = "DEFEAT".equals(matchResult.get());
-                        boolean isDraw = "TIE".equals(matchResult.get());
+                        boolean isVictory = matchResult.get().startsWith("VICTORY");
+                        boolean isDefeat = matchResult.get().startsWith("DEFEAT");
+                        boolean isDraw = matchResult.get().startsWith("TIE");
                         boolean isEnemy = false;
                         Logger.log("player trace finished for " + pi.getPilotName() + " mech:" + pi.getMech());
                         if (isVictory) {
@@ -308,7 +325,7 @@ public class MatchRuntime {
                     if (type == ScreenshotType.QP_4SUMMARY) {
                         String realResult = "";
                         realResult = tracer.getMatchResult();
-                        if (!realResult.matches("VICTORY|DEFEAT|TIE")) {
+                        if (!realResult.matches(".*(?:VICTORY|DEFEAT|TIE).*")) {
                             String winner = tracer.getWinningTeam().toLowerCase();
                             String loser = tracer.getLosingTeam().toLowerCase();
                             if (winner.contains("team")) {
@@ -321,9 +338,9 @@ public class MatchRuntime {
                                 realResult = "VICTORY";
                             }
                         }
-                        if (realResult.equals("VICTORY")) {
+                        if (realResult.startsWith("VICTORY")) {
                             SessionRuntime.wins++;
-                        } else if (realResult.equals("DEFEAT")) {
+                        } else if (realResult.startsWith("DEFEAT")) {
                             SessionRuntime.losses++;
                         }
                         SessionRuntime.totalMatches++;
@@ -341,35 +358,70 @@ public class MatchRuntime {
         tracingFinished.addListener((observable, oldValue, newValue) -> {
             Logger.log("tracingfinished:" + newValue);
             if (newValue) {
-                MatchRuntime oldRuntime = findSavedMatch();
-                int newId;
-                if (oldRuntime != null) {
-                    newId = oldRuntime.getId();
-                    Logger.log("Screenshot identified as existing match " + newId);
-                    WatcherTabController.getInstance().labelStatusInfo.setText("Assigned to previously saved Match: " + oldRuntime.toString());
-                    //delete incomplete/outdated records, possibly from prep screenshot
-                    cleanPreviousMatchRecords(newId);
-                } else {
-                    newId = createMatchEntry();
-                    Logger.log("Screenshot is a new match " + newId);
-                    WatcherTabController.getInstance().labelStatusInfo.setText("New match: " + newId);
-                }
-                id = newId;
-                if (type == ScreenshotType.QP_1PREPARATION) {
-                    //save initial map/game data
-                    saveInitialMatchData();
-                    //remember seen players
-                    savePlayerMatchRecords();
-                } else if (type == ScreenshotType.QP_4SUMMARY) {
-                    //save player match records
-                    savePlayerMatchRecords();
-                    //add missing matchdata
-                    saveCompleteMatchData();
-                }
+                saveOrUpdateMatch();
                 screenshot.archiveFile(id);
-                //initChangeListeners();
             }
         });
+    }
+
+    private void saveOrUpdateMatch() {
+        MatchRuntime oldRuntime = findSavedMatch();
+        int newId;
+        if (oldRuntime != null) {
+            newId = oldRuntime.getId();
+            Logger.log("Screenshot identified as existing match " + newId);
+            WatcherTabController.getInstance().labelStatusInfo.setText("Assigned to previously saved Match: " + oldRuntime.toString());
+            //delete incomplete/outdated records, possibly from prep screenshot
+            //only if better records are available
+            if (type == ScreenshotType.QP_4SUMMARY) {
+                cleanPreviousMatchRecords(newId);
+            }
+            if (type != ScreenshotType.QP_3REWARDS) {
+                //load previously saved personal record
+                try {
+                    personalRecord = new PersonalMatchRecord(PlayerRuntime.getInstance(SettingsTabController.getPlayername()).getId(), newId);
+                } catch (Exception e) {
+                    //ok, it might not exist. leave as null
+                }
+            }
+        } else {
+            newId = createMatchEntry();
+            Logger.log("Screenshot is a new match " + newId);
+            WatcherTabController.getInstance().labelStatusInfo.setText("New match: " + newId);
+        }
+        id = newId;
+        if (type == ScreenshotType.QP_1PREPARATION) {
+            //save initial map/game data
+            saveInitialMatchData();
+            if (personalRecord == null) { //dont overwrite
+                personalRecord = PersonalMatchRecord.getReferenceRecord(PlayerRuntime.getInstance(SettingsTabController.getPlayername()).getId());
+            }
+            savePersonalMatchRecord();
+            //remember seen players
+            savePlayerMatchRecords();
+        } else if (type == ScreenshotType.QP_3REWARDS) {
+            savePersonalMatchRecord();
+            //add missing matchdata
+            saveCompleteMatchData();
+        } else if (type == ScreenshotType.QP_4SUMMARY) {
+            if (personalRecord == null) { //dont overwrite
+                personalRecord = PersonalMatchRecord.getReferenceRecord(PlayerRuntime.getInstance(SettingsTabController.getPlayername()).getId());
+            }
+            savePlayerMatchRecords();
+            //save player match records
+            savePersonalMatchRecord();
+            //add missing matchdata
+            saveCompleteMatchData();
+        }
+        //initChangeListeners();
+    }
+
+    private void savePersonalMatchRecord() {
+        try {
+            personalRecord.saveData(id);
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
     }
 
     private void saveCompleteMatchData() {
@@ -425,14 +477,14 @@ public class MatchRuntime {
     }
 
     private MatchRuntime findSavedMatch() {
-        int maxTimeDifference = 1000 * 60 * (15 + 10);//15 minutes matchtime+10 to account for pre/post match
+        int maxTimeDifference = 1000 * 60 * (15 + 4);//15 minutes matchtime+4 to account for pre/post match
         try {
             PreparedStatement prep = DbHandler.getInstance().prepareStatement("select id from match_data where matchtime between ? and ?");
             prep.setTimestamp(1, new Timestamp(timestamp - maxTimeDifference));
             prep.setTimestamp(2, new Timestamp(timestamp + maxTimeDifference));
             ResultSet rs = prep.executeQuery();
             MatchRuntime bestCandidate = null;
-            int bestScore = 9;//minimum requirement
+            int bestScore = 5;//minimum requirement
             while (rs.next()) {
                 int id = rs.getInt(1);
                 MatchRuntime candidate = new MatchRuntime(id);
@@ -494,6 +546,7 @@ public class MatchRuntime {
             for (PlayerMatchRecord pmr : playerRecords) {
                 pmr.delete();//does nothing for now, cascaded from match delete
             }
+            personalRecord.delete();//does nothing for now, cascaded from match delete
         } catch (Exception e) {
             Logger.error(e);
         }

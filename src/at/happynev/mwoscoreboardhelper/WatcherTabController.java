@@ -1,5 +1,6 @@
 package at.happynev.mwoscoreboardhelper;
 
+import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -193,30 +194,32 @@ public class WatcherTabController {
             labelGamemode.textProperty().bind(results.gameModeProperty());
             labelTimestamp.textProperty().bind(results.formattedTimestampProperty());
             //textMatchName.textProperty().bind(results.matchNameProperty());
-            for (int i = 0; i < 24; i++) {
-                Label preliminaryInfo = new Label();
-                PlayerRuntime.getReferencePlayer().applyPlayerFormat(preliminaryInfo);
-                preliminaryInfo.textProperty().bind(results.getPreliminaryInfo().get(i));
-                if (i < 12) {
-                    paneMyTeam.add(preliminaryInfo, 0, 1 + i, GridPane.REMAINING, 1);
-                } else {
-                    paneEnemyTeam.add(preliminaryInfo, 0, 1 + i % 12, GridPane.REMAINING, 1);
+            if (results.getType() == ScreenshotType.QP_1PREPARATION || results.getType() == ScreenshotType.QP_4SUMMARY) {
+                for (int i = 0; i < 24; i++) {
+                    Label preliminaryInfo = new Label();
+                    PlayerRuntime.getReferencePlayer().applyPlayerFormat(preliminaryInfo);
+                    preliminaryInfo.textProperty().bind(results.getPreliminaryInfo().get(i));
+                    if (i < 12) {
+                        paneMyTeam.add(preliminaryInfo, 0, 1 + i, GridPane.REMAINING, 1);
+                    } else {
+                        paneEnemyTeam.add(preliminaryInfo, 0, 1 + i % 12, GridPane.REMAINING, 1);
+                    }
                 }
+                results.getPlayersTeam().addListener((ListChangeListener<? super PlayerRuntime>) c -> {
+                    c.next();
+                    c.getAddedSubList().forEach(o -> {
+                        //Logger.log("friend player " + o.getPilotname() + " finished tracing");
+                        buildPlayerGui(o, paneMyTeam, results);
+                    });
+                });
+                results.getPlayersEnemy().addListener((ListChangeListener<? super PlayerRuntime>) c -> {
+                    c.next();
+                    c.getAddedSubList().forEach(o -> {
+                        //Logger.log("enemy  player " + o.getPilotname() + " finished tracing");
+                        buildPlayerGui(o, paneEnemyTeam, results);
+                    });
+                });
             }
-            results.getPlayersTeam().addListener((ListChangeListener<? super PlayerRuntime>) c -> {
-                c.next();
-                c.getAddedSubList().forEach(o -> {
-                    //Logger.log("friend player " + o.getPilotname() + " finished tracing");
-                    buildPlayerGui(o, paneMyTeam, results);
-                });
-            });
-            results.getPlayersEnemy().addListener((ListChangeListener<? super PlayerRuntime>) c -> {
-                c.next();
-                c.getAddedSubList().forEach(o -> {
-                    //Logger.log("enemy  player " + o.getPilotname() + " finished tracing");
-                    buildPlayerGui(o, paneEnemyTeam, results);
-                });
-            });
             results.tracingFinishedProperty().addListener((observable, oldValue, newValue) -> {
                 //all players traced. ok to proceed with next screenshot
                 if (newValue) {

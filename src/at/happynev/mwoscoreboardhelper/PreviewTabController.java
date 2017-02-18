@@ -12,6 +12,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
@@ -28,6 +29,8 @@ public class PreviewTabController {
     @FXML
     Button buttonPerformTrace;
 
+    File chosenScreen = null;
+
     @FXML
     private void initialize() {
         buttonLoadScreenshot.setOnAction(event -> loadImage());
@@ -36,7 +39,9 @@ public class PreviewTabController {
 
     private void performTrace() {
         try {
-            BufferedImage img = SwingFXUtils.fromFXImage(imagePreview.getImage(), null);
+            if (chosenScreen == null) return;
+            //BufferedImage img = SwingFXUtils.fromFXImage(imagePreview.getImage(), null);
+            BufferedImage img = ImageIO.read(chosenScreen);
             if (false) {
                 BufferedImage result = TraceHelpers.extractSpecificColor(img, new int[]{200, 160, 55}, new int[]{242, 186, 84});
                 imagePreview.setImage(SwingFXUtils.toFXImage(result, null));
@@ -166,14 +171,14 @@ public class PreviewTabController {
                             matchInfo.getChildren().add(new VBox(new ImageView(SwingFXUtils.toFXImage(rewards.getGameModeImage().getImage(), null)), new Label(rewards.getGameMode())));
                             matchInfo.getChildren().add(new VBox(new ImageView(SwingFXUtils.toFXImage(rewards.getBattleTimeImage().getImage(), null)), new Label(rewards.getBattleTime())));
                             matchInfo.getChildren().add(new VBox(new ImageView(SwingFXUtils.toFXImage(rewards.getMatchResultImage().getImage(), null)), new Label(rewards.getMatchResult())));
-                            paneResults.getChildren().add(new VBox(new ImageView(SwingFXUtils.toFXImage(rewards.getCbillsImage().getImage(), null)), new Label(rewards.getCbills())));
-                            paneResults.getChildren().add(new VBox(new ImageView(SwingFXUtils.toFXImage(rewards.getXpImage().getImage(), null)), new Label(rewards.getXp())));
+                            paneResults.getChildren().add(new VBox(new ImageView(SwingFXUtils.toFXImage(rewards.getCbillsImage().getImage(), null)), new Label("" + rewards.getCbills())));
+                            paneResults.getChildren().add(new VBox(new ImageView(SwingFXUtils.toFXImage(rewards.getXpImage().getImage(), null)), new Label("" + rewards.getXp())));
                             for (int i = 0; i < 9; i++) {
                                 HBox perf = new HBox();
                                 perf.setSpacing(5);
                                 paneResults.getChildren().add(perf);
                                 perf.getChildren().add(new VBox(new ImageView(SwingFXUtils.toFXImage(rewards.getPerformanceNameImage(i).getImage(), null)), new Label(rewards.getPerformanceName(i))));
-                                perf.getChildren().add(new VBox(new ImageView(SwingFXUtils.toFXImage(rewards.getPerformanceValueImage(i).getImage(), null)), new Label(rewards.getPerformanceValue(i))));
+                                perf.getChildren().add(new VBox(new ImageView(SwingFXUtils.toFXImage(rewards.getPerformanceValueImage(i).getImage(), null)), new Label("" + rewards.getPerformanceValue(i))));
                             }
                         }
                     });
@@ -190,6 +195,7 @@ public class PreviewTabController {
         fc.setInitialDirectory(new File("."));
         File result = fc.showOpenDialog(null);
         try {
+            chosenScreen = result;
             Image screenshot = new Image(result.toURI().toString());
 
             imagePreview.setImage(screenshot);

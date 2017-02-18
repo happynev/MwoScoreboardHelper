@@ -1,9 +1,6 @@
 package at.happynev.mwoscoreboardhelper;
 
-import at.happynev.mwoscoreboardhelper.tracer.MatchInfoTracer;
-import at.happynev.mwoscoreboardhelper.tracer.Offsets;
-import at.happynev.mwoscoreboardhelper.tracer.PlayerInfoTracer;
-import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
+import at.happynev.mwoscoreboardhelper.tracer.*;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -82,5 +79,9 @@ public class ScreenshotFileHandler {
 
     public ScreenshotType getType() {
         return type;
+    }
+
+    public RewardInfoTracer getRewardInfoTracer() {
+        return new RewardInfoTracer(img, offsets);
     }
 }

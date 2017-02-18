@@ -23,8 +23,8 @@ public class RewardInfoTracer extends AsyncTracer {
         map = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.getElementLocation(ScreenGameElement.MAP))), OcrConfig.DEFAULT);
         battleTime = new TraceableImage(extractYellow(Offsets.getSubImage(screenshot, off.getElementLocation(ScreenGameElement.BATTLETIME))), OcrConfig.TIME);
         matchResult = new TraceableImage(extractWhite(Offsets.getSubImage(screenshot, off.getElementLocation(ScreenGameElement.MATCHRESULT))), OcrConfig.MATCHRESULT);
-        xp = new TraceableImage(extractYellow(Offsets.getSubImage(screenshot, off.getRewardLocation(ScreenRewardElement.XP))), OcrConfig.DEFAULT);
-        cbills = new TraceableImage(extractYellow(Offsets.getSubImage(screenshot, off.getRewardLocation(ScreenRewardElement.CBILLS))), OcrConfig.DEFAULT);
+        xp = new TraceableImage(extractYellow(Offsets.getSubImage(screenshot, off.getRewardLocation(ScreenRewardElement.XP))), OcrConfig.NUMERIC);
+        cbills = new TraceableImage(extractYellow(Offsets.getSubImage(screenshot, off.getRewardLocation(ScreenRewardElement.CBILLS))), OcrConfig.NUMERIC);
         performanceNames = new TraceableImage[9];
         performanceValues = new TraceableImage[9];
         for (int i = 0; i < performanceNames.length; i++) {
@@ -83,18 +83,18 @@ public class RewardInfoTracer extends AsyncTracer {
         return gameMode;
     }
 
-    public String getXp() {
-        if (xp == null) return "0";
-        return xp.getValue();
+    public int getXp() {
+        if (xp == null) return 0;
+        return Integer.parseInt(xp.getValue().replaceAll("\\D", ""));
     }
 
     public TraceableImage getXpImage() {
         return xp;
     }
 
-    public String getCbills() {
-        if (cbills == null) return "0";
-        return cbills.getValue();
+    public int getCbills() {
+        if (cbills == null) return 0;
+        return Integer.parseInt(cbills.getValue().replaceAll("\\D", ""));
     }
 
     public TraceableImage getCbillsImage() {
@@ -102,8 +102,8 @@ public class RewardInfoTracer extends AsyncTracer {
     }
 
     public String getPerformanceName(int i) {
-        if (i > performanceNames.length) return "0";
-        if (performanceNames[i] == null) return "0";
+        if (i > performanceNames.length) return "";
+        if (performanceNames[i] == null) return "";
         return performanceNames[i].getValue();
     }
 
@@ -111,10 +111,10 @@ public class RewardInfoTracer extends AsyncTracer {
         return performanceNames[i];
     }
 
-    public String getPerformanceValue(int i) {
-        if (i > performanceValues.length) return "0";
-        if (performanceValues[i] == null) return "0";
-        return performanceValues[i].getValue();
+    public int getPerformanceValue(int i) {
+        if (i > performanceValues.length) return 0;
+        if (performanceValues[i] == null || performanceValues[i].getValue().isEmpty()) return 0;
+        return Integer.parseInt(performanceValues[i].getValue().replaceAll("\\D", ""));
     }
 
     public TraceableImage getPerformanceValueImage(int i) {
