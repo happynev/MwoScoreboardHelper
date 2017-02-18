@@ -18,7 +18,7 @@ public class Main extends Application {
     private Server dbserver;
 
     public static int getDbVersion() {
-        return 2;
+        return 3;
     }
 
     public static String getVersion() {

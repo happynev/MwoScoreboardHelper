@@ -1,4 +1,3 @@
-update settings set propkey=regexp_replace(propkey,'QP_3','QP_4') where propkey like 'layoutQP_3%'
 ALTER TABLE MATCH_DATA DROP COLUMN REWARD_CBILLS;
 ALTER TABLE MATCH_DATA DROP COLUMN REWARD_XP;
 DROP TABLE MAP_DATA;
