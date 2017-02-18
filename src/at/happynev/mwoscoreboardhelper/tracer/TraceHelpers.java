@@ -1,6 +1,5 @@
 package at.happynev.mwoscoreboardhelper.tracer;
 
-import at.happynev.mwoscoreboardhelper.Logger;
 import org.apache.commons.lang3.StringUtils;
 
 import java.awt.*;
@@ -93,47 +92,51 @@ public class TraceHelpers {
         int white = buildColorInt(new byte[]{(byte) 255, (byte) 255, (byte) 255});
         int black = buildColorInt(new byte[]{(byte) 0, (byte) 0, (byte) 0});
         BufferedImage out = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_INT_RGB);
-        if (input.getColorModel().getColorSpace().getType() == ColorSpace.TYPE_RGB && input.getRaster().getTransferType() == DataBuffer.TYPE_INT) {
-            int len = input.getWidth() * input.getHeight();
-            int[] buffer = new int[len];
-            input.getRaster().getDataElements(0, 0, input.getWidth(), input.getHeight(), buffer);
-            for (int i = 0; i < len; i++) {
-                byte[] src = splitColorInt(buffer[i]);
-                if (checkBetween(src, matchMin, matchMax)) {
-                    buffer[i] = white;
-                } else {
-                    buffer[i] = black;
-                }
-            }
-
-            out.getRaster().setDataElements(0, 0, input.getWidth(), input.getHeight(), buffer);
-        } else {
-            //Logger.warning("Wrong colorspace (" + input.getColorModel().getColorSpace().getType() + ") and/or transfertype (" + input.getRaster().getTransferType() + ")");
-            return input;
+        if (input.getColorModel().getColorSpace().getType() != ColorSpace.TYPE_RGB || input.getRaster().getTransferType() != DataBuffer.TYPE_INT) {
+            input = convertToRGB(input);
         }
+        int len = input.getWidth() * input.getHeight();
+        int[] buffer = new int[len];
+        input.getRaster().getDataElements(0, 0, input.getWidth(), input.getHeight(), buffer);
+        for (int i = 0; i < len; i++) {
+            byte[] src = splitColorInt(buffer[i]);
+            if (checkBetween(src, matchMin, matchMax)) {
+                buffer[i] = white;
+            } else {
+                buffer[i] = black;
+            }
+        }
+
+        out.getRaster().setDataElements(0, 0, input.getWidth(), input.getHeight(), buffer);
         return out;
+    }
+
+    private static BufferedImage convertToRGB(BufferedImage src) {
+        BufferedImage img = new BufferedImage(src.getWidth(), src.getHeight(), BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d = img.createGraphics();
+        g2d.drawImage(src, 0, 0, null);
+        g2d.dispose();
+        return img;
     }
 
     public static BufferedImage threshold(BufferedImage input, int[] min) {
         byte[] matchMin = new byte[]{(byte) min[0], (byte) min[1], (byte) min[2]};
         byte[] black = new byte[]{(byte) 0, (byte) 0, (byte) 0};
         BufferedImage out = new BufferedImage(input.getWidth(), input.getHeight(), BufferedImage.TYPE_INT_RGB);
-        if (input.getColorModel().getColorSpace().getType() == ColorSpace.TYPE_RGB && input.getRaster().getTransferType() == DataBuffer.TYPE_INT) {
-            int len = input.getWidth() * input.getHeight();
-            int[] buffer = new int[len];
-            input.getRaster().getDataElements(0, 0, input.getWidth(), input.getHeight(), buffer);
-            for (int i = 0; i < len; i++) {
-                byte[] src = splitColorInt(buffer[i]);
-                if (checkBetween(src, black, matchMin)) {
-                    buffer[i] = buildColorInt(black);
-                }
-            }
-
-            out.getRaster().setDataElements(0, 0, input.getWidth(), input.getHeight(), buffer);
-        } else {
-            //Logger.warning("Wrong colorspace (" + input.getColorModel().getColorSpace().getType() + ") and/or transfertype (" + input.getRaster().getTransferType() + ")");
-            return input;
+        if (input.getColorModel().getColorSpace().getType() != ColorSpace.TYPE_RGB || input.getRaster().getTransferType() != DataBuffer.TYPE_INT) {
+            input = convertToRGB(input);
         }
+        int len = input.getWidth() * input.getHeight();
+        int[] buffer = new int[len];
+        input.getRaster().getDataElements(0, 0, input.getWidth(), input.getHeight(), buffer);
+        for (int i = 0; i < len; i++) {
+            byte[] src = splitColorInt(buffer[i]);
+            if (checkBetween(src, black, matchMin)) {
+                buffer[i] = buildColorInt(black);
+            }
+        }
+
+        out.getRaster().setDataElements(0, 0, input.getWidth(), input.getHeight(), buffer);
         return out;
     }
 
