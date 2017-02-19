@@ -5,6 +5,7 @@ import at.happynev.mwoscoreboardhelper.tracer.*;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 
@@ -66,13 +67,20 @@ public class ScreenshotFileHandler {
         archivedMatch.mkdirs();
         boolean deleteScreenshots = SettingsTabController.isDeleteScreenshots();
         File arch = new File(archivedMatch, fileName);
+        if (arch.exists()) {
+            arch.delete();
+        }
         if (deleteScreenshots) {
-            if (arch.exists()) {
-                arch.delete();
-            }
             boolean success = screenshot.renameTo(arch);
             if (!success) {
                 Logger.alertPopup("Failed to move " + screenshot.getName() + " to " + arch.toString());
+            }
+        } else {
+            try {
+                Utils.copyFile(screenshot, arch);
+                arch.setLastModified(screenshot.lastModified());
+            } catch (IOException e) {
+                Logger.alertPopup("Failed to copy " + screenshot.getName() + " to " + arch.toString());
             }
         }
     }
