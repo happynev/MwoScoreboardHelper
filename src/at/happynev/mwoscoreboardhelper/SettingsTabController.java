@@ -47,6 +47,8 @@ public class SettingsTabController {
     @FXML
     Slider sliderPollingInterval;
     @FXML
+    Slider sliderFontSize;
+    @FXML
     TextField textPollingInterval;
     @FXML
     ToggleButton togglePersistentDatabase;
@@ -262,6 +264,7 @@ public class SettingsTabController {
             int status = fixPlayerStatus();
             Logger.infoPopup("Fixed " + mechs + " Mech references and " + status + " Player Status records");
         });
+        sliderFontSize.setValue(Double.parseDouble(loadSetting("fontSize", "18")));
         //set changelisteners
         textPlayerName.textProperty().addListener((observable, oldValue, newValue) -> saveSetting("playerName", newValue));
         textScreenshotDirectory.textProperty().addListener((observable, oldValue, newValue) -> saveSetting("screenshotDirectory", newValue));
@@ -270,6 +273,10 @@ public class SettingsTabController {
         textPollingInterval.textProperty().addListener((observable, oldValue, newValue) -> saveSetting("pollingInterval", newValue));
         checkDeleteScreenshots.selectedProperty().addListener((observable, oldValue, newValue) -> saveSetting("deleteScreenshots", "" + newValue));
         checkAllowPopups.selectedProperty().addListener((observable, oldValue, newValue) -> saveSetting("allowPopups", "" + newValue));
+        sliderFontSize.valueProperty().addListener((observable, oldValue, newValue) -> {
+            saveSetting("fontSize", "" + newValue.intValue());
+            refreshPreviews();
+        });
         checkShowUnit.selectedProperty().addListener((observable, oldValue, newValue) -> {
             saveSetting("layoutShowUnit", "" + newValue);
             refreshPreviews();
@@ -475,5 +482,9 @@ public class SettingsTabController {
         if (chosen != null && chosen.isDirectory()) {
             textfield.setText(chosen.toString());
         }
+    }
+
+    public int getFontSize() {
+        return (int) sliderFontSize.getValue();
     }
 }

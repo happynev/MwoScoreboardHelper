@@ -25,6 +25,7 @@ public class GuiUtils {
 
     public static ColumnConstraints getColumnConstraint(Label label) {
         Text measure = new Text(label.getText());
+        measure.setFont(label.getFont());
         double prefWidth = measure.getLayoutBounds().getWidth();
         ColumnConstraints c = new ColumnConstraints(prefWidth, prefWidth, Double.MAX_VALUE, Priority.SOMETIMES, HPos.LEFT, true);
         return c;
@@ -61,7 +62,7 @@ public class GuiUtils {
     }
 
     public static Label applyHeaderFormat(Label node) {
-        Font fontHeader = Font.font("System", FontWeight.BOLD, 22);
+        Font fontHeader = Font.font("System", FontWeight.BOLD, SettingsTabController.getInstance().getFontSize() + 2);
         node.setFont(fontHeader);
         node.setTextFill(Color.WHITE);
         node.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));

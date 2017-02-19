@@ -115,8 +115,6 @@ public class WatcherTabController {
         alreadyProcessed = getProcessedFiles();
         //set changelisteners
         SettingsTabController.getInstance().getTextPollingInterval().textProperty().addListener((observable, oldValue, newValue) -> startWatcher(newValue));
-        //paneMyTeam.maxWidthProperty().bind(panePlayerdata.widthProperty());
-        //paneEnemyTeam.maxWidthProperty().bind(panePlayerdata.widthProperty());
     }
 
     private void startWatcher(String newValue) {

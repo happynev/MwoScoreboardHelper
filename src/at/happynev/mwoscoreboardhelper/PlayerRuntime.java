@@ -191,13 +191,13 @@ public class PlayerRuntime {
         node.setPadding(PLAYER_INSETS);
         if (node instanceof Labeled) {
             Labeled lnode = (Labeled) node;
-            lnode.setFont(new Font(20));
+            lnode.setFont(new Font(SettingsTabController.getInstance().getFontSize()));
             lnode.textFillProperty().bind(frontColor);
         }
         if (node instanceof TextInputControl) {
             TextInputControl tnode = (TextInputControl) node;
             tnode.styleProperty().bind(textBinding);
-            tnode.setFont(new Font(18));
+            tnode.setFont(new Font(SettingsTabController.getInstance().getFontSize() - 2));
         }
         return node;
     }
