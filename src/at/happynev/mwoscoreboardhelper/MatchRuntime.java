@@ -34,6 +34,7 @@ import java.util.*;
 public class MatchRuntime {
 
     private static final int TRACE_TIMEOUT = 1000 * 30;
+    private static final long maxMatchTimeDifference = 1000 * 60 * (15 + 4);//15 minutes matchtime+4 to account for pre/post match;
     private final SimpleStringProperty matchName = new SimpleStringProperty("");
     private final SimpleStringProperty map = new SimpleStringProperty("");
     private final SimpleStringProperty server = new SimpleStringProperty("");
@@ -146,45 +147,52 @@ public class MatchRuntime {
     }
 
     private static int calculateSimilarity(MatchRuntime oldMatch, MatchRuntime newMatch) {
-        int score = 0;
-        if (oldMatch.getGameMode().equals(newMatch.getGameMode())) score += 3;
-        if (oldMatch.getMap().equals(newMatch.getMap())) score += 3;
-        if (oldMatch.getBattleTime().equals(newMatch.getBattleTime())) score += 3;
-        if (oldMatch.getMatchResult().equals(newMatch.getMatchResult())) score += 3;
-        if (oldMatch.getMapTimeOfDay().equals(newMatch.getMapTimeOfDay())) score += 3;
-        int teamscore = 0;
+        int matchScore = 0;
+        int timeScore = (int) (maxMatchTimeDifference - Math.abs(newMatch.getTimestamp() - oldMatch.getTimestamp())) / (1000 * 60);
+        if (oldMatch.getGameMode().equals(newMatch.getGameMode())) {
+            matchScore += 8;
+        } else {
+            //gamemode is parsed with valuelist. match is either exact or wrong.
+            matchScore -= 15;
+        }
+        if (oldMatch.getMap().equals(newMatch.getMap())) matchScore += 8;
+        if (oldMatch.getBattleTime().equals(newMatch.getBattleTime())) matchScore += 10;
+        //if (oldMatch.getMatchResult().equals(newMatch.getMatchResult())) matchScore += 3;
+        //if (oldMatch.getMapTimeOfDay().equals(newMatch.getMapTimeOfDay())) matchScore += 3;
+        int playerScore = 0;
+        //Logger.log("time matchScore: " + timeScore);
         Set<String> newTeam = new HashSet<>(12);
         Set<String> newEnemy = new HashSet<>(12);
         newMatch.getPlayersTeam().forEach(playerRuntime -> newTeam.add(playerRuntime.getPilotname()));
         newMatch.getPlayersEnemy().forEach(playerRuntime -> newEnemy.add(playerRuntime.getPilotname()));
         for (PlayerRuntime pr : oldMatch.getPlayersTeam()) {
             if (newMatch.getPlayersTeam().contains(pr)) {
-                teamscore++;
+                playerScore++;
             } else {
                 String bestMatch = TraceHelpers.guessValue(pr.getPilotname(), newTeam);
                 //player matching is not 100%, try fuzzy
                 int diff = StringUtils.getLevenshteinDistance(bestMatch, pr.getPilotname());
                 if (diff > 0 && diff < 3) {
-                    teamscore++;
+                    playerScore++;
                     Logger.log("possible player merge: '" + pr.getPilotname() + "' and '" + bestMatch + "'");
                 }
             }
         }
-        int enemyscore = 0;
         for (PlayerRuntime pr : oldMatch.getPlayersEnemy()) {
             if (newMatch.getPlayersEnemy().contains(pr)) {
-                enemyscore++;
+                playerScore++;
             } else {
                 String bestMatch = TraceHelpers.guessValue(pr.getPilotname(), newEnemy);
                 //player matching is not 100%, try fuzzy
                 int diff = StringUtils.getLevenshteinDistance(bestMatch, pr.getPilotname());
                 if (diff > 0 && diff < 3) {
-                    teamscore++;
+                    playerScore++;
                     Logger.log("possible player merge: '" + pr.getPilotname() + "' and '" + bestMatch + "'");
                 }
             }
         }
-        return score + teamscore + enemyscore;
+        Logger.log("Similarity: match:" + matchScore + " players:" + playerScore + " time:" + (timeScore / 4));
+        return matchScore + playerScore + timeScore / 4;
     }
 
     private static MatchRuntime getInstanceFromDb(int id) {
@@ -267,7 +275,7 @@ public class MatchRuntime {
                         boolean isDefeat = matchResult.get().startsWith("DEFEAT");
                         boolean isDraw = matchResult.get().startsWith("TIE");
                         boolean isEnemy = false;
-                        Logger.log("player trace finished for " + pi.getPilotName() + " mech:" + pi.getMech());
+                        //Logger.log("player trace finished for " + pi.getPilotName() + " mech:" + pi.getMech());
                         if (isVictory) {
                             isEnemy = p >= 12;
                         } else if (isDefeat) {
@@ -477,14 +485,14 @@ public class MatchRuntime {
     }
 
     private MatchRuntime findSavedMatch() {
-        int maxTimeDifference = 1000 * 60 * (15 + 4);//15 minutes matchtime+4 to account for pre/post match
         try {
-            PreparedStatement prep = DbHandler.getInstance().prepareStatement("select id from match_data where matchtime between ? and ?");
-            prep.setTimestamp(1, new Timestamp(timestamp - maxTimeDifference));
-            prep.setTimestamp(2, new Timestamp(timestamp + maxTimeDifference));
+            PreparedStatement prep = DbHandler.getInstance().prepareStatement("select id from match_data where matchtime between ? and ? order by matchtime desc");
+            prep.setTimestamp(1, new Timestamp(timestamp - maxMatchTimeDifference));
+            prep.setTimestamp(2, new Timestamp(timestamp + maxMatchTimeDifference));
             ResultSet rs = prep.executeQuery();
             MatchRuntime bestCandidate = null;
-            int bestScore = 5;//minimum requirement
+            Logger.log("Finding match for " + this.toString());
+            int bestScore = 15;//minimum requirement
             while (rs.next()) {
                 int id = rs.getInt(1);
                 MatchRuntime candidate = new MatchRuntime(id);
