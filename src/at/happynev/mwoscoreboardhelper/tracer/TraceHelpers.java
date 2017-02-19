@@ -213,4 +213,42 @@ public class TraceHelpers {
         ret[2] = (byte) (rgb >> 0);
         return ret;
     }
+
+    public static BufferedImage extractWhite(BufferedImage input) {
+        return extractSpecificColor(input, new int[]{195, 195, 200}, new int[]{255, 255, 255});
+    }
+
+    public static BufferedImage extractYellow(BufferedImage input) {
+        return extractSpecificColor(input, new int[]{170, 150, 30}, new int[]{255, 230, 115});
+    }
+
+    public enum ValueList {
+        MAP,
+        GAMEMODE,
+        MATCHRESULT,
+        MATCHPERFORMANCE;
+
+        public List<String> getItems() {
+            switch (this) {
+                case MAP:
+                    return Arrays.asList("", "ALPINE PEAKS", "CANYON NETWORK", "CAUSTIC VALLEY", "CRIMSON STRAIT", "FOREST COLONY", "FROZEN CITY", "GRIM PLEXUS", "HPG MANIFOLD", "POLAR HIGHLANDS", "RIVER CITY", "TERRA THERMA", "THE MINING COLLECTIVE", "TOURMALINE DESERT", "VIRIDIAN BOG");
+                case GAMEMODE:
+                    List<String> ret = Arrays.asList("", "SKIRMISH", "DOMINATION", "ASSAULT", "CONQUEST", "INCURSION", "INVASION", "ESCORT");
+                    List<String> gameModeRet = new ArrayList<>(ret.size());
+                    ret.forEach(s -> gameModeRet.add("GAMEMODE: " + s)); //some modes with GAMEMODE:, some without
+                    gameModeRet.addAll(ret);
+                    return gameModeRet;
+                case MATCHRESULT:
+                    return Arrays.asList("", "VICTORY", "DEFEAT", "MISSION RESULT - TIE", "DEFEAT - OBJECTIVE FAILED", "VICTORY - OBJECTIVE SUCCEEDED", "DEFEAT - ENEMY GATHERED MAX RESOURCES", "VICTORY - GATHERED MAXIMUM RESOURCES");
+                case MATCHPERFORMANCE:
+                    return Arrays.asList("", "KILLING BLOW", "KILL ASSIST", "SOLO KILL", "KILL MOST DAMAGE DEALT", "DAMAGE DONE",
+                            "COMPONENT DESTROYED", "SCOUTING", "BRAWLING", "HIT AND RUN", "FLANKING", "SAVIOR KILL", "TEAM DAMAGE",
+                            "PROTECTION PROXIMITY", "PROTECTED LIGHT", "PROTECTED MEDIUM", "PROTECTED_HEAVY", "PROTECTED_ASSAULT",
+                            "SPOTTING ASSIST", "TAG DAMAGE", "NARC KILL", "TAG KILL", "STEALTH TAG", "FIRST CAPTURE", "TEAM KILL",
+                            "LANCE IN FORMATION", "DEFENSIVE KILL", "UAV KILL", "UAV LOCKED DAMAGE", "UAV DETECTION", "COUNTER ECM",
+                            "COUNTER ECM LOCKED DAMAGE", "TURRET KILL");
+            }
+            return Arrays.asList();
+        }
+    }
 }

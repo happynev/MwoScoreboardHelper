@@ -50,7 +50,6 @@ public class MatchRuntime {
     private final ObservableList<PlayerRuntime> playersEnemy = FXCollections.observableArrayList();
     private final ObservableList<PlayerMatchRecord> playerRecords = FXCollections.observableArrayList();
     private final Map<Integer, SimpleStringProperty> preliminaryInfo = new HashMap<>(24);
-    private final Set<String> gameModes = new HashSet<>(Arrays.asList("SKIRMISH", "DOMINATION", "ASSAULT", "CONQUEST", "INCURSION", "INVASION", "ESCORT"));
     private final Map<ScreenshotType, ScreenshotFileHandler> matchScreenshots = new HashMap<>();
     private final SimpleBooleanProperty tracingFinished = new SimpleBooleanProperty(false);
     private PersonalMatchRecord personalRecord = null;
@@ -252,8 +251,8 @@ public class MatchRuntime {
         tracer.finishedProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 if (newValue) {
-                    map.set(tracer.getMap());
-                    gameMode.set(TraceHelpers.guessValue(tracer.getGameMode().replaceAll(".*:", ""), gameModes));
+                    map.set(TraceHelpers.guessValue(tracer.getMap(), TraceHelpers.ValueList.MAP.getItems()));
+                    gameMode.set(TraceHelpers.guessValue(tracer.getGameMode(), TraceHelpers.ValueList.GAMEMODE.getItems()).replaceAll(".*: ", ""));
                     battleTime.set(tracer.getBattleTime());
                     PlayerRuntime player = PlayerRuntime.getInstance(SettingsTabController.getPlayername());
                     personalRecord = new PersonalMatchRecord(player, tracer, this);
@@ -333,8 +332,8 @@ public class MatchRuntime {
             try {
                 if (newValue) {
                     Logger.log("Match info trace finished");
-                    map.set(tracer.getMap());
-                    gameMode.set(TraceHelpers.guessValue(tracer.getGameMode().replaceAll(".*:", ""), gameModes));
+                    map.set(TraceHelpers.guessValue(tracer.getMap(), TraceHelpers.ValueList.MAP.getItems()));
+                    gameMode.set(TraceHelpers.guessValue(tracer.getGameMode(), TraceHelpers.ValueList.GAMEMODE.getItems()).replaceAll(".*: ", ""));
                     battleTime.set(tracer.getBattleTime());
                     server.set(tracer.getServer());
                     if (type == ScreenshotType.QP_4SUMMARY) {

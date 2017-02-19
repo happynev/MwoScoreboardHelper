@@ -1,6 +1,10 @@
 package at.happynev.mwoscoreboardhelper.junit;
 
-import at.happynev.mwoscoreboardhelper.*;
+import at.happynev.mwoscoreboardhelper.DbHandler;
+import at.happynev.mwoscoreboardhelper.Logger;
+import at.happynev.mwoscoreboardhelper.MechRuntime;
+import at.happynev.mwoscoreboardhelper.Utils;
+import at.happynev.mwoscoreboardhelper.tracer.TraceHelpers;
 import org.h2.tools.Server;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -53,5 +57,11 @@ public class SomeTests {
         Assert.assertEquals("AS7-K", MechRuntime.findMatchingMech("AS7-K(L)"));
         Assert.assertEquals("KGC-000B", MechRuntime.findMatchingMech("KGC-000B(L)"));
         Assert.assertEquals("KGC-000B", MechRuntime.findMatchingMech("KGC-OOOB(L)"));
+    }
+
+    @Test
+    public void testGameModeDetection() {
+        Assert.assertEquals("DOMINATION", TraceHelpers.guessValue("D0M INATI0N", TraceHelpers.ValueList.GAMEMODE.getItems()));
+        Assert.assertEquals("SKIRMISH", TraceHelpers.guessValue(" SKIRMISH", TraceHelpers.ValueList.GAMEMODE.getItems()));
     }
 }

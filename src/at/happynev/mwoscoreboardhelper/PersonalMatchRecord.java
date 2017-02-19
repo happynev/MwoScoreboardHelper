@@ -1,6 +1,7 @@
 package at.happynev.mwoscoreboardhelper;
 
 import at.happynev.mwoscoreboardhelper.tracer.RewardInfoTracer;
+import at.happynev.mwoscoreboardhelper.tracer.TraceHelpers;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -93,7 +94,7 @@ public class PersonalMatchRecord {
             int tmpKmdd = 0;
             int tmpComp = 0;
             for (int i = 0; i < 9; i++) {
-                String valuename = info.getPerformanceName(i);
+                String valuename = TraceHelpers.guessValue(info.getPerformanceName(i), TraceHelpers.ValueList.MATCHPERFORMANCE.getItems());
                 if (valuename.equals("SOLO KILL")) {
                     tmpSolo = info.getPerformanceValue(i);
                 } else if (valuename.equals("KILL MOST DAMAGE DEALT")) {
