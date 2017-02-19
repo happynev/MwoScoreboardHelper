@@ -23,6 +23,8 @@ public abstract class SessionRuntime {
     public static int wins = 0;
     public static int losses = 0;
     public static int totalMatches = 0;
+    public static int totalCbills = 0;
+    public static int totalXp = 0;
 
     public static Pane getSessionStatsPane() {
         Font fontHeader = Font.font("System", FontWeight.BOLD, 20);
@@ -71,6 +73,8 @@ public abstract class SessionRuntime {
         buildSessionDataLine(grid, row++, "Kills/Deaths", "" + killdeath.toPlainString());
         buildSessionDataLine(grid, row++, "Avg. Score", "" + avgscore);
         buildSessionDataLine(grid, row++, "Total Kills", "" + kills);
+        buildSessionDataLine(grid, row++, "Total Cbills", "" + totalCbills);
+        buildSessionDataLine(grid, row++, "Total Xp", "" + totalXp);
         buildSessionDataLine(grid, row++, "Matches per Hour", "" + matchPerHour.toPlainString());
         return grid;
     }

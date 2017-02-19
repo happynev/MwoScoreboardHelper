@@ -1,5 +1,6 @@
 package at.happynev.mwoscoreboardhelper;
 
+import at.happynev.mwoscoreboardhelper.controls.RatingControl;
 import at.happynev.mwoscoreboardhelper.tracer.*;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -996,6 +997,30 @@ public class MatchRuntime {
         if (!numMissing.totalValue.equals("0")) {
             buildMatchDataLine(grid, line++, "Missing Mechs", numMissing, matchFinished);
         }
+        grid.add(new Label(), 0, line++, GridPane.REMAINING, 1);
+        RatingControl rateMatch = new RatingControl("Rate this Match");
+        RatingControl rateTeam = new RatingControl("Rate Your Team");
+        RatingControl rateEnemy = new RatingControl("Rate Your Enemy");
+
+        rateMatch.valueProperty().addListener((observable, oldValue, newValue) -> {
+            int value = (int) (newValue.doubleValue() * 100);
+            Logger.log("rated match " + value);
+            personalRecord.setRatingMatch(value);
+        });
+        rateTeam.valueProperty().addListener((observable, oldValue, newValue) -> {
+            int value = (int) (newValue.doubleValue() * 100);
+            Logger.log("rated team " + value);
+            personalRecord.setRatingTeam(value);
+        });
+        rateEnemy.valueProperty().addListener((observable, oldValue, newValue) -> {
+            int value = (int) (newValue.doubleValue() * 100);
+            Logger.log("rated enemy " + value);
+            personalRecord.setRatingEnemy(value);
+        });
+
+        grid.add(rateMatch, 0, line++, GridPane.REMAINING, 1);
+        grid.add(rateTeam, 0, line++, GridPane.REMAINING, 1);
+        grid.add(rateEnemy, 0, line++, GridPane.REMAINING, 1);
 
         return grid;
     }

@@ -106,6 +106,9 @@ public class PersonalMatchRecord {
             soloKills = tmpSolo;
             kmdds = tmpKmdd;
             componentDestroyed = tmpComp;
+
+            SessionRuntime.totalCbills += rewardsCbills;
+            SessionRuntime.totalXp += rewardsXp;
         }
     }
 

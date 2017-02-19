@@ -24,7 +24,7 @@ public class RatingControl extends StackPane {
     public RatingControl(String s) {
         super();
         label.setText(s);
-        label.setFont(Font.font(20));
+        label.setFont(Font.font(15));
         label.setStyle("-fx-text-fill:#FFFFFF");
         label.setBorder(new Border(new BorderStroke(null, null, null, BorderWidths.DEFAULT)));
         label.setTextAlignment(TextAlignment.CENTER);
@@ -49,6 +49,8 @@ public class RatingControl extends StackPane {
         border.setFill(Color.TRANSPARENT);
         border.widthProperty().bind(label.widthProperty().subtract(2));
         border.heightProperty().bind(label.heightProperty().subtract(2));
+        border.setArcHeight(10);
+        border.setArcWidth(10);
         //border.xProperty().bind(label.layoutXProperty());
         //border.yProperty().bind(label.layoutYProperty());
 
@@ -60,6 +62,8 @@ public class RatingControl extends StackPane {
         valueFill.setFill(Color.TRANSPARENT);
         valueFill.yProperty().bind(widthFiller.layoutYProperty().add(1));
         valueFill.heightProperty().bind(widthFiller.heightProperty().subtract(2));
+        valueFill.setArcHeight(10);
+        valueFill.setArcWidth(10);
         SimpleDoubleProperty currentValue = new SimpleDoubleProperty();
         currentValue.bind(value);
         currentValue.addListener((observable, oldValue, newValue) -> {
