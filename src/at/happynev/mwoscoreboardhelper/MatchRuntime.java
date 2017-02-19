@@ -150,14 +150,21 @@ public class MatchRuntime {
         int matchScore = 0;
         int timeScore = (int) (maxMatchTimeDifference - Math.abs(newMatch.getTimestamp() - oldMatch.getTimestamp())) / (1000 * 60);
         if (oldMatch.getGameMode().equals(newMatch.getGameMode())) {
-            matchScore += 8;
+            matchScore += 7;
         } else {
             //gamemode is parsed with valuelist. match is either exact or wrong.
             matchScore -= 15;
         }
-        if (oldMatch.getMap().equals(newMatch.getMap())) matchScore += 8;
-        if (oldMatch.getBattleTime().equals(newMatch.getBattleTime())) matchScore += 10;
-        //if (oldMatch.getMatchResult().equals(newMatch.getMatchResult())) matchScore += 3;
+        //map is fuzzy
+        int mapScore = 8 - StringUtils.getLevenshteinDistance(oldMatch.getMap(), newMatch.getMap());
+        if (!oldMatch.getBattleTime().isEmpty() && oldMatch.getBattleTime().equals(newMatch.getBattleTime()))
+            matchScore += 10;
+        Logger.log("Similarity battletime match " + oldMatch.getBattleTime());
+        if (!oldMatch.getMatchResult().isEmpty()) {
+            int resultScore = 3 - StringUtils.getLevenshteinDistance(oldMatch.getMatchResult(), newMatch.getMatchResult());
+            matchScore += resultScore;
+            Logger.log("Similarity matchresult score " + resultScore);
+        }
         //if (oldMatch.getMapTimeOfDay().equals(newMatch.getMapTimeOfDay())) matchScore += 3;
         int playerScore = 0;
         //Logger.log("time matchScore: " + timeScore);
@@ -191,8 +198,8 @@ public class MatchRuntime {
                 }
             }
         }
-        Logger.log("Similarity: match:" + matchScore + " players:" + playerScore + " time:" + (timeScore / 4));
-        return matchScore + playerScore + timeScore / 4;
+        Logger.log("Similarity: match:" + matchScore + "map:" + mapScore + " players:" + playerScore + " time:" + (timeScore / 4));
+        return matchScore + mapScore + playerScore + timeScore / 4;
     }
 
     private static MatchRuntime getInstanceFromDb(int id) {
