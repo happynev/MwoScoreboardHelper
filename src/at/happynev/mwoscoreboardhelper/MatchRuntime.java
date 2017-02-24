@@ -313,7 +313,7 @@ public class MatchRuntime {
                         }
                         pr.getMatchRecords().add(prec);
                         playerRecords.add(prec);
-                        if (pr.getPilotname().equals(SettingsTabController.getPlayername())) {
+                        if (type == ScreenshotType.QP_4SUMMARY && pr.getPilotname().equals(SettingsTabController.getPlayername())) {
                             SessionRuntime.sessionRecords.add(prec);
                         }
                         //last because other triggers depend on it
