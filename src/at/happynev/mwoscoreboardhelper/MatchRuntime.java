@@ -280,7 +280,7 @@ public class MatchRuntime {
                     try {
                         boolean isVictory = matchResult.get().startsWith("VICTORY");
                         boolean isDefeat = matchResult.get().startsWith("DEFEAT");
-                        boolean isDraw = matchResult.get().startsWith("TIE");
+                        boolean isDraw = matchResult.get().endsWith("TIE");
                         boolean isEnemy = false;
                         //Logger.log("player trace finished for " + pi.getPilotName() + " mech:" + pi.getMech());
                         if (isVictory) {
