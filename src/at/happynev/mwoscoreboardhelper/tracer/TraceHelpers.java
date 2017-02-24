@@ -233,7 +233,7 @@ public class TraceHelpers {
                 case MAP:
                     return Arrays.asList("", "ALPINE PEAKS", "CANYON NETWORK", "CAUSTIC VALLEY", "CRIMSON STRAIT", "FOREST COLONY", "FROZEN CITY", "GRIM PLEXUS", "HPG MANIFOLD", "POLAR HIGHLANDS", "RIVER CITY", "TERRA THERMA", "THE MINING COLLECTIVE", "TOURMALINE DESERT", "VIRIDIAN BOG");
                 case GAMEMODE:
-                    List<String> ret = Arrays.asList("", "SKIRMISH", "DOMINATION", "ASSAULT", "CONQUEST", "INCURSION", "INVASION", "ESCORT");
+                    List<String> ret = Arrays.asList("", "SKIRMISH", "DOMINATION", "ASSAULT", "CONQUEST", "INCURSION", "INVASION", "SIEGE", "ESCORT");
                     List<String> gameModeRet = new ArrayList<>(ret.size());
                     ret.forEach(s -> gameModeRet.add("GAMEMODE: " + s)); //some modes with GAMEMODE:, some without
                     gameModeRet.addAll(ret);
