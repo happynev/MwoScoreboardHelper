@@ -308,11 +308,33 @@ public class PlayerRuntime {
     }
 
     public ObservableList<PlayerMatchRecord> getMatchRecords() {
+        if (matchRecords.size() == 0) {
+            //lazy load
+            reloadMatchRecordsFromDb();
+        }
         return matchRecords;
     }
 
+    private void reloadMatchRecordsFromDb() {
+        try {
+            PreparedStatement prepRecords = DbHandler.getInstance().prepareStatement("select match_data_id from player_matchdata where player_data_id=?");
+            prepRecords.setInt(1, this.id);
+            ResultSet rsRecords = prepRecords.executeQuery();
+            ObservableList<PlayerMatchRecord> tmp = FXCollections.observableArrayList();
+            while (rsRecords.next()) {
+                int matchId = rsRecords.getInt(1);
+                PlayerMatchRecord pmr = new PlayerMatchRecord(this.id, matchId);
+                tmp.add(pmr);
+            }
+            matchRecords.setAll(tmp);
+            rsRecords.close();
+        } catch (Exception e) {
+            Logger.error(e);
+        }
+    }
+
     public PlayerMatchRecord getMatchRecord(MatchRuntime match) {
-        for (PlayerMatchRecord pmr : matchRecords) {
+        for (PlayerMatchRecord pmr : getMatchRecords()) {
             if (pmr.getMatchId() == match.getId()) {
                 return pmr;
             }
@@ -320,7 +342,7 @@ public class PlayerRuntime {
         return null;
     }
 
-    public void refreshDataFromDb() {
+    private void refreshDataFromDb() {
         try {
             PreparedStatement prepSelect = DbHandler.getInstance().prepareStatement("select pilotname,unit,guicolor_back,guicolor_front,notes,icon,shortnote from player_data where id=?");
             prepSelect.setInt(1, this.id);
@@ -357,17 +379,6 @@ public class PlayerRuntime {
                 guicolor_back.unbindBidirectional(SettingsTabController.getInstance().playerBackColorProperty());
                 guicolor_front.unbindBidirectional(SettingsTabController.getInstance().playerFrontColorProperty());
             }
-            PreparedStatement prepRecords = DbHandler.getInstance().prepareStatement("select match_data_id from player_matchdata where player_data_id=?");
-            prepRecords.setInt(1, this.id);
-            ResultSet rsRecords = prepRecords.executeQuery();
-            ObservableList<PlayerMatchRecord> tmp = FXCollections.observableArrayList();
-            while (rsRecords.next()) {
-                int matchId = rsRecords.getInt(1);
-                PlayerMatchRecord pmr = new PlayerMatchRecord(this.id, matchId);
-                tmp.add(pmr);
-            }
-            matchRecords.setAll(tmp);
-            rsRecords.close();
         } catch (Exception e) {
             Logger.error(e);
         }

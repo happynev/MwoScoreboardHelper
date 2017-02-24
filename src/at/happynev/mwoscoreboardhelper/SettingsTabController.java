@@ -296,11 +296,11 @@ public class SettingsTabController {
         togglePersistentDatabase.selectedProperty().bindBidirectional(DbHandler.getInstance().writeEnabledProperty());
         playerFrontColor.addListener((observable, oldValue, newValue) -> {
             saveSetting("playerColorFront", Utils.getWebColor(newValue));
-            PlayerRuntime.getInstance(getPlayername()).refreshDataFromDb();
+            PlayerRuntime.getInstance(getPlayername()).guicolor_frontProperty().set(newValue);
         });
         playerBackColor.addListener((observable, oldValue, newValue) -> {
             saveSetting("playerColorBack", Utils.getWebColor(newValue));
-            PlayerRuntime.getInstance(getPlayername()).refreshDataFromDb();
+            PlayerRuntime.getInstance(getPlayername()).guicolor_backProperty().set(newValue);
         });
         //build dynamic part
         //Match Prep Playerdata layout
