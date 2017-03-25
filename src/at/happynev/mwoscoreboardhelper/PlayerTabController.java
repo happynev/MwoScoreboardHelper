@@ -10,10 +10,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import org.apache.commons.lang3.time.FastDateFormat;
 
@@ -54,13 +51,15 @@ public class PlayerTabController {
     @FXML
     ChoiceBox<String> choiceIcon;
     @FXML
-    TableView<String> tableMechs;
-    @FXML
-    TableView<String> tableStatistics;
+    TableView<PlayerRuntime.PlayerMechStats> tableMechs;
     @FXML
     Pane panePlayername;
     @FXML
     Button buttonJumpToDuplicate;
+    @FXML
+    Button buttonJumpToMatch;
+    @FXML
+    Pane panePlayerstats;
 
     FastDateFormat fdfSeen = FastDateFormat.getInstance("yyyy-MM-dd HH:mm");
 
@@ -97,6 +96,10 @@ public class PlayerTabController {
 
     @FXML
     private void initialize() {
+        //tablePlayerMatches.setItems(FXCollections.observableArrayList());
+        //tableMechs.setItems(FXCollections.observableArrayList());
+        tablePlayerMatches.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        tableMechs.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         buttonRefreshData.setOnAction(event -> refreshData());
         buildPlayerTable();
         BooleanBinding duplicateSelected = listPossibleDuplicates.getSelectionModel().selectedItemProperty().isNotNull();
@@ -128,7 +131,73 @@ public class PlayerTabController {
                 }
             };
         });
+        buttonJumpToMatch.setDisable(true);//TODO after match tab is implemented
+
+        //mech stat columns
+        buildMechTable();
+        buildMatchTable();
+
         refreshData();
+    }
+
+    private void buildMechTable() {
+        TableColumn<PlayerRuntime.PlayerMechStats, String> colMech = new TableColumn<>("Mech");
+        colMech.setCellValueFactory(param -> {
+            String value = param.getValue().getMech().getShortName();
+            return new SimpleStringProperty(value);
+        });
+        tableMechs.getColumns().add(colMech);
+        for (PlayerStat stat : PlayerStat.values()) {
+            if (stat == PlayerStat.FAVMECHS || stat == PlayerStat.BESTMECHS) {
+                continue;
+            }
+            TableColumn<PlayerRuntime.PlayerMechStats, String> col = new TableColumn<>();
+            col.setCellValueFactory(param -> param.getValue().getStats().get(stat));
+            Label columnHeader = new Label(stat.toString());
+            columnHeader.setTooltip(new Tooltip(stat.getDescription()));
+            col.setGraphic(columnHeader);
+            GuiUtils.getColumnConstraint(columnHeader);
+            col.setPrefWidth(GuiUtils.getColumnConstraint(columnHeader).getPrefWidth());
+            tableMechs.getColumns().add(col);
+        }
+
+        // colPlayerUnit.prefWidthProperty().bind(tablePlayers.widthProperty().multiply(0.2));
+
+    }
+
+    private void buildMatchTable() {
+        TableColumn<PlayerMatchRecord, String> colTime = new TableColumn<>("Match Time");
+        colTime.setCellValueFactory(param -> {
+            MatchRuntime match = MatchRuntime.getInstanceById(param.getValue().getMatchId());
+            String value = match.getFormattedTimestamp();
+            return new SimpleStringProperty(value);
+        });
+        TableColumn<PlayerMatchRecord, String> colMap = new TableColumn<>("Map");
+        colMap.setCellValueFactory(param -> {
+            MatchRuntime match = MatchRuntime.getInstanceById(param.getValue().getMatchId());
+            String value = match.getMap();
+            return new SimpleStringProperty(value);
+        });
+        TableColumn<PlayerMatchRecord, String> colGameMode = new TableColumn<>("GameMode");
+        colGameMode.setCellValueFactory(param -> {
+            MatchRuntime match = MatchRuntime.getInstanceById(param.getValue().getMatchId());
+            String value = match.getGameMode();
+            return new SimpleStringProperty(value);
+        });
+        tablePlayerMatches.getColumns().addAll(colTime, colMap, colGameMode);
+        for (MatchStat stat : MatchStat.values()) {
+            if (stat == MatchStat.MATCHTONS) {
+                continue;
+            }
+            TableColumn<PlayerMatchRecord, String> col = new TableColumn<>();
+            Label columnHeader = new Label(stat.toString());
+            columnHeader.setTooltip(new Tooltip(stat.getDescription()));
+            col.setGraphic(columnHeader);
+            col.setPrefWidth(GuiUtils.getColumnConstraint(columnHeader).getPrefWidth());
+            col.setCellValueFactory(param -> param.getValue().getMatchValues().get(stat));
+
+            tablePlayerMatches.getColumns().add(col);
+        }
     }
 
     private void buildPlayerTable() {
@@ -171,9 +240,9 @@ public class PlayerTabController {
         pickerBack.valueProperty().set(Color.BLACK);
         pickerFront.valueProperty().set(Color.WHITE);
         listPossibleDuplicates.getItems().clear();
-        tableMechs.setItems(FXCollections.emptyObservableList());
-        tableStatistics.setItems(FXCollections.emptyObservableList());
-        tablePlayerMatches.setItems(FXCollections.emptyObservableList());
+        panePlayerstats.getChildren().clear();
+        tablePlayerMatches.getItems().clear();
+        tableMechs.getItems().clear();
         if (newPlayer != null) {
             labelUnit.textProperty().bindBidirectional(newPlayer.unitProperty());
             labelPilotname.textProperty().bindBidirectional(newPlayer.pilotnameProperty());
@@ -181,9 +250,20 @@ public class PlayerTabController {
             textNotes.textProperty().bindBidirectional(newPlayer.notesProperty());
             pickerBack.valueProperty().bindBidirectional(newPlayer.guicolor_backProperty());
             pickerFront.valueProperty().bindBidirectional(newPlayer.guicolor_frontProperty());
-            tablePlayerMatches.setItems(newPlayer.getMatchRecords());
             listPossibleDuplicates.getItems().addAll(findDuplicates(newPlayer));
             labelSeenInfo.setText("Seen " + newPlayer.getMatchRecords().size() + " times between " + fdfSeen.format(findFirstSeen(newPlayer)) + " and " + fdfSeen.format(findLastSeen(newPlayer)));
+            panePlayerstats.getChildren().add(new Label("Overall Stats:"));
+            for (PlayerStat stat : PlayerStat.values()) {
+                Label statdesc = new Label(stat.getDescription() + ":");
+                Label statvalue = new Label(newPlayer.getCalculatedValues().get(stat).getValue());
+                HBox hbox = new HBox(statdesc, statvalue);
+                hbox.setSpacing(10);
+                panePlayerstats.getChildren().add(hbox);
+            }
+            tablePlayerMatches.getItems().addAll(newPlayer.getMatchRecords());
+            tablePlayerMatches.sort();
+            tableMechs.getItems().addAll(newPlayer.getMechStats().values());
+            tableMechs.sort();
         }
     }
 
@@ -220,7 +300,6 @@ public class PlayerTabController {
                 tmp.add(pr);
             }
             rs.close();
-            //tablePlayers.setItems(tmp);
             tablePlayers.getItems().clear();
             tablePlayers.getItems().addAll(tmp);
         } catch (Exception e) {

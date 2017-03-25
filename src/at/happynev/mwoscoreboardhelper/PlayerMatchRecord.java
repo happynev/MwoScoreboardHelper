@@ -2,8 +2,8 @@ package at.happynev.mwoscoreboardhelper;
 
 import at.happynev.mwoscoreboardhelper.tracer.PlayerInfoTracer;
 import at.happynev.mwoscoreboardhelper.tracer.TraceHelpers;
-import javafx.beans.binding.StringExpression;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -19,7 +19,7 @@ public class PlayerMatchRecord {
     private final int playerId;
     private final boolean isEnemy;
     private final long timestamp;
-    private final Map<MatchStat, StringExpression> matchValues = new TreeMap<>();
+    private final Map<MatchStat, StringProperty> matchValues = new TreeMap<>();
     private int matchId;
 
     public PlayerMatchRecord(int playerId, int matchId) throws Exception {
@@ -49,6 +49,7 @@ public class PlayerMatchRecord {
             matchValues.put(MatchStat.MATCHPING, new SimpleStringProperty("" + ping));
             matchValues.put(MatchStat.MATCHSCORE, new SimpleStringProperty("" + matchScore));
             matchValues.put(MatchStat.MATCHSTATUS, new SimpleStringProperty(status));
+            //cannot add because of recursion matchValues.put(MatchStat.MATCHTONS, new SimpleStringProperty("" + MechRuntime.getMechByShortName(mech).getTons()));
         } else {
             throw new Exception("Match Record for " + playerId + "/" + matchId + " not found");
         }
@@ -65,6 +66,7 @@ public class PlayerMatchRecord {
         int assists = 10;
         int damage = 1000;
         int ping = 100;
+        int tons = 50;
         matchValues.put(MatchStat.MATCHMECH, new SimpleStringProperty(mech));
         matchValues.put(MatchStat.MATCHASSISTS, new SimpleStringProperty("" + assists));
         matchValues.put(MatchStat.MATCHDAMAGE, new SimpleStringProperty("" + damage));
@@ -72,6 +74,7 @@ public class PlayerMatchRecord {
         matchValues.put(MatchStat.MATCHPING, new SimpleStringProperty("" + ping));
         matchValues.put(MatchStat.MATCHSCORE, new SimpleStringProperty("" + matchScore));
         matchValues.put(MatchStat.MATCHSTATUS, new SimpleStringProperty(status));
+        matchValues.put(MatchStat.MATCHTONS, new SimpleStringProperty("" + tons));
         this.isEnemy = isEnemy;
         timestamp = 0;
     }
@@ -132,7 +135,7 @@ public class PlayerMatchRecord {
         }
     }
 
-    public Map<MatchStat, StringExpression> getMatchValues() {
+    public Map<MatchStat, StringProperty> getMatchValues() {
         return matchValues;
     }
 

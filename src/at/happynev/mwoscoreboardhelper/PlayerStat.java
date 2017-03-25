@@ -54,15 +54,15 @@ public enum PlayerStat implements Stat {
             case TIMESFINISHED:
                 return "Number of matches recorded";
             case AVGSCORE:
-                return "Average. Score";
+                return "Average Score per Match";
             case AVGDAMAGE:
-                return "Average Damage";
+                return "Average Damage per Match";
             case SURVIVAL:
                 return "Survival Rate";
             case AVGKILLS:
-                return "Average Kills";
+                return "Average Kills per Match";
             case AVGASSISTS:
-                return "Average Assists";
+                return "Average Assists per Match";
             case KDR:
                 return "Kill/Death Ratio";
         }

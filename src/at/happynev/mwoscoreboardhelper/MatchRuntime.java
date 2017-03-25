@@ -36,6 +36,7 @@ public class MatchRuntime {
 
     private static final int TRACE_TIMEOUT = 1000 * 30;
     private static final long maxMatchTimeDifference = 1000 * 60 * (15 + 4);//15 minutes matchtime+4 to account for pre/post match;
+    private static Map<Integer, MatchRuntime> matchesById = new HashMap<>();
     private final SimpleStringProperty matchName = new SimpleStringProperty("");
     private final SimpleStringProperty map = new SimpleStringProperty("");
     private final SimpleStringProperty server = new SimpleStringProperty("");
@@ -137,9 +138,18 @@ public class MatchRuntime {
             int playerid = PlayerRuntime.getInstance(SettingsTabController.getPlayername()).getId();
             personalRecord = new PersonalMatchRecord(playerid, id);
             //TODO: check screenshot archive
+            matchesById.put(id, this);
         } catch (Exception e) {
             handleLoadError(e, null);
         }
+    }
+
+    public static MatchRuntime getInstanceById(int id) {
+        MatchRuntime ret = matchesById.get(id);
+        if (ret == null) {
+            ret = getInstanceFromDb(id);
+        }
+        return ret;
     }
 
     public static MatchRuntime getReferenceMatch(ScreenshotType type) {
@@ -404,7 +414,10 @@ public class MatchRuntime {
             Logger.log("Screenshot is a new match " + newId);
             WatcherTabController.getInstance().labelStatusInfo.setText("New match: " + newId);
         }
+        matchesById.remove(id);
         id = newId;
+        matchesById.put(id, this);
+
         if (type == ScreenshotType.QP_1PREPARATION) {
             //save initial map/game data
             saveInitialMatchData();
