@@ -1,6 +1,14 @@
 -- Created by Vertabelo (http://vertabelo.com)
 -- Last modification date: 2017-02-18 07:43:25.881
 
+-- Sequence: seq
+CREATE SEQUENCE seq
+      INCREMENT BY 1
+      MINVALUE 1
+      MAXVALUE 9999999999999
+      NO CYCLE;
+
+
 -- tables
 -- Table: MATCH_DATA
 CREATE TABLE MATCH_DATA (
@@ -121,12 +129,6 @@ ALTER TABLE PLAYER_MATCHDATA ADD CONSTRAINT PLAYER_MATCHDATA_PLAYER_DATA
     ON UPDATE  CASCADE;
 
 -- sequences
--- Sequence: seq
-CREATE SEQUENCE seq
-      INCREMENT BY 1
-      MINVALUE 1
-      MAXVALUE 9999999999999
-      NO CYCLE;
 
 -- End of file.
 

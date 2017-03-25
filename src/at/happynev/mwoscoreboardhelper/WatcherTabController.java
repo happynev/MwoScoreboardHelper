@@ -121,9 +121,14 @@ public class WatcherTabController {
         int interval = (int) Double.parseDouble(newValue);
         if (watcher != null) watcher.stop();
         if (toggleAutowatch.isSelected()) {
-            watcher = new Timeline(new KeyFrame(Duration.millis(interval), ev -> watcherLoop()));
-            watcher.setCycleCount(Animation.INDEFINITE);
-            watcher.play();
+            if (!SettingsTabController.getScreenshotDirectory().isDirectory() || SettingsTabController.getPlayername().isEmpty()) {
+                Logger.alertPopup("Make sure to set Playername and Screenshot directory on the Settings tab");
+                toggleAutowatch.setSelected(false);
+            } else {
+                watcher = new Timeline(new KeyFrame(Duration.millis(interval), ev -> watcherLoop()));
+                watcher.setCycleCount(Animation.INDEFINITE);
+                watcher.play();
+            }
         }
     }
 
@@ -133,14 +138,9 @@ public class WatcherTabController {
 
     private File getNextScreenshot() {
         File f = null;
-        if (!SettingsTabController.getScreenshotDirectory().isDirectory() || SettingsTabController.getPlayername().isEmpty()) {
-            Logger.alertPopup("Make sure to set Playername and Screenshot directory on the Settings tab");
-            toggleAutowatch.setSelected(false);
-        } else {
-            for (File ls : SettingsTabController.getScreenshotDirectory().listFiles((dir, name) -> name.endsWith(".jpeg") || name.endsWith(".jpg") || name.endsWith(".png"))) {
-                if (!alreadyProcessed.contains(ls.getName())) {
-                    return ls;
-                }
+        for (File ls : SettingsTabController.getScreenshotDirectory().listFiles((dir, name) -> name.endsWith(".jpeg") || name.endsWith(".jpg") || name.endsWith(".png"))) {
+            if (!alreadyProcessed.contains(ls.getName())) {
+                return ls;
             }
         }
         return f;

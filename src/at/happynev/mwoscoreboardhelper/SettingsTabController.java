@@ -177,7 +177,7 @@ public class SettingsTabController {
     }
 
     public static boolean isAutowatchEnabled() {
-        return Boolean.parseBoolean(loadSetting("autowatchEnabled", "true"));
+        return Boolean.parseBoolean(loadSetting("autowatchEnabled", "false"));
     }
 
     public static void setAutowatchEnabled(boolean enabled) {

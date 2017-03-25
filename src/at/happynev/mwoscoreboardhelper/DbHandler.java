@@ -126,7 +126,7 @@ public class DbHandler {
                 RunScript.execute(con, new InputStreamReader(getClass().getResourceAsStream("dbinit.sql")));
             }
             rs.close();
-            int version = Integer.parseInt(loadSetting("version", "0").replaceAll("\\..*", ""));
+            int version = Integer.parseInt(loadSetting("version", "" + Main.getDbVersion()).replaceAll("\\..*", ""));
             if (version < Main.getDbVersion()) {
                 RunScript.execute(con, new InputStreamReader(getClass().getResourceAsStream("dbUpgradeFromVersion" + version + ".sql")));
             }
