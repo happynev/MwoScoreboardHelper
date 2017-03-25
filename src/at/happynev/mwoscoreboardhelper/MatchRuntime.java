@@ -733,6 +733,7 @@ public class MatchRuntime {
             }
             rsid.close();
             //Logger.log("new match id: " + _id);
+            prep.close();
             return _id;
         } catch (Exception e) {
             Logger.error(e);

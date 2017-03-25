@@ -6,8 +6,6 @@ import org.h2.tools.RunScript;
 
 import java.io.InputStreamReader;
 import java.sql.*;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by Nev on 12.03.2016.
@@ -15,10 +13,8 @@ import java.util.Map;
 public class DbHandler {
     public final static String EMPTY = "~empty~";
     private static DbHandler ourInstance;
-    private final String dburl = "jdbc:h2:tcp://localhost:9124/mwoscoreboarddb";
+    private final String dburl = "jdbc:h2:tcp://localhost:9124/mwoscoreboarddb;QUERY_CACHE_SIZE=64";
     private Connection con = null;
-    private Map<String, PreparedStatement> cachedStatements = new HashMap<>();
-    private Map<PreparedStatement, Integer> statementUsage = new HashMap<>();
     private BooleanProperty writeEnabled = new SimpleBooleanProperty(true);
 
     private DbHandler() {
@@ -34,18 +30,7 @@ public class DbHandler {
     }
 
     public synchronized void dumpPreparedStatement(String sql) {
-        if (cachedStatements.containsKey(sql)) {
-            try {
-                PreparedStatement prep = cachedStatements.get(sql);
-                statementUsage.remove(prep);
-                prep.close();
-            } catch (SQLException e) {
-                Logger.warning("failed to close prep stmt for " + sql);
-            }
-            cachedStatements.remove(sql);
-        } else {
-            Logger.warning("tried to dump non-existing sql:" + sql);
-        }
+
     }
 
     private void saveSetting(String key, String value) {
@@ -107,7 +92,6 @@ public class DbHandler {
             }
             Logger.log("reopen DB with writeEnabled= " + writeEnabled.getValue());
             if (con != null) con.close();
-            cachedStatements.clear();
             con = DriverManager.getConnection(dburl);
             initializeTables();
             boolean autocommit = Boolean.parseBoolean(loadSetting("dbWriteEnabled", "true"));
@@ -149,32 +133,20 @@ public class DbHandler {
         rs.next();
         String ret = rs.getString(1);
         rs.close();
-        stmt.clearParameters();
+        stmt.close();
         return ret;
     }
 
-    public synchronized PreparedStatement prepareStatement(String sql) throws SQLException {
+    public PreparedStatement prepareStatement(String sql) throws SQLException {
         return prepareStatement(sql, false);
     }
 
-    public synchronized PreparedStatement prepareStatement(String sql, boolean returnKey) throws SQLException {
-        PreparedStatement prep = cachedStatements.get(sql);
-        if (prep == null || prep.isClosed()) {
-            if (returnKey) {
-                prep = con.prepareStatement(sql);
-            } else {
-                prep = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            }
-            cachedStatements.put(sql, prep);
-            statementUsage.put(prep, 0);
+    public PreparedStatement prepareStatement(String sql, boolean returnKey) throws SQLException {
+        PreparedStatement prep = null;
+        if (returnKey) {
+            prep = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
         } else {
-            prep.clearParameters();
-        }
-        statementUsage.put(prep, statementUsage.get(prep) + 1);
-        if (statementUsage.get(prep) > 1000) {
-            //safety precaution. sometimes prep statement gets closed inexplicably after lots of use
-            dumpPreparedStatement(sql);
-            prep = prepareStatement(sql, returnKey);
+            prep = con.prepareStatement(sql);
         }
         return prep;
     }

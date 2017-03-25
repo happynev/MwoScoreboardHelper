@@ -54,6 +54,7 @@ public class PlayerMatchRecord {
             throw new Exception("Match Record for " + playerId + "/" + matchId + " not found");
         }
         rs.close();
+        prep.close();
     }
 
     private PlayerMatchRecord(boolean isEnemy) {

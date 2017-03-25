@@ -136,9 +136,11 @@ public class PlayerRuntime {
                 }
             }
             rsid.close();
+            prepInsert.close();
             firstTime = true;
         }
         rs.close();
+        prepSelect.close();
         ret = new PlayerRuntime(_id);
         if (firstTime && !ret.getPilotname().equals(SettingsTabController.getPlayername())) {
             SessionRuntime.playersNew.add(ret);
@@ -324,7 +326,7 @@ public class PlayerRuntime {
         return mechStats;
     }
 
-    private void reloadMatchRecordsFromDb() {
+    private synchronized void reloadMatchRecordsFromDb() {
         try {
             PreparedStatement prepRecords = DbHandler.getInstance().prepareStatement("select match_data_id from player_matchdata where player_data_id=?");
             prepRecords.setInt(1, this.id);
@@ -337,7 +339,6 @@ public class PlayerRuntime {
                 tmp.add(pmr);
             }
             rsRecords.close();
-
             matchRecords.setAll(tmp);
         } catch (Exception e) {
             Logger.error(e);
