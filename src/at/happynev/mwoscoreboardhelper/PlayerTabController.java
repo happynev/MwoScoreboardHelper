@@ -17,6 +17,7 @@ import org.apache.commons.lang3.time.FastDateFormat;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -158,6 +159,7 @@ public class PlayerTabController {
             col.setGraphic(columnHeader);
             GuiUtils.getColumnConstraint(columnHeader);
             col.setPrefWidth(GuiUtils.getColumnConstraint(columnHeader).getPrefWidth());
+            col.setComparator(Utils.getNumberComparator());
             tableMechs.getColumns().add(col);
         }
 
@@ -184,6 +186,12 @@ public class PlayerTabController {
             String value = match.getGameMode();
             return new SimpleStringProperty(value);
         });
+        TableColumn<PlayerMatchRecord, String> colMatchResult = new TableColumn<>("Result");
+        colGameMode.setCellValueFactory(param -> {
+            MatchRuntime match = MatchRuntime.getInstanceById(param.getValue().getMatchId());
+            String value = match.getMatchResult();
+            return new SimpleStringProperty(value);
+        });
         tablePlayerMatches.getColumns().addAll(colTime, colMap, colGameMode);
         for (MatchStat stat : MatchStat.values()) {
             if (stat == MatchStat.MATCHTONS) {
@@ -195,7 +203,7 @@ public class PlayerTabController {
             col.setGraphic(columnHeader);
             col.setPrefWidth(GuiUtils.getColumnConstraint(columnHeader).getPrefWidth());
             col.setCellValueFactory(param -> param.getValue().getMatchValues().get(stat));
-
+            col.setComparator(Utils.getNumberComparator());
             tablePlayerMatches.getColumns().add(col);
         }
     }

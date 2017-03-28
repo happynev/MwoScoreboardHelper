@@ -11,12 +11,19 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.channels.FileChannel;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Optional;
 
 /**
  * Created by Nev on 15.01.2017.
  */
 public class Utils {
+    private static Comparator<String> numberComparator = new NumericStringComparator();
+
+    public static Comparator<String> getNumberComparator() {
+        return numberComparator;
+    }
+
     public static File getHomeDir() {
         File f = new File(System.getProperty("user.home"), "/.MwoScoreboardHelper");
         if (!f.isDirectory()) f.mkdirs();
@@ -81,5 +88,34 @@ public class Utils {
 
     public static String getWebColor(Color newValue) {
         return newValue.toString().replaceAll("..;?$", "");
+    }
+
+    public static class NumericStringComparator implements Comparator<String> {
+        @Override
+        public int compare(String o1, String o2) {
+            if (o1 == null && o2 != null) {
+                return -1;
+            }
+            if (o1 != null && o2 == null) {
+                return 1;
+            }
+            if (o1 == null && o2 == null) {
+                return 0;
+            }
+            try {
+                if (o1.endsWith("%")) {
+                    o1 = o1.substring(0, o1.length() - 1);
+                }
+                if (o2.endsWith("%")) {
+                    o2 = o2.substring(0, o2.length() - 1);
+                }
+                Double i1 = Double.valueOf(o1);
+                Double i2 = Double.valueOf(o2);
+                return i1.compareTo(i2);
+            } catch (NumberFormatException e) {
+                //not numeric then let String compare
+                return o1.compareTo(o2);
+            }
+        }
     }
 }
