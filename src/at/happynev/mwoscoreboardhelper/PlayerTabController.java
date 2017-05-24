@@ -134,7 +134,7 @@ public class PlayerTabController {
             };
         });
         buttonJumpToMatch.setDisable(true);//TODO after match tab is implemented
-        buttonJumpToSelf.setOnAction(event -> tablePlayers.getSelectionModel().select(PlayerRuntime.getInstance(SettingsTabController.getPlayername())));
+        buttonJumpToSelf.setOnAction(event -> selectSelf());
         //mech stat columns
         buildMechTable();
         buildMatchTable();
@@ -188,12 +188,12 @@ public class PlayerTabController {
             return new SimpleStringProperty(value);
         });
         TableColumn<PlayerMatchRecord, String> colMatchResult = new TableColumn<>("Result");
-        colGameMode.setCellValueFactory(param -> {
+        colMatchResult.setCellValueFactory(param -> {
             MatchRuntime match = MatchRuntime.getInstanceById(param.getValue().getMatchId());
             String value = match.getMatchResult();
             return new SimpleStringProperty(value);
         });
-        tablePlayerMatches.getColumns().addAll(colTime, colMap, colGameMode);
+        tablePlayerMatches.getColumns().addAll(colTime, colMap, colGameMode, colMatchResult);
         for (MatchStat stat : MatchStat.values()) {
             if (stat == MatchStat.MATCHTONS) {
                 continue;
@@ -325,5 +325,9 @@ public class PlayerTabController {
     public void selectPlayer(PlayerRuntime pr) {
         ScoreboardController.getInstance().selectPlayerTab();
         tablePlayers.getSelectionModel().select(pr);
+    }
+
+    public void selectSelf() {
+        selectPlayer(PlayerRuntime.getInstance(SettingsTabController.getPlayername()));
     }
 }
