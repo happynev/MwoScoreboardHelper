@@ -17,7 +17,6 @@ import org.apache.commons.lang3.time.FastDateFormat;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -61,6 +60,8 @@ public class PlayerTabController {
     Button buttonJumpToMatch;
     @FXML
     Pane panePlayerstats;
+    @FXML
+    Button buttonJumpToSelf;
 
     FastDateFormat fdfSeen = FastDateFormat.getInstance("yyyy-MM-dd HH:mm");
 
@@ -133,7 +134,7 @@ public class PlayerTabController {
             };
         });
         buttonJumpToMatch.setDisable(true);//TODO after match tab is implemented
-
+        buttonJumpToSelf.setOnAction(event -> tablePlayers.getSelectionModel().select(PlayerRuntime.getInstance(SettingsTabController.getPlayername())));
         //mech stat columns
         buildMechTable();
         buildMatchTable();

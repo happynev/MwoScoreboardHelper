@@ -28,6 +28,7 @@
                <children>
                   <Label maxWidth="1.7976931348623157E308" text="Known Players" HBox.hgrow="ALWAYS" />
                   <Button fx:id="buttonRefreshData" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Refresh Data" GridPane.columnIndex="1" />
+                  <Button fx:id="buttonJumpToSelf" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Select yourself" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                </children>
             </GridPane>
             <TableView fx:id="tablePlayers" HBox.hgrow="SOMETIMES" VBox.vgrow="ALWAYS" />
