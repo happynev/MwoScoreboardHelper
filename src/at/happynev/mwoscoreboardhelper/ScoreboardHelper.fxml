@@ -20,6 +20,11 @@
                 <fx:include source="PlayerTab.fxml" />
             </content>
         </Tab>
+        <!--Tab fx:id="tabPersonal" closable="false" text="Personal">
+            <content>
+                <fx:include source="PersonalTab.fxml" />
+            </content>
+        </Tab-->
         <Tab fx:id="tabMechs" closable="false" text="Mech Stats">
             <content>
                 <fx:include source="MechsTab.fxml" />
@@ -35,7 +40,7 @@
                 <fx:include source="PreviewTab.fxml" />
             </content>
         </Tab>
-        <Tab fx:id="tabMatches" closable="false" text="SQL">
+        <Tab fx:id="tabSql" closable="false" text="SQL">
             <content>
                 <fx:include source="SqlTab.fxml" />
             </content>
