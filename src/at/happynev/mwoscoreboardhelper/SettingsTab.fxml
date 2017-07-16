@@ -59,6 +59,8 @@
             <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
             <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
             <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
          </rowConstraints>
          <children>
             <Label text="Directory to archive match screenshots" GridPane.columnIndex="1" GridPane.rowIndex="4" />
@@ -141,14 +143,18 @@
                   <Font name="System Bold" size="18.0" />
                </font>
             </Label>
-            <Label text="Collected Player Data" GridPane.columnIndex="1" GridPane.rowIndex="17" />
+            <VBox GridPane.columnIndex="1" GridPane.rowIndex="17">
+               <children>
+                  <Label fx:id="labelColorPlayerData" text="This color indicates collected player data" GridPane.columnIndex="1" GridPane.rowIndex="17" />
+                  <Label fx:id="labelColorMatchData" text="This color indicates data from the current match" />
+                  <Label fx:id="labelColorPlayerMatchData" text="This color indicates data from the current match relative to known player data" />
+               </children>
+            </VBox>
             <Label layoutX="10.0" layoutY="385.0" text="Match Summary Columns" GridPane.rowIndex="18">
                <font>
                   <Font name="System Bold" size="18.0" />
                </font>
             </Label>
-            <Label text="Match Data" GridPane.columnIndex="1" GridPane.rowIndex="19" />
-            <Label text="Collected Player Data" GridPane.columnIndex="1" GridPane.rowIndex="20" />
             <Label layoutX="10.0" layoutY="439.0" text="Match Preparation Layout Preview" GridPane.rowIndex="21">
                <font>
                   <Font name="System Bold" size="18.0" />
@@ -161,7 +167,7 @@
             </Label>
             <VBox fx:id="paneColumnSelectionPrepPlayer" GridPane.rowIndex="17" />
             <VBox fx:id="paneColumnSelectionSummaryMatch" GridPane.rowIndex="19" />
-            <VBox fx:id="paneColumnSelectionSummaryPlayer" GridPane.rowIndex="20" />
+            <VBox fx:id="paneColumnSelectionSummaryPlayer" GridPane.rowIndex="21" />
             <HBox fillHeight="false" GridPane.columnSpan="2147483647" GridPane.rowIndex="22">
                <children>
                   <GridPane fx:id="paneColumnPreviewPrep" GridPane.columnSpan="2147483647" GridPane.rowIndex="21" HBox.hgrow="SOMETIMES">

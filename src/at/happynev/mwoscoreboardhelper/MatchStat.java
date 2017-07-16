@@ -1,9 +1,12 @@
 package at.happynev.mwoscoreboardhelper;
 
+import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
+import javafx.scene.paint.Color;
+
 /**
  * Created by Nev on 02.02.2017.
  */
-public enum MatchStat implements Stat {
+public enum MatchStat implements DisplayableStat {
     MATCHSCORE,
     MATCHDAMAGE,
     MATCHPERF,
@@ -14,6 +17,41 @@ public enum MatchStat implements Stat {
     MATCHMECH,
     MATCHTONS,
     MATCHPING;
+
+    @Override
+    public boolean canDisplay(ScreenshotType type) {
+        switch (type) {
+            case QP_1PREPARATION:
+                switch (this) {
+                    case MATCHMECH:
+                    case MATCHTONS:
+                    case MATCHPING:
+                        return true;
+                    default:
+                        return false;
+                }
+            case QP_4SUMMARY:
+                return true;
+        }
+        return false;
+    }
+
+    @Override
+    public Color getColor() {
+        switch (this) {
+            case MATCHSCORE:
+            case MATCHDAMAGE:
+            case MATCHSTATUS:
+            case MATCHKILLS:
+            case MATCHASSISTS:
+            case MATCHMECH:
+            case MATCHTONS:
+            case MATCHPING:
+                return COLOR_MATCHDATA;
+            default:
+                return COLOR_PLAYERMATCHDATA;
+        }
+    }
 
     @Override
     public String toString() {
@@ -63,7 +101,8 @@ public enum MatchStat implements Stat {
                 return "Ping";
             case MATCHPERF:
                 return "Relative score";
-            case MATCHMECHPERF: return "Mech relative Score";
+            case MATCHMECHPERF:
+                return "Mech relative Score";
         }
         return "undefined";
     }

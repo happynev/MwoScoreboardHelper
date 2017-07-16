@@ -36,35 +36,39 @@ public class GuiUtils {
         grid.getColumnConstraints().clear();
         int col = 0;
         if (SettingsTabController.getInstance().getLayoutShowUnit()) {
-            Label labelUnit = applyHeaderFormat(new Label("Unit"));
+            Label labelUnit = applyHeaderFormat(new Label("Unit"), null);
             grid.getColumnConstraints().add(getColumnConstraint(labelUnit));
             labelUnit.setTooltip(new Tooltip(labelUnit.getText()));
             grid.add(labelUnit, col++, 0);
         }
         if (SettingsTabController.getInstance().getLayoutShowName()) {
-            Label labelPilotname = applyHeaderFormat(new Label("Pilot Name"));
+            Label labelPilotname = applyHeaderFormat(new Label("Pilot Name"), null);
             grid.getColumnConstraints().add(getColumnConstraint(labelPilotname));
             labelPilotname.setTooltip(new Tooltip(labelPilotname.getText()));
             grid.add(labelPilotname, col++, 0);
         }
         if (SettingsTabController.getInstance().getLayoutShowNote()) {
-            Label labelShortnote = applyHeaderFormat(new Label("Short Note"));
+            Label labelShortnote = applyHeaderFormat(new Label("Short Note"), null);
             grid.getColumnConstraints().add(getColumnConstraint(labelShortnote));
             labelShortnote.setTooltip(new Tooltip(labelShortnote.getText()));
             grid.add(labelShortnote, col++, 0);
         }
-        for (Stat key : match.getStatsToDisplay()) {
-            Label label = applyHeaderFormat(new Label(key.toString()));
+        for (DisplayableStat key : match.getStatsToDisplay()) {
+            Label label = applyHeaderFormat(new Label(key.toString()), key);
             grid.getColumnConstraints().add(getColumnConstraint(label));
             label.setTooltip(new Tooltip(key.getDescription()));
             grid.add(label, col++, 0);
         }
     }
 
-    public static Label applyHeaderFormat(Label node) {
+    private static Label applyHeaderFormat(Label node, DisplayableStat stat) {
         Font fontHeader = Font.font("System", FontWeight.BOLD, SettingsTabController.getInstance().getFontSize() + 2);
         node.setFont(fontHeader);
-        node.setTextFill(Color.WHITE);
+        Color textColor = Color.WHITE;
+        if (stat != null) {
+            textColor = stat.getColor();
+        }
+        node.setTextFill(textColor);
         node.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
         GridPane.setFillWidth(node, true);
         node.setMaxWidth(Double.MAX_VALUE);

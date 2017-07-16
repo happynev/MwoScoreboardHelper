@@ -6,6 +6,8 @@ import javafx.beans.binding.StringExpression;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -69,8 +71,6 @@ public class SettingsTabController {
     @FXML
     Pane paneColumnSelectionSummaryMatch;
     @FXML
-    Pane paneColumnSelectionSummaryPlayer;
-    @FXML
     GridPane paneColumnPreviewPrep;
     @FXML
     GridPane paneColumnPreviewSummary;
@@ -80,6 +80,12 @@ public class SettingsTabController {
     Pane paneMatchDataPreview;
     @FXML
     CheckBox checkShowStatSummary;
+    @FXML
+    Label labelColorPlayerData;
+    @FXML
+    Label labelColorMatchData;
+    @FXML
+    Label labelColorPlayerMatchData;
 
     private SimpleObjectProperty<Color> playerBackColor = new SimpleObjectProperty<>(Color.web(loadSetting("playerColorBack", "#000000")));
     private SimpleObjectProperty<Color> playerFrontColor = new SimpleObjectProperty<>(Color.web(loadSetting("playerColorFront", "#FFFFFF")));
@@ -303,59 +309,38 @@ public class SettingsTabController {
             PlayerRuntime.getInstance(getPlayername()).guicolor_backProperty().set(newValue);
         });
         //build dynamic part
-        //Match Prep Playerdata layout
-        for (PlayerStat stat : PlayerStat.class.getEnumConstants()) {
-            String desc = stat.getDescription();
-            String name = stat.toString();
-            String checktitle = name;
-            String checkid = "layout" + ScreenshotType.QP_1PREPARATION + "-" + name;
-            if (!name.equals(desc)) {
-                checktitle = desc + " ('" + name + "')";
-            }
-            CheckBox check = new CheckBox(checktitle);
-            check.setSelected(Boolean.parseBoolean(loadSetting(checkid, "false")));
-            check.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                saveSetting(checkid, "" + newValue);
-                refreshPreviews();
-            });
-            paneColumnSelectionPrepPlayer.getChildren().add(check);
-        }
-        //Match Summary Playerdata layout
-        for (PlayerStat stat : PlayerStat.class.getEnumConstants()) {
-            String desc = stat.getDescription();
-            String name = stat.toString();
-            String checktitle = name;
-            String checkid = "layout" + ScreenshotType.QP_4SUMMARY + "-" + name;
-            if (!name.equals(desc)) {
-                checktitle = desc + " ('" + name + "')";
-            }
-            CheckBox check = new CheckBox(checktitle);
-            check.setSelected(Boolean.parseBoolean(loadSetting(checkid, "false")));
-            check.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                saveSetting(checkid, "" + newValue);
-                refreshPreviews();
-            });
-            paneColumnSelectionSummaryPlayer.getChildren().add(check);
-        }
-        //Match Summary Matchdata layout
-        for (MatchStat stat : MatchStat.class.getEnumConstants()) {
-            String desc = stat.getDescription();
-            String name = stat.toString();
-            String checktitle = name;
-            String checkid = "layout" + ScreenshotType.QP_4SUMMARY + "-" + name;
-            if (!name.equals(desc)) {
-                checktitle = desc + " ('" + name + "')";
-            }
-            CheckBox check = new CheckBox(checktitle);
-            check.setSelected(Boolean.parseBoolean(loadSetting(checkid, "false")));
-            check.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                saveSetting(checkid, "" + newValue);
-                refreshPreviews();
-            });
-            paneColumnSelectionSummaryMatch.getChildren().add(check);
-        }
+        labelColorMatchData.setBackground(new Background(new BackgroundFill(DisplayableStat.COLOR_MATCHDATA, null, null)));
+        labelColorPlayerData.setBackground(new Background(new BackgroundFill(DisplayableStat.COLOR_PLAYERDATA, null, null)));
+        labelColorPlayerMatchData.setBackground(new Background(new BackgroundFill(DisplayableStat.COLOR_PLAYERMATCHDATA, null, null)));
+        List<DisplayableStat> allStats = new ArrayList<>();
+        allStats.addAll(Arrays.asList(MatchStat.class.getEnumConstants()));
+        allStats.addAll(Arrays.asList(PlayerStat.class.getEnumConstants()));
+        addStatSettings(allStats, ScreenshotType.QP_1PREPARATION, paneColumnSelectionPrepPlayer);
+        addStatSettings(allStats, ScreenshotType.QP_4SUMMARY, paneColumnSelectionSummaryMatch);
         refreshPreviews();
         WatcherTabController.getInstance().setSettingsLoaded(true);
+    }
+
+    private void addStatSettings(List<DisplayableStat> statsForPrep, ScreenshotType type, Pane pane) {
+        for (DisplayableStat stat : statsForPrep) {
+            if (stat.canDisplay(type)) {
+                String desc = stat.getDescription();
+                String name = stat.toString();
+                String checktitle = name;
+                String checkid = "layout" + type + "-" + name;
+                if (!name.equals(desc)) {
+                    checktitle = desc + " ('" + name + "')";
+                }
+                CheckBox check = new CheckBox(checktitle);
+                check.setBackground(new Background(new BackgroundFill(stat.getColor(), null, null)));
+                check.setSelected(Boolean.parseBoolean(loadSetting(checkid, "false")));
+                check.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                    saveSetting(checkid, "" + newValue);
+                    refreshPreviews();
+                });
+                pane.getChildren().add(check);
+            }
+        }
     }
 
     private void refreshPreviews() {
@@ -390,18 +375,12 @@ public class SettingsTabController {
         return checkShowNote.isSelected();
     }
 
-    public List<Stat> getStatsToDisplay(ScreenshotType type) {
-        List<Stat> ret = new ArrayList<>();
-        if (type == ScreenshotType.QP_4SUMMARY) {
-            for (MatchStat stat : MatchStat.class.getEnumConstants()) {
-                String checkid = "layout" + type + "-" + stat;
-                boolean showStat = Boolean.parseBoolean(loadSetting(checkid, "false"));
-                if (showStat) {
-                    ret.add(stat);
-                }
-            }
-        }
-        for (PlayerStat stat : PlayerStat.class.getEnumConstants()) {
+    public List<DisplayableStat> getStatsToDisplay(ScreenshotType type) {
+        List<DisplayableStat> allStats = new ArrayList<>();
+        allStats.addAll(Arrays.asList(MatchStat.class.getEnumConstants()));
+        allStats.addAll(Arrays.asList(PlayerStat.class.getEnumConstants()));
+        List<DisplayableStat> ret = new ArrayList<>();
+        for (DisplayableStat stat : allStats) {
             String checkid = "layout" + type + "-" + stat;
             boolean showStat = Boolean.parseBoolean(loadSetting(checkid, "false"));
             if (showStat) {
@@ -475,6 +454,9 @@ public class SettingsTabController {
     private void selectDirectory(TextField textfield) {
         DirectoryChooser dc = new DirectoryChooser();
         File current = new File(textfield.getText());
+        if (textfield.getText().isEmpty()) {
+            current = Utils.getInstallDir();
+        }
         if (current.isDirectory()) {
             dc.setInitialDirectory(current);
         }

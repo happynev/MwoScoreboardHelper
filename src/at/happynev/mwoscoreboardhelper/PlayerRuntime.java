@@ -238,7 +238,7 @@ public class PlayerRuntime {
             parent.add(textShortNote, col++, row);
         }
 
-        for (Stat key : currentMatch.getStatsToDisplay()) {
+        for (DisplayableStat key : currentMatch.getStatsToDisplay()) {
             StringProperty value = null;
             if (key instanceof PlayerStat) {
                 value = calculatedValues.get(key);

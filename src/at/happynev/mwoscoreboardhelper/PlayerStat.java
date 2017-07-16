@@ -1,9 +1,12 @@
 package at.happynev.mwoscoreboardhelper;
 
+import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
+import javafx.scene.paint.Color;
+
 /**
  * Created by Nev on 02.02.2017.
  */
-public enum PlayerStat implements Stat {
+public enum PlayerStat implements DisplayableStat {
     TIMESSEEN,
     TIMESFINISHED,
     AVGSCORE,
@@ -14,6 +17,22 @@ public enum PlayerStat implements Stat {
     KDR,
     FAVMECHS,
     BESTMECHS;
+
+    @Override
+    public Color getColor() {
+        return COLOR_PLAYERDATA;
+    }
+
+    @Override
+    public boolean canDisplay(ScreenshotType type) {
+        switch (type) {
+            case QP_1PREPARATION:
+                return true;
+            case QP_4SUMMARY:
+                return true;
+        }
+        return false;
+    }
 
     @Override
     public String toString() {

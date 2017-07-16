@@ -542,7 +542,7 @@ public class MatchRuntime {
         return id + "-" + gameMode.get() + "-" + map.get() + "-" + formattedTimestamp.get();
     }
 
-    public List<Stat> getStatsToDisplay() {
+    public List<DisplayableStat> getStatsToDisplay() {
         return SettingsTabController.getInstance().getStatsToDisplay(type);
     }
 
