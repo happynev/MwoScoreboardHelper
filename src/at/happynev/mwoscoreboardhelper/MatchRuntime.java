@@ -324,7 +324,7 @@ public class MatchRuntime {
                         pr.getMatchRecords().add(prec);
                         playerRecords.add(prec);
                         if (type == ScreenshotType.QP_4SUMMARY && pr.getPilotname().equals(SettingsTabController.getPlayername())) {
-                            SessionRuntime.sessionRecords.add(prec);
+                            SessionRuntime.sessionMatchRecords.add(prec);
                         }
                         //last because other triggers depend on it
                         if (isEnemy) {
