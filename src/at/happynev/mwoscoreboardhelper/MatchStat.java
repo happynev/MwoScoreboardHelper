@@ -27,6 +27,7 @@ public enum MatchStat implements DisplayableStat {
                     case MATCHMECH:
                     case MATCHTONS:
                     case MATCHPING:
+                    case MATCHMECHWLR:
                         return true;
                     default:
                         return false;

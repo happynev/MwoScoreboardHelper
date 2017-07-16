@@ -644,6 +644,9 @@ public class PlayerRuntime {
         if (denominator == null) {
             denominator = 0;
         }
+        if (numerator == 0 && denominator == 0) {
+            return "N/A";
+        }
         if (denominator > 0) {
             return new BigDecimal(numerator.doubleValue() / denominator.doubleValue()).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString();
         } else {
