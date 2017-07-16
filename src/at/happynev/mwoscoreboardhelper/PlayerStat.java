@@ -16,7 +16,8 @@ public enum PlayerStat implements DisplayableStat {
     AVGASSISTS,
     KDR,
     FAVMECHS,
-    BESTMECHS;
+    BESTMECHS,
+    WLR;
 
     @Override
     public Color getColor() {
@@ -57,6 +58,8 @@ public enum PlayerStat implements DisplayableStat {
                 return "~A";
             case KDR:
                 return "K/D";
+            case WLR:
+                return "W/L";
         }
         return "undefined";
     }
@@ -84,6 +87,8 @@ public enum PlayerStat implements DisplayableStat {
                 return "Average Assists per Match";
             case KDR:
                 return "Kill/Death Ratio";
+            case WLR:
+                return "Win/Loss Ratio";
         }
         return "undefined";
     }

@@ -18,6 +18,8 @@ import java.util.TreeMap;
 public class PlayerMatchRecord {
     private final int playerId;
     private final boolean isEnemy;
+    private final boolean isWinner;
+    private final boolean isLoser;
     private final long timestamp;
     private final Map<MatchStat, StringProperty> matchValues = new TreeMap<>();
     private int matchId;
@@ -26,7 +28,7 @@ public class PlayerMatchRecord {
         this.playerId = playerId;
         this.matchId = matchId;
         PreparedStatement prep = DbHandler.getInstance().prepareStatement(
-                "select pm.mech,pm.status,pm.score,pm.kills,pm.assists,pm.damage,pm.ping,pm.enemy,m.matchtime " +
+                "select pm.mech,pm.status,pm.score,pm.kills,pm.assists,pm.damage,pm.ping,pm.enemy,m.matchtime,m.matchresult " +
                         "from player_matchdata pm, match_data m " +
                         "where pm.player_data_id=? and pm.match_data_id=? and pm.match_data_id=m.id");
         prep.setInt(1, playerId);
@@ -42,6 +44,7 @@ public class PlayerMatchRecord {
             int ping = rs.getInt(7);
             isEnemy = rs.getBoolean(8);
             timestamp = rs.getTimestamp(9).getTime();
+            String matchResult = rs.getString(10);
             matchValues.put(MatchStat.MATCHMECH, new SimpleStringProperty(mech));
             matchValues.put(MatchStat.MATCHASSISTS, new SimpleStringProperty("" + assists));
             matchValues.put(MatchStat.MATCHDAMAGE, new SimpleStringProperty("" + damage));
@@ -49,6 +52,17 @@ public class PlayerMatchRecord {
             matchValues.put(MatchStat.MATCHPING, new SimpleStringProperty("" + ping));
             matchValues.put(MatchStat.MATCHSCORE, new SimpleStringProperty("" + matchScore));
             matchValues.put(MatchStat.MATCHSTATUS, new SimpleStringProperty(status));
+            if ("DEFEAT".equals(matchResult)) {
+                isWinner = isEnemy;
+                isLoser = !isWinner;
+            } else if ("VICTORY".equals(matchResult)) {
+                isWinner = !isEnemy;
+                isLoser = !isWinner;
+            } else {
+                //TIE
+                isWinner = false;
+                isLoser = false;
+            }
             //cannot add because of recursion matchValues.put(MatchStat.MATCHTONS, new SimpleStringProperty("" + MechRuntime.getMechByShortName(mech).getTons()));
         } else {
             throw new Exception("Match Record for " + playerId + "/" + matchId + " not found");
@@ -77,6 +91,8 @@ public class PlayerMatchRecord {
         matchValues.put(MatchStat.MATCHSTATUS, new SimpleStringProperty(status));
         matchValues.put(MatchStat.MATCHTONS, new SimpleStringProperty("" + tons));
         this.isEnemy = isEnemy;
+        this.isWinner = true;
+        this.isLoser = false;
         timestamp = 0;
     }
 
@@ -106,6 +122,18 @@ public class PlayerMatchRecord {
         matchValues.put(MatchStat.MATCHSCORE, new SimpleStringProperty("" + matchScore));
         matchValues.put(MatchStat.MATCHSTATUS, new SimpleStringProperty(status));
         matchValues.put(MatchStat.MATCHTONS, new SimpleStringProperty("" + MechRuntime.getMechByShortName(mech).getTons()));
+        String matchResult = match.getMatchResult();
+        if ("DEFEAT".equals(matchResult)) {
+            isWinner = isEnemy;
+            isLoser = !isWinner;
+        } else if ("VICTORY".equals(matchResult)) {
+            isWinner = !isEnemy;
+            isLoser = !isWinner;
+        } else {
+            //TIE
+            isWinner = false;
+            isLoser = false;
+        }
     }
 
     public static PlayerMatchRecord getReferenceRecord(boolean isEnemy) {
@@ -187,5 +215,13 @@ public class PlayerMatchRecord {
 
     public int getPlayerId() {
         return playerId;
+    }
+
+    public boolean isWinner() {
+        return isWinner;
+    }
+
+    public boolean isLoser() {
+        return isLoser;
     }
 }

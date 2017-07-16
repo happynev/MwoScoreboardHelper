@@ -62,6 +62,10 @@ public class PlayerTabController {
     Pane panePlayerstats;
     @FXML
     Button buttonJumpToSelf;
+    @FXML
+    TextField textPlayerFilter;
+    @FXML
+    Button buttonClearPlayerFilter;
 
     FastDateFormat fdfSeen = FastDateFormat.getInstance("yyyy-MM-dd HH:mm");
 
@@ -114,10 +118,13 @@ public class PlayerTabController {
         buttonJumpToDuplicate.disableProperty().bind(duplicateSelected.not());
         buttonJumpToDuplicate.setOnAction(event -> {
             PlayerRuntime old = tablePlayers.getSelectionModel().getSelectedItem();
-            selectPlayer(listPossibleDuplicates.getSelectionModel().getSelectedItem());
+            selectPlayerFromList(listPossibleDuplicates.getSelectionModel().getSelectedItem());
             listPossibleDuplicates.getSelectionModel().select(old);
         });
         panePlayername.backgroundProperty().bind(backBinding);
+        buttonClearPlayerFilter.disableProperty().bind(textPlayerFilter.textProperty().isEmpty());
+        buttonClearPlayerFilter.setOnAction(event1 -> textPlayerFilter.setText(""));
+        textPlayerFilter.textProperty().addListener((observable, oldValue, newValue) -> refreshData());
         labelUnit.textFillProperty().bind(pickerFront.valueProperty());
         labelPilotname.textFillProperty().bind(pickerFront.valueProperty());
         listPossibleDuplicates.setCellFactory(param -> {
@@ -264,6 +271,7 @@ public class PlayerTabController {
             panePlayerstats.getChildren().add(new Label("Overall Stats:"));
             for (PlayerStat stat : PlayerStat.values()) {
                 Label statdesc = new Label(stat.getDescription() + ":");
+                statdesc.setBackground(new Background(new BackgroundFill(DisplayableStat.COLOR_PLAYERDATA, null, null)));
                 Label statvalue = new Label(newPlayer.getCalculatedValues().get(stat).getValue());
                 HBox hbox = new HBox(statdesc, statvalue);
                 hbox.setSpacing(10);
@@ -306,7 +314,9 @@ public class PlayerTabController {
             ObservableList<PlayerRuntime> tmp = FXCollections.observableArrayList();
             while (rs.next()) {
                 PlayerRuntime pr = PlayerRuntime.getInstance(rs.getString(1));
-                tmp.add(pr);
+                if (pr.getPilotname().toLowerCase().contains(textPlayerFilter.getText().toLowerCase())) {
+                    tmp.add(pr);
+                }
             }
             rs.close();
             tablePlayers.getItems().clear();
@@ -315,20 +325,23 @@ public class PlayerTabController {
             Logger.error(e);
         }
         tablePlayers.sort();
-        if (selection != null) {
-            tablePlayers.getSelectionModel().select(selection);
+        if (selection != null && tablePlayers.getItems().contains(selection)) {
+            selectPlayerFromList(selection);
         } else if (tablePlayers.getItems().size() > 0) {
-            tablePlayers.getSelectionModel().selectFirst();
+            selectPlayerFromList(tablePlayers.getItems().get(0));
+        } else {
+            selectPlayer(null, null);
         }
     }
 
-    public void selectPlayer(PlayerRuntime pr) {
+    public void selectPlayerFromList(PlayerRuntime pr) {
         ScoreboardController.getInstance().selectPlayerTab();
         tablePlayers.getSelectionModel().select(pr);
         tablePlayers.scrollTo(pr);
     }
 
     public void selectSelf() {
-        selectPlayer(PlayerRuntime.getInstance(SettingsTabController.getPlayername()));
+        buttonClearPlayerFilter.fire();
+        selectPlayerFromList(PlayerRuntime.getInstance(SettingsTabController.getPlayername()));
     }
 }

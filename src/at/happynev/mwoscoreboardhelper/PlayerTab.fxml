@@ -31,6 +31,12 @@
                   <Button fx:id="buttonJumpToSelf" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Select yourself" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                </children>
             </GridPane>
+            <HBox maxWidth="1.7976931348623157E308">
+               <children>
+                  <TextField fx:id="textPlayerFilter" maxWidth="1.7976931348623157E308" promptText="Filter by Playername" HBox.hgrow="ALWAYS" />
+                  <Button fx:id="buttonClearPlayerFilter" mnemonicParsing="false" text="Clear" HBox.hgrow="NEVER" />
+               </children>
+            </HBox>
             <TableView fx:id="tablePlayers" HBox.hgrow="SOMETIMES" VBox.vgrow="ALWAYS" />
          </children>
       </VBox>

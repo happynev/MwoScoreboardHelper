@@ -174,7 +174,7 @@ public class PlayerRuntime {
 
     private static void clickPlayer(MouseEvent event, PlayerRuntime pr) {
         if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
-            PlayerTabController.getInstance().selectPlayer(pr);
+            PlayerTabController.getInstance().selectPlayerFromList(pr);
         }
     }
 
@@ -504,6 +504,7 @@ public class PlayerRuntime {
         final SimpleStringProperty avgAssists = new SimpleStringProperty("");
         final SimpleStringProperty survivalRate = new SimpleStringProperty("");
         final SimpleStringProperty kdr = new SimpleStringProperty("");
+        final SimpleStringProperty wlr = new SimpleStringProperty("");
 
         col.clear();
         col.put(PlayerStat.FAVMECHS, favMechs);
@@ -516,6 +517,7 @@ public class PlayerRuntime {
         col.put(PlayerStat.SURVIVAL, survivalRate);
         col.put(PlayerStat.AVGASSISTS, avgAssists);
         col.put(PlayerStat.KDR, kdr);
+        col.put(PlayerStat.WLR, wlr);
     }
 
     private void calculatePmrCollection(Collection<PlayerMatchRecord> pmrs, Map<PlayerStat, StringProperty> resultValues, List<PlayerMatchRecord> addedSubList) {
@@ -525,8 +527,12 @@ public class PlayerRuntime {
         int totalKills = 0;
         int totalAssists = 0;
         int totalValidMatches = 0;
+        int totalWins = 0;
+        int totalLosses = 0;
         Map<String, Integer> mechsSeen = new TreeMap<>();
         Map<String, List<Integer>> mechScores = new HashMap<>();
+        Map<String, Integer> mechWins = new HashMap();
+        Map<String, Integer> mechLosses = new HashMap();
         for (PlayerMatchRecord mr : pmrs) {
             boolean isValidMatch = mr.getPing() > 0;
             if (isValidMatch) {
@@ -536,6 +542,24 @@ public class PlayerRuntime {
                 totalAssists += mr.getAssists();
                 totalKills += mr.getKills();
                 if (mr.getStatus().equals("ALIVE")) totalAlive++;
+                if (mr.isWinner()) {
+                    totalWins++;
+                    Integer mw = mechWins.get(mr.getMech());
+                    if (mw == null) {
+                        mw = 0;
+                    }
+                    mw += 1;
+                    mechWins.put(mr.getMech(), mw);
+                }
+                if (mr.isLoser()) {
+                    totalLosses++;
+                    Integer ml = mechLosses.get(mr.getMech());
+                    if (ml == null) {
+                        ml = 0;
+                    }
+                    ml += 1;
+                    mechLosses.put(mr.getMech(), ml);
+                }
             }
             if (mr.getMech() != null && !mr.getMech().isEmpty()) {
                 Integer seen = mechsSeen.get(mr.getMech());
@@ -570,20 +594,20 @@ public class PlayerRuntime {
             String assists = new BigDecimal((double) totalAssists / (double) totalValidMatches).setScale(1, BigDecimal.ROUND_HALF_UP).toPlainString();
             String kills = new BigDecimal((double) totalKills / (double) totalValidMatches).setScale(1, BigDecimal.ROUND_HALF_UP).toPlainString();
             int totalDead = totalValidMatches - totalAlive;
-            if (totalDead > 0) {
-                String kdratio = new BigDecimal((double) totalKills / (double) totalDead).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString();
-                resultValues.get(PlayerStat.KDR).set(kdratio);
-            } else {
-                resultValues.get(PlayerStat.KDR).set(new BigDecimal(totalKills).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString());
-            }
+            resultValues.get(PlayerStat.KDR).set(getRatio(totalKills, totalDead));
+            resultValues.get(PlayerStat.WLR).set(getRatio(totalWins, totalLosses));
             resultValues.get(PlayerStat.AVGKILLS).set(kills);
             resultValues.get(PlayerStat.AVGASSISTS).set(assists);
             String aliveRatio = new BigDecimal((double) totalAlive / (double) totalValidMatches).multiply(new BigDecimal(100)).setScale(0, BigDecimal.ROUND_HALF_UP).toPlainString();
             resultValues.get(PlayerStat.SURVIVAL).set(aliveRatio + "%");
 
             for (PlayerMatchRecord pmr : addedSubList) {
-                if (mechAvgScores.keySet().contains(pmr.getMech())) {
-                    int mechavg = mechAvgScores.get(pmr.getMech());
+                String mech = pmr.getMech();
+                if (mechLosses.containsKey(mech) || mechWins.containsKey(mech)) {
+                    pmr.getMatchValues().put(MatchStat.MATCHMECHWLR, new SimpleStringProperty(getRatio(mechWins.get(mech), mechLosses.get(mech))));
+                }
+                if (mechAvgScores.keySet().contains(mech)) {
+                    int mechavg = mechAvgScores.get(mech);
                     if (mechavg > 0) {
                         String mechperf = new BigDecimal((double) pmr.getMatchScore() / (double) mechavg).multiply(new BigDecimal(100)).setScale(0, BigDecimal.ROUND_HALF_UP).toPlainString();
                         pmr.getMatchValues().put(MatchStat.MATCHMECHPERF, new SimpleStringProperty(mechperf + "%"));
@@ -611,6 +635,20 @@ public class PlayerRuntime {
 
     public void removeMatchRecord(int oldMatchId) {
         matchRecords.removeIf(pmr -> pmr.getMatchId() == oldMatchId);
+    }
+
+    private String getRatio(Integer numerator, Integer denominator) {
+        if (numerator == null) {
+            numerator = 0;
+        }
+        if (denominator == null) {
+            denominator = 0;
+        }
+        if (denominator > 0) {
+            return new BigDecimal(numerator.doubleValue() / denominator.doubleValue()).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString();
+        } else {
+            return new BigDecimal(numerator).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString();
+        }
     }
 
     public class PlayerMechStats {

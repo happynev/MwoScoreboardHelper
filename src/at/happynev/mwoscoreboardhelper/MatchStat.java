@@ -11,6 +11,7 @@ public enum MatchStat implements DisplayableStat {
     MATCHDAMAGE,
     MATCHPERF,
     MATCHMECHPERF,
+    MATCHMECHWLR,
     MATCHSTATUS,
     MATCHKILLS,
     MATCHASSISTS,
@@ -76,6 +77,8 @@ public enum MatchStat implements DisplayableStat {
                 return "Score%";
             case MATCHMECHPERF:
                 return "Mech%";
+            case MATCHMECHWLR:
+                return "Mech W/L";
         }
         return "undefined";
     }
@@ -103,6 +106,8 @@ public enum MatchStat implements DisplayableStat {
                 return "Relative score";
             case MATCHMECHPERF:
                 return "Mech relative Score";
+            case MATCHMECHWLR:
+                return "Mech Win/Loss";
         }
         return "undefined";
     }
