@@ -22,7 +22,7 @@ public class Main extends Application {
     }
 
     public static String getVersion() {
-        return "0.3 Centurion";
+        return "0.3.1 Yen-Lo Wang";
     }
 
     public static void main(String[] args) {
