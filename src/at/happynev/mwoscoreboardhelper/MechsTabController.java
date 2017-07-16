@@ -96,6 +96,7 @@ public class MechsTabController {
             }
         }
         reloadData();
+        Utils.confirmationDialog("Mech Update Successful", "got " + mechs.size() + " mechs");
     }
 
     private void reloadData() {
