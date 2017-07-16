@@ -325,6 +325,7 @@ public class PlayerTabController {
     public void selectPlayer(PlayerRuntime pr) {
         ScoreboardController.getInstance().selectPlayerTab();
         tablePlayers.getSelectionModel().select(pr);
+        tablePlayers.scrollTo(pr);
     }
 
     public void selectSelf() {
