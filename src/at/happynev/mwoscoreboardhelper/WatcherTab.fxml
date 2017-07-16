@@ -25,6 +25,11 @@
                   <Font name="System Bold" size="35.0" />
                </font>
             </Label>
+            <Label fx:id="labelMatchResult" layoutX="85.0" layoutY="10.0" maxWidth="1.7976931348623157E308" style="-fx-text-fill: #EDBE34;" text="Result" HBox.hgrow="SOMETIMES">
+               <font>
+                  <Font name="System Bold" size="35.0" />
+               </font>
+            </Label>
             <Label fx:id="labelTimestamp" maxWidth="1.7976931348623157E308" text="Match Time" HBox.hgrow="SOMETIMES">
                <font>
                   <Font size="25.0" />

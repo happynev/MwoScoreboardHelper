@@ -46,6 +46,8 @@ public class WatcherTabController {
     @FXML
     Label labelGamemode;
     @FXML
+    Label labelMatchResult;
+    @FXML
     Label labelLastScreenshot;
     @FXML
     Label labelTimestamp;
@@ -190,6 +192,7 @@ public class WatcherTabController {
             GuiUtils.prepareGrid(paneEnemyTeam, results);
             labelMap.textProperty().bind(results.mapProperty());
             labelGamemode.textProperty().bind(results.gameModeProperty());
+            labelMatchResult.textProperty().bind(results.matchResultProperty());
             labelTimestamp.textProperty().bind(results.formattedTimestampProperty());
             //textMatchName.textProperty().bind(results.matchNameProperty());
             if (results.getType() == ScreenshotType.QP_1PREPARATION || results.getType() == ScreenshotType.QP_4SUMMARY) {
