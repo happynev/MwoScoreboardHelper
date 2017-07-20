@@ -139,6 +139,14 @@ public class SettingsTabController {
         return ret;
     }
 
+    public static void saveActiveTab(String tab) {
+        saveSetting("activeTab", tab);
+    }
+
+    public static String getActiveTab(){
+        return loadSetting("activeTab","tabSettings");
+    }
+
     public static File getScreenshotDirectory() {
         String v = loadSetting("screenshotDirectory", Utils.getHomeDir().getAbsolutePath());
         return new File(v).getAbsoluteFile();

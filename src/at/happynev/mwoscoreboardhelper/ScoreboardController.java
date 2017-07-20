@@ -34,10 +34,21 @@ public class ScoreboardController {
 
     @FXML
     private void initialize() {
+        String activeTab = SettingsTabController.getActiveTab();
+        for (Tab t : tabMainApplication.getTabs()) {
+            if (t.getId().equals(activeTab)) {
+                selectTab(t);
+                break;
+            }
+        }
+        tabMainApplication.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> SettingsTabController.saveActiveTab(newValue.getId()));
+    }
 
+    private void selectTab(Tab t) {
+        tabMainApplication.getSelectionModel().select(t);
     }
 
     public void selectPlayerTab() {
-        tabMainApplication.getSelectionModel().select(tabPlayers);
+        selectTab(tabPlayers);
     }
 }
