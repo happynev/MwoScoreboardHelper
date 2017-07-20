@@ -243,10 +243,10 @@ public class TraceHelpers {
                 case MATCHPERFORMANCE:
                     return Arrays.asList("", "KILLING BLOW", "KILL ASSIST", "SOLO KILL", "KILL MOST DAMAGE DEALT", "DAMAGE DONE",
                             "COMPONENT DESTROYED", "SCOUTING", "BRAWLING", "HIT AND RUN", "FLANKING", "SAVIOR KILL", "TEAM DAMAGE",
-                            "PROTECTION PROXIMITY", "PROTECTED LIGHT", "PROTECTED MEDIUM", "PROTECTED_HEAVY", "PROTECTED_ASSAULT",
+                            "PROTECTION PROXIMITY", "PROTECTED LIGHT", "PROTECTED MEDIUM", "PROTECTED HEAVY", "PROTECTED ASSAULT",
                             "SPOTTING ASSIST", "TAG DAMAGE", "NARC KILL", "TAG KILL", "STEALTH TAG", "FIRST CAPTURE", "TEAM KILL",
                             "LANCE IN FORMATION", "DEFENSIVE KILL", "UAV KILL", "UAV LOCKED DAMAGE", "UAV DETECTION", "COUNTER ECM",
-                            "COUNTER ECM LOCKED DAMAGE", "TURRET KILL");
+                            "COUNTER ECM LOCKED DAMAGE", "TURRET KILL", "AMS MISSILE DESTROYED");
             }
             return Arrays.asList();
         }
