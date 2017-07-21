@@ -8,14 +8,15 @@ import net.sourceforge.tess4j.Tesseract1;
 public enum OcrConfig {
     TIME,
     NUMERIC,
+    LARGENUMERIC,
     UNIT,
     DEFAULT,
     MECHS,
     STATUS, TEAMS, MATCHRESULT;
 
-    private final String alphaChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-0123456789:_";
-    private final String alphaCharsCAPS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ()-0123456789";
-    private final String digits = "0123456789";
+    private static final String alphaChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-0123456789:_-";
+    private static final String alphaCharsCAPS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ()-0123456789";
+    private static final String digits = "0123456789";
 
     public void applyConfig(Tesseract1 tess) {
         switch (this) {
@@ -24,6 +25,9 @@ public enum OcrConfig {
                 break;
             case NUMERIC:
                 tess.setTessVariable("tessedit_char_whitelist", digits);
+                break;
+            case LARGENUMERIC:
+                tess.setTessVariable("tessedit_char_whitelist", digits + ",.-");
                 break;
             case UNIT:
                 tess.setTessVariable("tessedit_char_whitelist", alphaChars + "[]()'");

@@ -23,8 +23,8 @@ public class RewardInfoTracer extends AsyncTracer {
         map = new TraceableImage(TraceHelpers.extractWhite(Offsets.getSubImage(screenshot, off.getElementLocation(ScreenGameElement.MAP))), OcrConfig.DEFAULT);
         battleTime = new TraceableImage(TraceHelpers.extractYellow(Offsets.getSubImage(screenshot, off.getElementLocation(ScreenGameElement.BATTLETIME))), OcrConfig.TIME);
         matchResult = new TraceableImage(TraceHelpers.extractWhite(Offsets.getSubImage(screenshot, off.getElementLocation(ScreenGameElement.MATCHRESULT))), OcrConfig.MATCHRESULT);
-        xp = new TraceableImage(TraceHelpers.extractYellow(Offsets.getSubImage(screenshot, off.getRewardLocation(ScreenRewardElement.XP))), OcrConfig.NUMERIC);
-        cbills = new TraceableImage(TraceHelpers.extractYellow(Offsets.getSubImage(screenshot, off.getRewardLocation(ScreenRewardElement.CBILLS))), OcrConfig.NUMERIC);
+        xp = new TraceableImage(TraceHelpers.extractYellow(Offsets.getSubImage(screenshot, off.getRewardLocation(ScreenRewardElement.XP))), OcrConfig.LARGENUMERIC);
+        cbills = new TraceableImage(TraceHelpers.extractYellow(Offsets.getSubImage(screenshot, off.getRewardLocation(ScreenRewardElement.CBILLS))), OcrConfig.LARGENUMERIC);
         performanceNames = new TraceableImage[9];
         performanceValues = new TraceableImage[9];
         for (int i = 0; i < performanceNames.length; i++) {
