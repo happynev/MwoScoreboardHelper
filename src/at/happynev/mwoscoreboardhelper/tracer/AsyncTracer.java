@@ -2,6 +2,8 @@ package at.happynev.mwoscoreboardhelper.tracer;
 
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanExpression;
+import javafx.beans.binding.When;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -34,7 +36,7 @@ public abstract class AsyncTracer {
         fields.forEach(field -> {
             if (field != null) increment(numFields);
         });
-        progress.bind(Bindings.concat("Traced ", numFinished, " of ", numFields, " fields"));
+        progress.bind(Bindings.concat("Traced ", numFinished, " of ", numFields, " fields").concat(new When(BooleanExpression.booleanExpression(numFinished.isEqualTo(numFields))).then(" - FINISHED").otherwise("")));
         new Thread() {
             @Override
             public void run() {

@@ -8,7 +8,6 @@ import javafx.animation.Timeline;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
@@ -206,24 +205,17 @@ public class WatcherTabController {
                         paneEnemyTeam.add(preliminaryInfo, 0, 1 + i % 12, GridPane.REMAINING, 1);
                     }
                 }
-                results.getPlayersTeam().addListener((ListChangeListener<? super PlayerRuntime>) c -> {
-                    c.next();
-                    c.getAddedSubList().forEach(o -> {
-                        //Logger.log("friend player " + o.getPilotname() + " finished tracing");
-                        buildPlayerGui(o, paneMyTeam, results);
-                    });
-                });
-                results.getPlayersEnemy().addListener((ListChangeListener<? super PlayerRuntime>) c -> {
-                    c.next();
-                    c.getAddedSubList().forEach(o -> {
-                        //Logger.log("enemy  player " + o.getPilotname() + " finished tracing");
-                        buildPlayerGui(o, paneEnemyTeam, results);
-                    });
-                });
             }
             results.tracingFinishedProperty().addListener((observable, oldValue, newValue) -> {
                 //all players traced. ok to proceed with next screenshot
                 if (newValue) {
+                    for (PlayerRuntime p : results.getPlayersTeam()) {
+                        buildPlayerGui(p, paneMyTeam, results);
+                    }
+                    for (PlayerRuntime p : results.getPlayersEnemy()) {
+                        buildPlayerGui(p, paneEnemyTeam, results);
+                    }
+
                     isProcessing = false;
                     Logger.log("tracingfinished listener:" + newValue);
                     paneMatchAnalytics.getChildren().clear();
