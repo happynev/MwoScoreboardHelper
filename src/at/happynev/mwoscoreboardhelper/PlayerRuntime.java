@@ -4,7 +4,6 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -43,7 +42,7 @@ public class PlayerRuntime {
     private final SimpleStringProperty shortnote = new SimpleStringProperty("");
     private final ObservableList<PlayerMatchRecord> matchRecords = FXCollections.observableArrayList();
     private final Map<String, PlayerMechStats> mechStats = new TreeMap<>();
-    private final Map<PlayerStat, StringProperty> calculatedValues = new TreeMap<>();
+    private final Map<PlayerStat, String> calculatedValues = new TreeMap<>();
     private int playerNumber = -1;
 
     private PlayerRuntime(int id) {
@@ -239,20 +238,20 @@ public class PlayerRuntime {
         }
 
         for (DisplayableStat key : currentMatch.getStatsToDisplay()) {
-            StringProperty value = null;
+            String value = null;
             if (key instanceof PlayerStat) {
                 value = calculatedValues.get(key);
             } else if (thisMatchRecord != null && key instanceof MatchStat) {
                 value = thisMatchRecord.getMatchValues().get(key);
             }
             if (value == null) {
-                value = new SimpleStringProperty("?");
+                value = new String("x?");
             }
             Label l = new Label();
             applyPlayerFormat(l);
-            l.textProperty().bind(value);
+            l.setText(value);
             Tooltip tt = new Tooltip();
-            tt.textProperty().bind(value);
+            tt.setText(value);
             l.setTooltip(tt);
             ColumnConstraints tmp = GuiUtils.getColumnConstraint(l);
             ColumnConstraints cc = parent.getColumnConstraints().get(col);
@@ -306,7 +305,7 @@ public class PlayerRuntime {
         this.playerNumber = playerNumber;
     }
 
-    public Map<PlayerStat, StringProperty> getCalculatedValues() {
+    public Map<PlayerStat, String> getCalculatedValues() {
         return calculatedValues;
     }
 
@@ -493,19 +492,18 @@ public class PlayerRuntime {
         });
     }
 
-    private void initPlayerStatCollection(Map<PlayerStat, StringProperty> col) {
-        final SimpleStringProperty favMechs = new SimpleStringProperty("");
-        final SimpleStringProperty bestMechs = new SimpleStringProperty("");
-        final SimpleStringProperty timesSeen = new SimpleStringProperty("");
-        final SimpleStringProperty timesFinished = new SimpleStringProperty("");
-        final SimpleStringProperty avgDamage = new SimpleStringProperty("");
-        final SimpleStringProperty avgScore = new SimpleStringProperty("");
-        final SimpleStringProperty avgKills = new SimpleStringProperty("");
-        final SimpleStringProperty avgAssists = new SimpleStringProperty("");
-        final SimpleStringProperty survivalRate = new SimpleStringProperty("");
-        final SimpleStringProperty kdr = new SimpleStringProperty("");
-        final SimpleStringProperty wlr = new SimpleStringProperty("");
-
+    private void initPlayerStatCollection(Map<PlayerStat, String> col) {
+        final String favMechs = "?";
+        final String bestMechs = "?";
+        final String timesSeen = "?";
+        final String timesFinished = "?";
+        final String avgDamage = "?";
+        final String avgScore = "?";
+        final String avgKills = "?";
+        final String avgAssists = "?";
+        final String survivalRate = "?";
+        final String kdr = "?";
+        final String wlr = "?";
         col.clear();
         col.put(PlayerStat.FAVMECHS, favMechs);
         col.put(PlayerStat.BESTMECHS, bestMechs);
@@ -520,7 +518,7 @@ public class PlayerRuntime {
         col.put(PlayerStat.WLR, wlr);
     }
 
-    private void calculatePmrCollection(Collection<PlayerMatchRecord> pmrs, Map<PlayerStat, StringProperty> resultValues, List<PlayerMatchRecord> addedSubList) {
+    private void calculatePmrCollection(Collection<PlayerMatchRecord> pmrs, Map<PlayerStat, String> resultValues, List<PlayerMatchRecord> addedSubList) {
         int totalDamage = 0;
         int totalScore = 0;
         int totalAlive = 0;
@@ -589,48 +587,48 @@ public class PlayerRuntime {
         if (totalValidMatches > 0) {
             int iAvgScore = (int) ((double) totalScore / (double) totalValidMatches);
             int iTotalDamage = (int) ((double) totalDamage / (double) totalValidMatches);
-            resultValues.get(PlayerStat.AVGDAMAGE).set("" + iTotalDamage);
-            resultValues.get(PlayerStat.AVGSCORE).set("" + iAvgScore);
+            resultValues.put(PlayerStat.AVGDAMAGE, "" + iTotalDamage);
+            resultValues.put(PlayerStat.AVGSCORE, "" + iAvgScore);
             String assists = new BigDecimal((double) totalAssists / (double) totalValidMatches).setScale(1, BigDecimal.ROUND_HALF_UP).toPlainString();
             String kills = new BigDecimal((double) totalKills / (double) totalValidMatches).setScale(1, BigDecimal.ROUND_HALF_UP).toPlainString();
             int totalDead = totalValidMatches - totalAlive;
-            resultValues.get(PlayerStat.KDR).set(getRatio(totalKills, totalDead));
-            resultValues.get(PlayerStat.WLR).set(getRatio(totalWins, totalLosses));
-            resultValues.get(PlayerStat.AVGKILLS).set(kills);
-            resultValues.get(PlayerStat.AVGASSISTS).set(assists);
+            resultValues.put(PlayerStat.KDR, getRatio(totalKills, totalDead));
+            resultValues.put(PlayerStat.WLR, getRatio(totalWins, totalLosses));
+            resultValues.put(PlayerStat.AVGKILLS, kills);
+            resultValues.put(PlayerStat.AVGASSISTS, assists);
             String aliveRatio = new BigDecimal((double) totalAlive / (double) totalValidMatches).multiply(new BigDecimal(100)).setScale(0, BigDecimal.ROUND_HALF_UP).toPlainString();
-            resultValues.get(PlayerStat.SURVIVAL).set(aliveRatio + "%");
+            resultValues.put(PlayerStat.SURVIVAL, aliveRatio + "%");
 
             for (PlayerMatchRecord pmr : addedSubList) {
                 String mech = pmr.getMech();
                 if (mechLosses.containsKey(mech) || mechWins.containsKey(mech)) {
-                    pmr.getMatchValues().put(MatchStat.MATCHMECHWLR, new SimpleStringProperty(getRatio(mechWins.get(mech), mechLosses.get(mech))));
+                    pmr.getMatchValues().put(MatchStat.MATCHMECHWLR, getRatio(mechWins.get(mech), mechLosses.get(mech)));
                 }
                 if (mechAvgScores.keySet().contains(mech)) {
                     int mechavg = mechAvgScores.get(mech);
                     if (mechavg > 0) {
                         String mechperf = new BigDecimal((double) pmr.getMatchScore() / (double) mechavg).multiply(new BigDecimal(100)).setScale(0, BigDecimal.ROUND_HALF_UP).toPlainString();
-                        pmr.getMatchValues().put(MatchStat.MATCHMECHPERF, new SimpleStringProperty(mechperf + "%"));
+                        pmr.getMatchValues().put(MatchStat.MATCHMECHPERF, mechperf + "%");
                     } else {
-                        pmr.getMatchValues().put(MatchStat.MATCHMECHPERF, new SimpleStringProperty("x0%"));
+                        pmr.getMatchValues().put(MatchStat.MATCHMECHPERF, "x0%");
                     }
                 } else {
                     //Logger.log("no avg for " + pmr.getMech());
                 }
                 if (iAvgScore > 0) {
                     String perf = new BigDecimal((double) pmr.getMatchScore() / (double) iAvgScore).multiply(new BigDecimal(100)).setScale(0, BigDecimal.ROUND_HALF_UP).toPlainString();
-                    pmr.getMatchValues().put(MatchStat.MATCHPERF, new SimpleStringProperty(perf + "%"));
+                    pmr.getMatchValues().put(MatchStat.MATCHPERF, perf + "%");
                 } else {
-                    pmr.getMatchValues().put(MatchStat.MATCHPERF, new SimpleStringProperty("x%"));
+                    pmr.getMatchValues().put(MatchStat.MATCHPERF, "x%");
                 }
             }
         }
         List<Map.Entry<String, Integer>> favMechSorted = sortByValue(mechsSeen);
         List<Map.Entry<String, Integer>> bestMechSorted = sortByValue(mechAvgScores);
-        resultValues.get(PlayerStat.FAVMECHS).set(appendTopEntries(favMechSorted, 5));
-        resultValues.get(PlayerStat.BESTMECHS).set(appendTopEntries(bestMechSorted, 5));
-        resultValues.get(PlayerStat.TIMESSEEN).set("" + pmrs.size());
-        resultValues.get(PlayerStat.TIMESFINISHED).set("" + totalValidMatches);
+        resultValues.put(PlayerStat.FAVMECHS, appendTopEntries(favMechSorted, 5));
+        resultValues.put(PlayerStat.BESTMECHS, appendTopEntries(bestMechSorted, 5));
+        resultValues.put(PlayerStat.TIMESSEEN, "" + pmrs.size());
+        resultValues.put(PlayerStat.TIMESFINISHED, "" + totalValidMatches);
     }
 
     public void removeMatchRecord(int oldMatchId) {
@@ -657,7 +655,7 @@ public class PlayerRuntime {
     public class PlayerMechStats {
         private final MechRuntime mech;
         private final Set<PlayerMatchRecord> matches = new HashSet<>();
-        private final Map<PlayerStat, StringProperty> stats = new HashMap<>();
+        private final Map<PlayerStat, String> stats = new HashMap<>();
 
         public PlayerMechStats(String mechname) {
             mech = MechRuntime.getMechByShortName(mechname);
@@ -668,7 +666,7 @@ public class PlayerRuntime {
             return mech;
         }
 
-        public Map<PlayerStat, StringProperty> getStats() {
+        public Map<PlayerStat, String> getStats() {
             return stats;
         }
 

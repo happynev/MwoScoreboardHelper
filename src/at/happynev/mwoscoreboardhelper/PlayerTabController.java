@@ -161,7 +161,7 @@ public class PlayerTabController {
                 continue;
             }
             TableColumn<PlayerRuntime.PlayerMechStats, String> col = new TableColumn<>();
-            col.setCellValueFactory(param -> param.getValue().getStats().get(stat));
+            col.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getStats().get(stat)));
             Label columnHeader = new Label(stat.toString());
             columnHeader.setTooltip(new Tooltip(stat.getDescription()));
             col.setGraphic(columnHeader);
@@ -210,7 +210,7 @@ public class PlayerTabController {
             columnHeader.setTooltip(new Tooltip(stat.getDescription()));
             col.setGraphic(columnHeader);
             col.setPrefWidth(GuiUtils.getColumnConstraint(columnHeader).getPrefWidth());
-            col.setCellValueFactory(param -> param.getValue().getMatchValues().get(stat));
+            col.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getMatchValues().get(stat)));
             col.setComparator(Utils.getNumberComparator());
             tablePlayerMatches.getColumns().add(col);
         }
@@ -272,7 +272,7 @@ public class PlayerTabController {
             for (PlayerStat stat : PlayerStat.values()) {
                 Label statdesc = new Label(stat.getDescription() + ":");
                 statdesc.setBackground(new Background(new BackgroundFill(DisplayableStat.COLOR_PLAYERDATA, null, null)));
-                Label statvalue = new Label(newPlayer.getCalculatedValues().get(stat).getValue());
+                Label statvalue = new Label(newPlayer.getCalculatedValues().get(stat));
                 HBox hbox = new HBox(statdesc, statvalue);
                 hbox.setSpacing(10);
                 panePlayerstats.getChildren().add(hbox);

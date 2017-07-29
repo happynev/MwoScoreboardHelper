@@ -2,8 +2,6 @@ package at.happynev.mwoscoreboardhelper;
 
 import at.happynev.mwoscoreboardhelper.tracer.PlayerInfoTracer;
 import at.happynev.mwoscoreboardhelper.tracer.TraceHelpers;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -21,7 +19,7 @@ public class PlayerMatchRecord {
     private final boolean isWinner;
     private final boolean isLoser;
     private final long timestamp;
-    private final Map<MatchStat, StringProperty> matchValues = new TreeMap<>();
+    private final Map<MatchStat, String> matchValues = new TreeMap<>();
     private int matchId;
 
     public PlayerMatchRecord(int playerId, int matchId) throws Exception {
@@ -45,13 +43,13 @@ public class PlayerMatchRecord {
             isEnemy = rs.getBoolean(8);
             timestamp = rs.getTimestamp(9).getTime();
             String matchResult = rs.getString(10);
-            matchValues.put(MatchStat.MATCHMECH, new SimpleStringProperty(mech));
-            matchValues.put(MatchStat.MATCHASSISTS, new SimpleStringProperty("" + assists));
-            matchValues.put(MatchStat.MATCHDAMAGE, new SimpleStringProperty("" + damage));
-            matchValues.put(MatchStat.MATCHKILLS, new SimpleStringProperty("" + kills));
-            matchValues.put(MatchStat.MATCHPING, new SimpleStringProperty("" + ping));
-            matchValues.put(MatchStat.MATCHSCORE, new SimpleStringProperty("" + matchScore));
-            matchValues.put(MatchStat.MATCHSTATUS, new SimpleStringProperty(status));
+            matchValues.put(MatchStat.MATCHMECH, mech);
+            matchValues.put(MatchStat.MATCHASSISTS, "" + assists);
+            matchValues.put(MatchStat.MATCHDAMAGE, "" + damage);
+            matchValues.put(MatchStat.MATCHKILLS, "" + kills);
+            matchValues.put(MatchStat.MATCHPING, "" + ping);
+            matchValues.put(MatchStat.MATCHSCORE, "" + matchScore);
+            matchValues.put(MatchStat.MATCHSTATUS, status);
             if ("DEFEAT".equals(matchResult)) {
                 isWinner = isEnemy;
                 isLoser = !isWinner;
@@ -82,14 +80,14 @@ public class PlayerMatchRecord {
         int damage = 1000;
         int ping = 100;
         int tons = 50;
-        matchValues.put(MatchStat.MATCHMECH, new SimpleStringProperty(mech));
-        matchValues.put(MatchStat.MATCHASSISTS, new SimpleStringProperty("" + assists));
-        matchValues.put(MatchStat.MATCHDAMAGE, new SimpleStringProperty("" + damage));
-        matchValues.put(MatchStat.MATCHKILLS, new SimpleStringProperty("" + kills));
-        matchValues.put(MatchStat.MATCHPING, new SimpleStringProperty("" + ping));
-        matchValues.put(MatchStat.MATCHSCORE, new SimpleStringProperty("" + matchScore));
-        matchValues.put(MatchStat.MATCHSTATUS, new SimpleStringProperty(status));
-        matchValues.put(MatchStat.MATCHTONS, new SimpleStringProperty("" + tons));
+        matchValues.put(MatchStat.MATCHMECH, mech);
+        matchValues.put(MatchStat.MATCHASSISTS, "" + assists);
+        matchValues.put(MatchStat.MATCHDAMAGE, "" + damage);
+        matchValues.put(MatchStat.MATCHKILLS, "" + kills);
+        matchValues.put(MatchStat.MATCHPING, "" + ping);
+        matchValues.put(MatchStat.MATCHSCORE, "" + matchScore);
+        matchValues.put(MatchStat.MATCHSTATUS, status);
+        matchValues.put(MatchStat.MATCHTONS, "" + tons);
         this.isEnemy = isEnemy;
         this.isWinner = true;
         this.isLoser = false;
@@ -114,14 +112,14 @@ public class PlayerMatchRecord {
         int ping = info.getPing();
         timestamp = match.getTimestamp();
         this.isEnemy = isEnemy;
-        matchValues.put(MatchStat.MATCHMECH, new SimpleStringProperty(mech));
-        matchValues.put(MatchStat.MATCHASSISTS, new SimpleStringProperty("" + assists));
-        matchValues.put(MatchStat.MATCHDAMAGE, new SimpleStringProperty("" + damage));
-        matchValues.put(MatchStat.MATCHKILLS, new SimpleStringProperty("" + kills));
-        matchValues.put(MatchStat.MATCHPING, new SimpleStringProperty("" + ping));
-        matchValues.put(MatchStat.MATCHSCORE, new SimpleStringProperty("" + matchScore));
-        matchValues.put(MatchStat.MATCHSTATUS, new SimpleStringProperty(status));
-        matchValues.put(MatchStat.MATCHTONS, new SimpleStringProperty("" + MechRuntime.getMechByShortName(mech).getTons()));
+        matchValues.put(MatchStat.MATCHMECH, mech);
+        matchValues.put(MatchStat.MATCHASSISTS, "" + assists);
+        matchValues.put(MatchStat.MATCHDAMAGE, "" + damage);
+        matchValues.put(MatchStat.MATCHKILLS, "" + kills);
+        matchValues.put(MatchStat.MATCHPING, "" + ping);
+        matchValues.put(MatchStat.MATCHSCORE, "" + matchScore);
+        matchValues.put(MatchStat.MATCHSTATUS, status);
+        matchValues.put(MatchStat.MATCHTONS, "" + MechRuntime.getMechByShortName(mech).getTons());
         String matchResult = match.getMatchResult();
         if ("DEFEAT".equals(matchResult)) {
             isWinner = isEnemy;
@@ -146,13 +144,13 @@ public class PlayerMatchRecord {
             PreparedStatement prep = DbHandler.getInstance().prepareStatement("insert into player_matchdata(player_data_id,match_data_id,mech,status,score,kills,assists,damage,ping,enemy) values(?,?,?,?,?,?,?,?,?,?)");
             prep.setInt(1, playerId);
             prep.setInt(2, matchId);
-            prep.setString(3, matchValues.get(MatchStat.MATCHMECH).getValue());
-            prep.setString(4, matchValues.get(MatchStat.MATCHSTATUS).getValue());
-            prep.setInt(5, Integer.parseInt(matchValues.get(MatchStat.MATCHSCORE).getValue()));
-            prep.setInt(6, Integer.parseInt(matchValues.get(MatchStat.MATCHKILLS).getValue()));
-            prep.setInt(7, Integer.parseInt(matchValues.get(MatchStat.MATCHASSISTS).getValue()));
-            prep.setInt(8, Integer.parseInt(matchValues.get(MatchStat.MATCHDAMAGE).getValue()));
-            prep.setInt(9, Integer.parseInt(matchValues.get(MatchStat.MATCHPING).getValue()));
+            prep.setString(3, matchValues.get(MatchStat.MATCHMECH));
+            prep.setString(4, matchValues.get(MatchStat.MATCHSTATUS));
+            prep.setInt(5, Integer.parseInt(matchValues.get(MatchStat.MATCHSCORE)));
+            prep.setInt(6, Integer.parseInt(matchValues.get(MatchStat.MATCHKILLS)));
+            prep.setInt(7, Integer.parseInt(matchValues.get(MatchStat.MATCHASSISTS)));
+            prep.setInt(8, Integer.parseInt(matchValues.get(MatchStat.MATCHDAMAGE)));
+            prep.setInt(9, Integer.parseInt(matchValues.get(MatchStat.MATCHPING)));
             prep.setBoolean(10, this.isEnemy);
             prep.executeUpdate();
         } catch (SQLException e) {
@@ -164,7 +162,7 @@ public class PlayerMatchRecord {
         }
     }
 
-    public Map<MatchStat, StringProperty> getMatchValues() {
+    public Map<MatchStat, String> getMatchValues() {
         return matchValues;
     }
 
@@ -177,31 +175,31 @@ public class PlayerMatchRecord {
     }
 
     public String getMech() {
-        return matchValues.get(MatchStat.MATCHMECH).get();
+        return matchValues.get(MatchStat.MATCHMECH);
     }
 
     public int getMatchScore() {
-        return Integer.parseInt(matchValues.get(MatchStat.MATCHSCORE).get());
+        return Integer.parseInt(matchValues.get(MatchStat.MATCHSCORE));
     }
 
     public int getKills() {
-        return Integer.parseInt(matchValues.get(MatchStat.MATCHKILLS).get());
+        return Integer.parseInt(matchValues.get(MatchStat.MATCHKILLS));
     }
 
     public int getAssists() {
-        return Integer.parseInt(matchValues.get(MatchStat.MATCHASSISTS).get());
+        return Integer.parseInt(matchValues.get(MatchStat.MATCHASSISTS));
     }
 
     public int getDamage() {
-        return Integer.parseInt(matchValues.get(MatchStat.MATCHDAMAGE).get());
+        return Integer.parseInt(matchValues.get(MatchStat.MATCHDAMAGE));
     }
 
     public String getStatus() {
-        return matchValues.get(MatchStat.MATCHSTATUS).get();
+        return matchValues.get(MatchStat.MATCHSTATUS);
     }
 
     public int getPing() {
-        return Integer.parseInt(matchValues.get(MatchStat.MATCHPING).get());
+        return Integer.parseInt(matchValues.get(MatchStat.MATCHPING));
     }
 
     public void delete() throws SQLException {
