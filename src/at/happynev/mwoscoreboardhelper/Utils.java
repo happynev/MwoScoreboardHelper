@@ -90,7 +90,7 @@ public class Utils {
         return newValue.toString().replaceAll("..;?$", "");
     }
 
-    public static String getRatio(Integer numerator, Integer denominator) {
+    public static String getRatio(double numerator, double denominator) {
         return getRatio(numerator, denominator, 2);
     }
 
@@ -101,17 +101,17 @@ public class Utils {
         return new BigDecimal(fraction / total).multiply(new BigDecimal(100)).setScale(0, BigDecimal.ROUND_HALF_UP).toPlainString() + "%";
     }
 
-    public static String getRatio(Integer numerator, Integer denominator, int precision) {
+    public static String getRatio(Double numerator, Double denominator, int precision) {
         if (numerator == null) {
-            numerator = 0;
+            numerator = 0.0;
         }
         if (denominator == null) {
-            denominator = 0;
+            denominator = 0.0;
         }
-        if (numerator == 0 && denominator == 0) {
+        if (numerator == 0.0d && denominator == 0.0d) {
             return "N/A";
         }
-        if (denominator > 0) {
+        if (denominator > 0.0d) {
             return new BigDecimal(numerator.doubleValue() / denominator.doubleValue()).setScale(precision, BigDecimal.ROUND_HALF_UP).toPlainString();
         } else {
             return new BigDecimal(numerator).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString();

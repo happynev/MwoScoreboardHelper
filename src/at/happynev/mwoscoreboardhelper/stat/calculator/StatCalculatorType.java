@@ -9,6 +9,7 @@ public enum StatCalculatorType {
     RANKING,
     RAWVALUE,
     RELATIVE,
+    RATIO,
     TOPLISTMECH,
     TOPLISTCLASS;
 
@@ -20,6 +21,8 @@ public enum StatCalculatorType {
                 return new StatCalculatorRawValue(statType);
             case RELATIVE:
                 return new StatCalculatorRelativePercent(statType);
+            case RATIO:
+                return new StatCalculatorRatio(statType);
             case TOPLISTMECH:
                 return new StatCalculatorToplistMechVariant(statType);
             case TOPLISTCLASS:

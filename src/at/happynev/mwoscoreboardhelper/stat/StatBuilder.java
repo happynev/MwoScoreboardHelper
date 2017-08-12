@@ -86,6 +86,12 @@ public class StatBuilder {
                 .addCalculationStep(StatAggregatorType.AVERAGE.getInstance(StatType.SCORE))
                 .addCalculationStep(StatCalculatorType.RELATIVE.getInstance(StatType.SCORE))
                 .build());
+        defaultStats.add(StatBuilder.newStat("S/D", "Score to Damage Ratio for this player")
+                .addCalculationStep(RecordFilterType.PLAYER.getInstance())
+                .addCalculationStep(RecordFilterType.MATCH.getInstance())
+                .addCalculationStep(StatCalculatorType.RAWVALUE.getInstance(StatType.DAMAGE))
+                .addCalculationStep(StatCalculatorType.RATIO.getInstance(StatType.SCORE))
+                .build());
         defaultStats.add(StatBuilder.newStat("Classes", "Best performing mech classes for this player, sorted by average score")
                 .addCalculationStep(RecordFilterType.PLAYER.getInstance())
                 .addCalculationStep(StatCalculatorType.TOPLISTCLASS.getInstance(StatType.SCORE))
