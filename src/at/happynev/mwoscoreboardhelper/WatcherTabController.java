@@ -226,7 +226,7 @@ public class WatcherTabController {
                     Logger.log("tracingfinished listener:" + newValue);
                     paneMatchAnalytics.getChildren().clear();
                     if (SettingsTabController.getInstance().getLayoutShowStatSummary()) {
-                        paneMatchAnalytics.getChildren().add(results.getMatchAnalyticsPane());
+                        paneMatchAnalytics.getChildren().add(results.getMatchStatSideBar());
                         Pane spacer = new Pane();
                         spacer.setMaxHeight(Double.MAX_VALUE);
                         VBox.setVgrow(spacer, Priority.ALWAYS);

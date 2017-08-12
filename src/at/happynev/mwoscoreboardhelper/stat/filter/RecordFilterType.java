@@ -18,7 +18,7 @@ public enum RecordFilterType {
     MATCHRECENT,
     MATCHOLD;
 
-    public RecordFilter getInstance() {
+    public RecordFilter getInstance(String... parameters) {
         switch (this) {
             case MATCH:
                 return new RecordFilterByMatch();
@@ -29,15 +29,15 @@ public enum RecordFilterType {
             case SELF:
                 return new RecordFilterBySelf();
             case MECHVARIANT:
-                return new RecordFilterByStat(StatType.MECH_VARIANT);
+                return new RecordFilterByStat(StatType.MECH_VARIANT,parameters);
             case MECHCHASSIS:
-                return new RecordFilterByStat(StatType.MECH_CHASSIS);
+                return new RecordFilterByStat(StatType.MECH_CHASSIS,parameters);
             case MECHTONS:
-                return new RecordFilterByStat(StatType.MECH_TONS);
+                return new RecordFilterByStat(StatType.MECH_TONS,parameters);
             case MECHCLASS:
-                return new RecordFilterByStat(StatType.MECH_CLASS);
+                return new RecordFilterByStat(StatType.MECH_CLASS,parameters);
             case MECHFACTION:
-                return new RecordFilterByStat(StatType.MECH_FACTION);
+                return new RecordFilterByStat(StatType.MECH_FACTION,parameters);
             case MATCHRECENT:
                 return new RecordFilterNewerThan(30);
             case MATCHOLD:

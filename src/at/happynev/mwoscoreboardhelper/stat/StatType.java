@@ -44,6 +44,8 @@ public enum StatType implements DisplayableStat {
                         return prepTeamVisible.contains(this);
                     case WATCHER_ENEMY:
                         return prepEnemyVisible.contains(this);
+                    case WATCHER_SIDEBAR:
+                        return prepTeamVisible.contains(this);
                 }
             case QP_3REWARDS:
                 switch (table) {
@@ -52,6 +54,8 @@ public enum StatType implements DisplayableStat {
                     case WATCHER_TEAM:
                         return false;
                     case WATCHER_ENEMY:
+                        return false;
+                    case WATCHER_SIDEBAR:
                         return false;
                 }
             case QP_4SUMMARY:

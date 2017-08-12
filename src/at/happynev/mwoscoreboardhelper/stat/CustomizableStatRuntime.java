@@ -5,7 +5,6 @@ import at.happynev.mwoscoreboardhelper.PlayerMatchRecord;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by Nev on 29.07.2017.
@@ -14,15 +13,13 @@ public class CustomizableStatRuntime {
     private final List<? extends StatPipelineStep> calculationSteps;
     private final PlayerMatchRecord currentRecord;
     private final List<String> stepExplanation = new ArrayList<>();
+    private final CustomizableStatTemplate template;
     private String value = "";
 
-    public CustomizableStatRuntime(List<? extends StatPipelineStep> calculationSteps, PlayerMatchRecord currentRecord) {
+    public CustomizableStatRuntime(CustomizableStatTemplate template, List<? extends StatPipelineStep> calculationSteps, PlayerMatchRecord currentRecord) {
         this.calculationSteps = calculationSteps;
         this.currentRecord = currentRecord;
-    }
-
-    public List<? extends StatPipelineStep> getCalculationSteps() {
-        return calculationSteps;
+        this.template = template;
     }
 
     public String getValue() {
@@ -42,8 +39,13 @@ public class CustomizableStatRuntime {
         return value;
     }
 
+    public CustomizableStatTemplate getTemplate() {
+        return template;
+    }
+
     public String getExplanation() {
         StringBuilder sb = new StringBuilder();
+        sb.append(template.getLongName()).append("\n");
         for (String s : stepExplanation) {
             if (sb.length() > 0) {
                 sb.append("\n");

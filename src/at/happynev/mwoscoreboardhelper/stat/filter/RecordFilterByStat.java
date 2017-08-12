@@ -4,7 +4,6 @@ import at.happynev.mwoscoreboardhelper.PlayerMatchRecord;
 import at.happynev.mwoscoreboardhelper.stat.StatType;
 
 import java.util.Collection;
-import java.util.Set;
 
 /**
  * Created by Nev on 29.07.2017.
@@ -12,19 +11,28 @@ import java.util.Set;
 public class RecordFilterByStat extends RecordFilter {
 
     private final StatType stat;
+    private final String refValue;
 
-    public RecordFilterByStat(StatType stat) {
+    public RecordFilterByStat(StatType stat, String... parameters) {
         this.stat = stat;
+        if (parameters.length > 0) {
+            refValue = parameters[0];
+        } else {
+            refValue = null;
+        }
     }
 
     @Override
     public boolean accept(Collection<PlayerMatchRecord> records, PlayerMatchRecord pmr, PlayerMatchRecord reference) {
         String value = pmr.getMatchValues().get(stat);
-        String refvalue = reference.getMatchValues().get(stat);
+        String ref = reference.getMatchValues().get(stat);
+        if (refValue != null) {
+            ref = refValue;
+        }
         if (value == null) {
             return false;
         }
-        return value.equals(refvalue);
+        return value.equals(ref);
     }
 
     @Override

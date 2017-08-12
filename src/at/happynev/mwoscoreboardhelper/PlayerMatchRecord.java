@@ -151,8 +151,8 @@ public class PlayerMatchRecord {
         return allRecords.get(playerId + "_" + matchId);
     }
 
-    public static PlayerMatchRecord getReferenceRecord(boolean isEnemy) {
-        return new PlayerMatchRecord(isEnemy, -1, -1);
+    public static PlayerMatchRecord getReferenceRecord(boolean isEnemy, int matchId) {
+        return new PlayerMatchRecord(isEnemy, -1, matchId);
     }
 
     @Override

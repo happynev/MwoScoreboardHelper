@@ -90,6 +90,45 @@ public class StatBuilder {
                 .addCalculationStep(RecordFilterType.PLAYER.getInstance())
                 .addCalculationStep(StatCalculatorType.TOPLISTMECH.getInstance(StatType.SCORE))
                 .build());
+        defaultStats.add(StatBuilder.newStat("Total Score", "Total Score per team")
+                .addCalculationStep(RecordFilterType.MATCH.getInstance())
+                .addCalculationStep(RecordFilterType.TEAM.getInstance())
+                .addCalculationStep(StatAggregatorType.SUM.getInstance(StatType.SCORE))
+                .build());
+        defaultStats.add(StatBuilder.newStat("Total Damage", "Total Damage per team")
+                .addCalculationStep(RecordFilterType.MATCH.getInstance())
+                .addCalculationStep(RecordFilterType.TEAM.getInstance())
+                .addCalculationStep(StatAggregatorType.SUM.getInstance(StatType.DAMAGE))
+                .build());
+        defaultStats.add(StatBuilder.newStat("Total Weight", "Total Weight per team")
+                .addCalculationStep(RecordFilterType.MATCH.getInstance())
+                .addCalculationStep(RecordFilterType.TEAM.getInstance())
+                .addCalculationStep(StatAggregatorType.SUM.getInstance(StatType.MECH_TONS))
+                .build());
+        defaultStats.add(StatBuilder.newStat("#Lights", "Number of light mechs per team")
+                .addCalculationStep(RecordFilterType.MATCH.getInstance())
+                .addCalculationStep(RecordFilterType.TEAM.getInstance())
+                .addCalculationStep(RecordFilterType.MECHCLASS.getInstance("Light"))
+                .addCalculationStep(StatAggregatorType.COUNT.getInstance(StatType.MECH_CLASS))
+                .build());
+        defaultStats.add(StatBuilder.newStat("#Mediums", "Number of medium mechs per team")
+                .addCalculationStep(RecordFilterType.MATCH.getInstance())
+                .addCalculationStep(RecordFilterType.TEAM.getInstance())
+                .addCalculationStep(RecordFilterType.MECHCLASS.getInstance("Medium"))
+                .addCalculationStep(StatAggregatorType.COUNT.getInstance(StatType.MECH_CLASS))
+                .build());
+        defaultStats.add(StatBuilder.newStat("#Heavies", "Number of heavy mechs per team")
+                .addCalculationStep(RecordFilterType.MATCH.getInstance())
+                .addCalculationStep(RecordFilterType.TEAM.getInstance())
+                .addCalculationStep(RecordFilterType.MECHCLASS.getInstance("Heavy"))
+                .addCalculationStep(StatAggregatorType.COUNT.getInstance(StatType.MECH_CLASS))
+                .build());
+        defaultStats.add(StatBuilder.newStat("#Assaults", "Number of assault mechs per team")
+                .addCalculationStep(RecordFilterType.MATCH.getInstance())
+                .addCalculationStep(RecordFilterType.TEAM.getInstance())
+                .addCalculationStep(RecordFilterType.MECHCLASS.getInstance("Assault"))
+                .addCalculationStep(StatAggregatorType.COUNT.getInstance(StatType.MECH_CLASS))
+                .build());
     }
 
     public static List<CustomizableStatTemplate> getDefaultStats() {

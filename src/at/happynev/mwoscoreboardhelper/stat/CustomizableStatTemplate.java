@@ -1,6 +1,8 @@
 package at.happynev.mwoscoreboardhelper.stat;
 
 import at.happynev.mwoscoreboardhelper.PlayerMatchRecord;
+import at.happynev.mwoscoreboardhelper.stat.filter.RecordFilterByPlayer;
+import at.happynev.mwoscoreboardhelper.stat.filter.RecordFilterByTeam;
 import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
 import javafx.scene.paint.Color;
 
@@ -18,7 +20,7 @@ public class CustomizableStatTemplate implements DisplayableStat {
     private final String longName;
 
     public CustomizableStatTemplate(String shortName, String longName) {
-        sampleRuntime = getRuntimeInstance(PlayerMatchRecord.getReferenceRecord(false));
+        sampleRuntime = getRuntimeInstance(PlayerMatchRecord.getReferenceRecord(false, -1));
         this.shortName = shortName;
         this.longName = longName;
     }
@@ -33,11 +35,24 @@ public class CustomizableStatTemplate implements DisplayableStat {
                 return false;
             }
         }
+        if (table == StatTable.WATCHER_SIDEBAR) {
+            boolean isTeamFiltered = false;
+            for (StatPipelineStep step : calculationSteps) {
+                if (step instanceof RecordFilterByTeam) {
+                    isTeamFiltered = true;
+                } else if (step instanceof RecordFilterByPlayer) {
+                    return false;
+                }
+            }
+            if (!isTeamFiltered) {
+                return false;
+            }
+        }
         return true;
     }
 
     public CustomizableStatRuntime getRuntimeInstance(PlayerMatchRecord pmr) {
-        CustomizableStatRuntime rt = new CustomizableStatRuntime(calculationSteps, pmr);
+        CustomizableStatRuntime rt = new CustomizableStatRuntime(this, calculationSteps, pmr);
         return rt;
     }
 

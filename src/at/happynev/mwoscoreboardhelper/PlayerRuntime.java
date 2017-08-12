@@ -41,7 +41,7 @@ public class PlayerRuntime {
         unit.set("[XXXX]");
         pilotname.set("Mechwarrior12345678901234567890");
         shortnote.set("this is not a real player");
-        matchRecords.add(PlayerMatchRecord.getReferenceRecord(false));
+        matchRecords.add(PlayerMatchRecord.getReferenceRecord(false,-1));
     }
 
     public static PlayerRuntime getReferencePlayer() {

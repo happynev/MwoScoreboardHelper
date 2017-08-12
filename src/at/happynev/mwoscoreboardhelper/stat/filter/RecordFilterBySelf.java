@@ -5,12 +5,11 @@ import at.happynev.mwoscoreboardhelper.PlayerRuntime;
 import at.happynev.mwoscoreboardhelper.SettingsTabController;
 
 import java.util.Collection;
-import java.util.Set;
 
 /**
  * Created by Nev on 29.07.2017.
  */
-public class RecordFilterBySelf extends RecordFilter {
+public class RecordFilterBySelf extends RecordFilterByPlayer {
 
     private final PlayerRuntime self = PlayerRuntime.getInstance(SettingsTabController.getPlayername());
 

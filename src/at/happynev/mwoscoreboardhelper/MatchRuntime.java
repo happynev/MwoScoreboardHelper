@@ -1,5 +1,6 @@
 package at.happynev.mwoscoreboardhelper;
 
+import at.happynev.mwoscoreboardhelper.stat.CustomizableStatRuntime;
 import at.happynev.mwoscoreboardhelper.stat.CustomizableStatTemplate;
 import at.happynev.mwoscoreboardhelper.stat.StatBuilder;
 import at.happynev.mwoscoreboardhelper.stat.StatTable;
@@ -13,6 +14,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Group;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -217,36 +219,29 @@ public class MatchRuntime {
         return new MatchRuntime(id);
     }
 
-    public static void buildMatchDataLine(GridPane grid, int row, String title, MatchCalculatedValue mc, boolean matchFinished) {
+    public static void buildMatchDataLine(GridPane grid, int row, CustomizableStatRuntime teamValue, CustomizableStatRuntime enemyValue) {
         Font fontData = Font.font("System", FontWeight.BOLD, 15);
-        Label labelTitle = new Label(title);
+        Label labelTitle = new Label(teamValue.getTemplate().getShortName());
         labelTitle.setFont(fontData);
         labelTitle.setStyle(GuiUtils.styleNeutral);
         labelTitle.setPadding(GuiUtils.DATA_INSETS);
         //labelTitle.setRotate(45);
         //
-        Label labelTeam = new Label(mc.teamValue);
+        Label labelTeam = new Label(teamValue.getValue());
+        labelTeam.setTooltip(new Tooltip(teamValue.getExplanation()));
         labelTeam.setFont(fontData);
         labelTeam.setStyle(GuiUtils.styleTeam);
         labelTeam.setPadding(GuiUtils.DATA_INSETS);
         //
+        Label labelEnemy = new Label(enemyValue.getValue());
+        labelEnemy.setTooltip(new Tooltip(enemyValue.getExplanation()));
+        labelEnemy.setFont(fontData);
+        labelEnemy.setStyle(GuiUtils.styleEnemy);
+        labelEnemy.setPadding(GuiUtils.DATA_INSETS);
+
         grid.add(labelTitle, 0, row);
         grid.add(labelTeam, 1, row);
-
-        if (matchFinished) {
-            Label labelEnemy = new Label(mc.enemyValue);
-            labelEnemy.setFont(fontData);
-            labelEnemy.setStyle(GuiUtils.styleEnemy);
-            labelEnemy.setPadding(GuiUtils.DATA_INSETS);
-            //
-            Label labelTotal = new Label(mc.totalValue);
-            labelTotal.setFont(fontData);
-            labelTotal.setStyle(GuiUtils.styleNeutral);
-            labelTotal.setPadding(GuiUtils.DATA_INSETS);
-            //
-            grid.add(labelEnemy, 2, row);
-            grid.add(labelTotal, 3, row);
-        }
+        grid.add(labelEnemy, 2, row);
     }
 
     public boolean getTracingFinished() {
@@ -320,7 +315,7 @@ public class MatchRuntime {
                         } catch (Exception e) {
                             Logger.error(e);
                             Logger.log("using dummy match record for " + pi.getPilotName());
-                            prec = PlayerMatchRecord.getReferenceRecord(isEnemy);
+                            prec = PlayerMatchRecord.getReferenceRecord(isEnemy,-1);
                         }
                         pr.getMatchRecords().add(prec);
                         playerRecords.add(prec);
@@ -743,10 +738,8 @@ public class MatchRuntime {
         }
     }
 
-    public Pane getMatchAnalyticsPane() {
-
+    public Pane getMatchStatSideBar() {
         Font fontHeader = Font.font("System", FontWeight.BOLD, 20);
-
         Label labelTeam = new Label("Your Team");
         labelTeam.setStyle(GuiUtils.styleTeam);
         labelTeam.setFont(fontHeader);
@@ -757,7 +750,7 @@ public class MatchRuntime {
         VBox columnTeam = new VBox();
         columnTeam.getChildren().add(new Group(labelTeam));
         GridPane grid = new GridPane();
-        /*
+
         int line = 0;
         grid.add(new Group(labelTeam), 1, 0);
         if (matchFinished) {
@@ -769,12 +762,6 @@ public class MatchRuntime {
             labelEnemy.setPadding(GuiUtils.DATA_INSETS);
             labelEnemy.setRotate(90);
             //
-            Label labelTotal = new Label("Total / Avg");
-            labelTotal.setStyle(GuiUtils.styleNeutral);
-            labelTotal.setFont(fontHeader);
-            labelTotal.setPadding(GuiUtils.DATA_INSETS);
-            labelTotal.setRotate(90);
-            //
             Label labelDummy = new Label("");
             labelDummy.setStyle(GuiUtils.styleNeutral);
             labelDummy.setFont(fontHeader);
@@ -782,241 +769,16 @@ public class MatchRuntime {
             columnTitles.getChildren().add(labelDummy);
 
             columnEnemy.getChildren().add(new Group(labelEnemy));
-            columnTotal.getChildren().add(new Group(labelTotal));
             grid.add(new Group(labelEnemy), 2, 0);
-            grid.add(new Group(labelTotal), 3, 0);
         }
         line++;
-        List<PlayerMatchRecord> pmrTeam = new ArrayList<>(12);
-        List<PlayerMatchRecord> pmrEnemy = new ArrayList<>(12);
-        for (PlayerRuntime pr : playersTeam) {
-            PlayerMatchRecord pmr = pr.getMatchRecord(this);
-            if (pmr != null) {
-                pmrTeam.add(pmr);
-            } else {
-                Logger.warning("cannot find player in match: " + pr.getPilotname());
-            }
-        }
-        for (PlayerRuntime pr : playersEnemy) {
-            PlayerMatchRecord pmr = pr.getMatchRecord(this);
-            if (pmr != null) {
-                pmrEnemy.add(pmr);
-            } else {
-                Logger.warning("cannot find player in match: " + pr.getPilotname());
-            }
-        }
-        MatchCalculatedValue damageDealt = new MatchCalculatedValue() {
-            @Override
-            public void calculate() {
-                int team = 0;
-                int enemy = 0;
-                for (PlayerMatchRecord pmr : pmrTeam) {
-                    team += pmr.getDamage();
-                }
-                for (PlayerMatchRecord pmr : pmrEnemy) {
-                    enemy += pmr.getDamage();
-                }
-                teamValue = "" + team;
-                enemyValue = "" + enemy;
-                totalValue = "" + (team + enemy);
-            }
-        };
-        MatchCalculatedValue medianDamage = new MatchCalculatedValue() {
-            @Override
-            public void calculate() {
-                BigDecimal[] damageTeam = new BigDecimal[12];
-                BigDecimal[] damageEnemy = new BigDecimal[12];
-                BigDecimal[] damageTotal = new BigDecimal[24];
-                int i = 0;
-                for (PlayerMatchRecord pmr : pmrTeam) {
-                    BigDecimal dam = new BigDecimal(pmr.getDamage());
-                    damageTeam[i] = dam;
-                    damageTotal[i] = dam;
-                    i++;
-                }
-                i = 0;
-                for (PlayerMatchRecord pmr : pmrEnemy) {
-                    BigDecimal dam = new BigDecimal(pmr.getDamage());
-                    damageEnemy[i] = dam;
-                    damageTotal[i + 12] = dam;
-                    i++;
-                }
-                teamValue = "" + Utils.getMedianValue(damageTeam).toPlainString();
-                enemyValue = "" + Utils.getMedianValue(damageEnemy).toPlainString();
-                totalValue = "" + Utils.getMedianValue(damageTotal).toPlainString();
-            }
-        };
-        MatchCalculatedValue score = new MatchCalculatedValue() {
-            @Override
-            public void calculate() {
-                int team = 0;
-                int enemy = 0;
-                for (PlayerMatchRecord pmr : pmrTeam) {
-                    team += pmr.getMatchScore();
-                }
-                for (PlayerMatchRecord pmr : pmrEnemy) {
-                    enemy += pmr.getMatchScore();
-                }
-                teamValue = "" + team;
-                enemyValue = "" + enemy;
-                totalValue = "" + (team + enemy);
-            }
-        };
-        MatchCalculatedValue medianScore = new MatchCalculatedValue() {
-            @Override
-            public void calculate() {
-                BigDecimal[] scoreTeam = new BigDecimal[12];
-                BigDecimal[] scoreEnemy = new BigDecimal[12];
-                BigDecimal[] scoreTotal = new BigDecimal[24];
-                int i = 0;
-                for (PlayerMatchRecord pmr : pmrTeam) {
-                    BigDecimal dam = new BigDecimal(pmr.getMatchScore());
-                    scoreTeam[i] = dam;
-                    scoreTotal[i] = dam;
-                    i++;
-                }
-                i = 0;
-                for (PlayerMatchRecord pmr : pmrEnemy) {
-                    BigDecimal dam = new BigDecimal(pmr.getMatchScore());
-                    scoreEnemy[i] = dam;
-                    scoreTotal[i + 12] = dam;
-                    i++;
-                }
-                teamValue = "" + Utils.getMedianValue(scoreTeam).toPlainString();
-                enemyValue = "" + Utils.getMedianValue(scoreEnemy).toPlainString();
-                totalValue = "" + Utils.getMedianValue(scoreTotal).toPlainString();
-            }
-        };
-        MatchCalculatedValue weight = new MatchCalculatedValue() {
-            @Override
-            public void calculate() {
-                int team = 0;
-                int enemy = 0;
-                for (PlayerMatchRecord pmr : pmrTeam) {
-                    MechRuntime mech = MechRuntime.getMechByShortName(pmr.getMech());
-                    team += mech.getTons();
-                }
-                for (PlayerMatchRecord pmr : pmrEnemy) {
-                    enemy += MechRuntime.getMechByShortName(pmr.getMech()).getTons();
-                }
-                teamValue = team + "";
-                enemyValue = enemy + "";
-                totalValue = (team + enemy) + "";
-            }
-        };
-        MatchCalculatedValue scorePerTon = new MatchCalculatedValue() {
-            @Override
-            public void calculate() {
-                try {
-                    teamValue = new BigDecimal(score.teamValue).divide(new BigDecimal(weight.teamValue), 2, BigDecimal.ROUND_HALF_UP).toPlainString();
-                    enemyValue = new BigDecimal(score.enemyValue).divide(new BigDecimal(weight.enemyValue), 2, BigDecimal.ROUND_HALF_UP).toPlainString();
-                    totalValue = new BigDecimal(score.totalValue).divide(new BigDecimal(weight.totalValue), 2, BigDecimal.ROUND_HALF_UP).toPlainString();
-                } catch (Exception e) {
-                    teamValue = "0";
-                    enemyValue = "0";
-                    totalValue = "0";
-                }
-            }
-        };
-        MatchCalculatedValue numLights = new MatchCalculatedValue() {
-            @Override
-            public void calculate() {
-                int team = 0;
-                int enemy = 0;
-                for (PlayerMatchRecord pmr : pmrTeam) {
-                    if ("Light".equals(MechRuntime.getMechByShortName(pmr.getMech()).getWeightClass())) team++;
-                }
-                for (PlayerMatchRecord pmr : pmrEnemy) {
-                    if ("Light".equals(MechRuntime.getMechByShortName(pmr.getMech()).getWeightClass())) enemy++;
-                }
-                teamValue = team + "";
-                enemyValue = enemy + "";
-                totalValue = (team + enemy) + "";
-            }
-        };
-        MatchCalculatedValue numMediums = new MatchCalculatedValue() {
-            @Override
-            public void calculate() {
-                int team = 0;
-                int enemy = 0;
-                for (PlayerMatchRecord pmr : pmrTeam) {
-                    if ("Medium".equals(MechRuntime.getMechByShortName(pmr.getMech()).getWeightClass())) team++;
-                }
-                for (PlayerMatchRecord pmr : pmrEnemy) {
-                    if ("Medium".equals(MechRuntime.getMechByShortName(pmr.getMech()).getWeightClass())) enemy++;
-                }
-                teamValue = team + "";
-                enemyValue = enemy + "";
-                totalValue = (team + enemy) + "";
-            }
-        };
-        MatchCalculatedValue numHeavies = new MatchCalculatedValue() {
-            @Override
-            public void calculate() {
-                int team = 0;
-                int enemy = 0;
-                for (PlayerMatchRecord pmr : pmrTeam) {
-                    if ("Heavy".equals(MechRuntime.getMechByShortName(pmr.getMech()).getWeightClass())) team++;
-                }
-                for (PlayerMatchRecord pmr : pmrEnemy) {
-                    if ("Heavy".equals(MechRuntime.getMechByShortName(pmr.getMech()).getWeightClass())) enemy++;
-                }
-                teamValue = team + "";
-                enemyValue = enemy + "";
-                totalValue = (team + enemy) + "";
-            }
-        };
-        MatchCalculatedValue numAssaults = new MatchCalculatedValue() {
-            @Override
-            public void calculate() {
-                int team = 0;
-                int enemy = 0;
-                for (PlayerMatchRecord pmr : pmrTeam) {
-                    if ("Assault".equals(MechRuntime.getMechByShortName(pmr.getMech()).getWeightClass())) team++;
-                }
-                for (PlayerMatchRecord pmr : pmrEnemy) {
-                    if ("Assault".equals(MechRuntime.getMechByShortName(pmr.getMech()).getWeightClass())) enemy++;
-                }
-                teamValue = team + "";
-                enemyValue = enemy + "";
-                totalValue = (team + enemy) + "";
-            }
-        };
-        MatchCalculatedValue numMissing = new MatchCalculatedValue() {
-            @Override
-            public void calculate() {
-                int team = 0;
-                int enemy = 0;
-                for (PlayerMatchRecord pmr : pmrTeam) {
-                    MechRuntime mr = MechRuntime.getMechByShortName(pmr.getMech());
-                    if ("None".equals(mr.getWeightClass())) team++;
-                }
-                for (PlayerMatchRecord pmr : pmrEnemy) {
-                    MechRuntime mr = MechRuntime.getMechByShortName(pmr.getMech());
-                    if ("None".equals(mr.getWeightClass())) enemy++;
-                }
-                teamValue = team + "";
-                enemyValue = enemy + "";
-                totalValue = (team + enemy) + "";
-            }
-        };
-        if (matchFinished) {
-            buildMatchDataLine(grid, line++, "Total Score", score, matchFinished);
-            buildMatchDataLine(grid, line++, "Median Score", medianScore, matchFinished);
-            buildMatchDataLine(grid, line++, "Total Damage", damageDealt, matchFinished);
-            buildMatchDataLine(grid, line++, "Median Damage", medianDamage, matchFinished);
-            buildMatchDataLine(grid, line++, "Score/Ton", scorePerTon, matchFinished);
-        }
-        buildMatchDataLine(grid, line++, "Total Weight", weight, matchFinished);
-        buildMatchDataLine(grid, line++, "Light Mechs", numLights, matchFinished);
-        buildMatchDataLine(grid, line++, "Medium Mechs", numMediums, matchFinished);
-        buildMatchDataLine(grid, line++, "Heavy Mechs", numHeavies, matchFinished);
-        buildMatchDataLine(grid, line++, "Assault Mechs", numAssaults, matchFinished);
-        if (!numMissing.totalValue.equals("0")) {
-            buildMatchDataLine(grid, line++, "Missing Mechs", numMissing, matchFinished);
+        for (CustomizableStatTemplate stat : getStatsToDisplay(StatTable.WATCHER_SIDEBAR)) {
+            CustomizableStatRuntime team = stat.getRuntimeInstance(PlayerMatchRecord.getReferenceRecord(false,id));
+            CustomizableStatRuntime enemy = stat.getRuntimeInstance(PlayerMatchRecord.getReferenceRecord(true,id));
+            buildMatchDataLine(grid, line++, team, enemy);
         }
         grid.add(new Label(), 0, line++, GridPane.REMAINING, 1);
-        */
+
         return grid;
     }
 
