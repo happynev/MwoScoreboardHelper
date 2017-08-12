@@ -2,7 +2,9 @@ package at.happynev.mwoscoreboardhelper.stat.calculator;
 
 import at.happynev.mwoscoreboardhelper.PlayerMatchRecord;
 import at.happynev.mwoscoreboardhelper.Utils;
+import at.happynev.mwoscoreboardhelper.stat.StatTable;
 import at.happynev.mwoscoreboardhelper.stat.StatType;
+import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
 
 import java.util.Set;
 
@@ -33,5 +35,10 @@ public class StatCalculatorRelativePercent extends StatCalculator {
     @Override
     public String getStepDescription() {
         return "as base for current " + statType.getDescription();
+    }
+
+    @Override
+    public boolean canDisplay(ScreenshotType type, StatTable table) {
+        return statType.canDisplay(type, table);
     }
 }

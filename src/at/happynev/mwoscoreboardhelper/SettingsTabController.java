@@ -316,23 +316,21 @@ public class SettingsTabController {
             grid.add(new Group(labelTable), col++, row);
         }
         row++;
-        for (ScreenshotType sstype : ScreenshotType.values()) {
+        for (ScreenshotType sstype : Arrays.asList(ScreenshotType.QP_1PREPARATION, ScreenshotType.QP_4SUMMARY)) {
             Label labelSsType = new Label("On " + sstype.toString() + ":");
             grid.add(labelSsType, 0, row++, GridPane.REMAINING, 1);
             for (CustomizableStatTemplate stat : StatBuilder.getDefaultStats()) {
                 col = 0;
                 for (StatTable table : StatTable.values()) {
                     CheckBox check = new CheckBox();
-                    switch (table) {
-                        case WATCHER_TEAM:
-                        case WATCHER_ENEMY:
-                            check.setDisable(false);
-                            break;
-                        default:
-                            check.setDisable(true);
+                    boolean canDisplay = stat.canDisplay(sstype, table);
+                    check.setDisable(!canDisplay);
+                    if (canDisplay) {
+                        boolean selected = getShouldDisplay(sstype, stat, table);
+                        check.setSelected(selected);
+                    } else {
+                        check.setSelected(false);
                     }
-                    boolean selected = getShouldDisplay(sstype, stat, table);
-                    check.setSelected(selected);
                     check.setTooltip(new Tooltip(stat.getLongName() + " on " + table.toString()));
                     check.selectedProperty().addListener((observable, oldValue, newValue) -> changeStatDisplay(sstype, stat, table, newValue));
                     grid.add(check, col++, row);
@@ -370,21 +368,17 @@ public class SettingsTabController {
     private void refreshPreviews() {
         PlayerRuntime player = PlayerRuntime.getReferencePlayer();
         paneStatColumnPreview.getChildren().clear();
-        for (ScreenshotType sstype : ScreenshotType.values()) {
+        for (ScreenshotType sstype : Arrays.asList(ScreenshotType.QP_1PREPARATION, ScreenshotType.QP_4SUMMARY)) {
             MatchRuntime match = MatchRuntime.getReferenceMatch(sstype);
             Label labelSsType = new Label("Preview for " + sstype.toString());
             paneStatColumnPreview.getChildren().add(labelSsType);
             for (StatTable table : StatTable.values()) {
-                if (table == StatTable.WATCHER_TEAM || table == StatTable.WATCHER_ENEMY) {
-                    GridPane pane = new GridPane();
-                    Label labelTable = new Label("    Table " + table.toString());
-                    paneStatColumnPreview.getChildren().add(labelTable);
-                    GuiUtils.prepareGrid(pane, match, table);
-                    GuiUtils.addDataToGrid(pane, 1, match, player, table);
-                    paneStatColumnPreview.getChildren().add(pane);
-                } else {
-
-                }
+                GridPane pane = new GridPane();
+                Label labelTable = new Label("    Table " + table.toString());
+                paneStatColumnPreview.getChildren().add(labelTable);
+                GuiUtils.prepareGrid(pane, match, table);
+                GuiUtils.addDataToGrid(pane, 1, match, player, table);
+                paneStatColumnPreview.getChildren().add(pane);
                 paneStatColumnPreview.getChildren().add(new Label(" "));//buffer
             }
         }

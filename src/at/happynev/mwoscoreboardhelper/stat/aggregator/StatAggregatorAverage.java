@@ -1,8 +1,10 @@
 package at.happynev.mwoscoreboardhelper.stat.aggregator;
 
 import at.happynev.mwoscoreboardhelper.PlayerMatchRecord;
+import at.happynev.mwoscoreboardhelper.stat.StatTable;
 import at.happynev.mwoscoreboardhelper.stat.StatType;
 import at.happynev.mwoscoreboardhelper.stat.calculator.StatCalculatorHelpers;
+import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
 
 import java.math.BigDecimal;
 import java.util.Set;
@@ -46,5 +48,10 @@ public class StatAggregatorAverage extends StatAggregator {
     @Override
     public String getStepDescription() {
         return "average " + statType.getDescription();
+    }
+
+    @Override
+    public boolean canDisplay(ScreenshotType type, StatTable table) {
+        return true;//historic
     }
 }

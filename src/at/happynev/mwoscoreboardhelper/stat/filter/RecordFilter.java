@@ -3,6 +3,8 @@ package at.happynev.mwoscoreboardhelper.stat.filter;
 import at.happynev.mwoscoreboardhelper.PlayerMatchRecord;
 import at.happynev.mwoscoreboardhelper.stat.StatCalculationWorkingSet;
 import at.happynev.mwoscoreboardhelper.stat.StatPipelineStep;
+import at.happynev.mwoscoreboardhelper.stat.StatTable;
+import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -21,5 +23,10 @@ public abstract class RecordFilter implements StatPipelineStep {
         ret.setRecords(filtered);
         ret.addStepExplanation(this.getStepDescription() + " --> " + filtered.size() + " records");
         return ret;
+    }
+
+    @Override
+    public boolean canDisplay(ScreenshotType type, StatTable table) {
+        return true;
     }
 }

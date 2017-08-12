@@ -3,6 +3,9 @@ package at.happynev.mwoscoreboardhelper.stat;
 import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
 import javafx.scene.paint.Color;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 /**
  * Created by Nev on 02.02.2017.
  */
@@ -27,27 +30,34 @@ public enum StatType implements DisplayableStat {
     LOSSES,
     MATCHES;
 
-    @Override
+    private static final Collection<StatType> prepTeamVisible = Arrays.asList(MECH_VARIANT, MECH_TONS, MECH_FACTION, MECH_CHASSIS, MECH_CLASS, PING);
+    private static final Collection<StatType> prepEnemyVisible = Arrays.asList(PING);
+    private static final Collection<StatType> personal = Arrays.asList(KMDDS, SOLO_KILLS, COMPONENT_DESTROYED, REWARD_CBILLS, REWARD_XP);
+
     public boolean canDisplay(ScreenshotType type, StatTable table) {
         switch (type) {
             case QP_1PREPARATION:
-                switch (this) {
-                    case MECH_VARIANT:
-                    case MECH_TONS:
-                    case MECH_FACTION:
-                    case MECH_CHASSIS:
-                    case MECH_CLASS:
-                        return table != StatTable.WATCHER_ENEMY;
-                    case PING:
-                    case WINS:
-                    case LOSSES:
-                    case MATCHES:
-                        return true;
-                    default:
+                switch (table) {
+                    case WATCHER_PERSONAL:
+                        return prepTeamVisible.contains(this);
+                    case WATCHER_TEAM:
+                        return prepTeamVisible.contains(this);
+                    case WATCHER_ENEMY:
+                        return prepEnemyVisible.contains(this);
+                }
+            case QP_3REWARDS:
+                switch (table) {
+                    case WATCHER_PERSONAL:
+                        return personal.contains(this);
+                    case WATCHER_TEAM:
+                        return false;
+                    case WATCHER_ENEMY:
                         return false;
                 }
             case QP_4SUMMARY:
                 return true;
+            case UNDEFINED:
+                return false;
         }
         return false;
     }

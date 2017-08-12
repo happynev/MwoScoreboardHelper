@@ -1,6 +1,5 @@
 package at.happynev.mwoscoreboardhelper.stat;
 
-import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
 import javafx.scene.paint.Color;
 
 /**
@@ -15,6 +14,4 @@ public interface DisplayableStat {
     String getDescription();
 
     Color getColor();
-
-    boolean canDisplay(ScreenshotType type, StatTable table);
 }

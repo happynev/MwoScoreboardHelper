@@ -1,8 +1,10 @@
 package at.happynev.mwoscoreboardhelper.stat.calculator;
 
 import at.happynev.mwoscoreboardhelper.PlayerMatchRecord;
+import at.happynev.mwoscoreboardhelper.stat.StatTable;
 import at.happynev.mwoscoreboardhelper.stat.StatType;
 import at.happynev.mwoscoreboardhelper.stat.aggregator.StatAggregatorType;
+import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -49,5 +51,10 @@ public class StatCalculatorToplistMechVariant extends StatCalculator {
     @Override
     public String getStepDescription() {
         return "best mech variants by " + statType.getDescription();
+    }
+
+    @Override
+    public boolean canDisplay(ScreenshotType type, StatTable table) {
+        return true;//historic values only
     }
 }

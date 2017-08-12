@@ -6,11 +6,7 @@ package at.happynev.mwoscoreboardhelper.stat;
 public enum StatTable {
     WATCHER_PERSONAL,
     WATCHER_TEAM,
-    WATCHER_ENEMY,
-    PLAYER,
-    MECHS,
-    PLAYERSELF,
-    MATCH;
+    WATCHER_ENEMY;
 
     @Override
     public String toString() {
@@ -21,14 +17,6 @@ public enum StatTable {
                 return "Watcher tab: Your Team";
             case WATCHER_ENEMY:
                 return "Watcher tab: Your Enemy";
-            case PLAYER:
-                return "Player tab";
-            case PLAYERSELF:
-                return "Player tab: Self";
-            case MECHS:
-                return "Mech tab";
-            case MATCH:
-                return "Match tab: Self";
         }
         return "undefined";
     }

@@ -1,7 +1,6 @@
 package at.happynev.mwoscoreboardhelper.stat;
 
 import at.happynev.mwoscoreboardhelper.PlayerMatchRecord;
-import at.happynev.mwoscoreboardhelper.SettingsTabController;
 import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
 import javafx.scene.paint.Color;
 
@@ -29,7 +28,12 @@ public class CustomizableStatTemplate implements DisplayableStat {
     }
 
     public boolean canDisplay(ScreenshotType sstype, StatTable table) {
-        return SettingsTabController.getInstance().getShouldDisplay(sstype, this, table);
+        for (StatPipelineStep step : calculationSteps) {
+            if (!step.canDisplay(sstype, table)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public CustomizableStatRuntime getRuntimeInstance(PlayerMatchRecord pmr) {
@@ -37,6 +41,7 @@ public class CustomizableStatTemplate implements DisplayableStat {
         return rt;
     }
 
+    @Override
     public String getDescription() {
         StringBuilder sb = new StringBuilder();
         sb.append(longName).append("\n");

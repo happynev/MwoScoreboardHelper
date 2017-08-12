@@ -23,7 +23,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
-import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -548,7 +547,7 @@ public class MatchRuntime {
         List<CustomizableStatTemplate> filtered = new ArrayList<>();
         List<CustomizableStatTemplate> allStats = StatBuilder.getDefaultStats();
         for (CustomizableStatTemplate stat : allStats) {
-            if (stat.canDisplay(type, table)) {
+            if (SettingsTabController.getInstance().getShouldDisplay(type, stat, table)) {
                 filtered.add(stat);
             }
         }

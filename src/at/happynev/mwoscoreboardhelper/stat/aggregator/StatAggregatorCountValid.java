@@ -1,8 +1,10 @@
 package at.happynev.mwoscoreboardhelper.stat.aggregator;
 
 import at.happynev.mwoscoreboardhelper.PlayerMatchRecord;
+import at.happynev.mwoscoreboardhelper.stat.StatTable;
 import at.happynev.mwoscoreboardhelper.stat.StatType;
 import at.happynev.mwoscoreboardhelper.stat.calculator.StatCalculatorHelpers;
+import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
 
 import java.util.Set;
 
@@ -25,6 +27,11 @@ public class StatAggregatorCountValid extends StatAggregator {
             }
         }
         return "" + count;
+    }
+
+    @Override
+    public boolean canDisplay(ScreenshotType type, StatTable table) {
+        return true; //historic values
     }
 
     @Override

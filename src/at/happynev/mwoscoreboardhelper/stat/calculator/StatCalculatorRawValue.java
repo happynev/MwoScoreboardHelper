@@ -1,7 +1,9 @@
 package at.happynev.mwoscoreboardhelper.stat.calculator;
 
 import at.happynev.mwoscoreboardhelper.PlayerMatchRecord;
+import at.happynev.mwoscoreboardhelper.stat.StatTable;
 import at.happynev.mwoscoreboardhelper.stat.StatType;
+import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
 
 import java.util.Set;
 
@@ -27,5 +29,10 @@ public class StatCalculatorRawValue extends StatCalculator {
     @Override
     public String getStepDescription() {
         return "traced " + statType.getDescription();
+    }
+
+    @Override
+    public boolean canDisplay(ScreenshotType type, StatTable table) {
+        return statType.canDisplay(type, table);
     }
 }
