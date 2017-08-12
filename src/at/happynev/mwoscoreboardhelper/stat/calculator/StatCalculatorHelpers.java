@@ -47,8 +47,8 @@ public class StatCalculatorHelpers {
 
     public static boolean isValidRecord(PlayerMatchRecord pmr, StatType statType) {
         boolean validRecord = false;
-        if (pmr.getMatchValues().containsKey(StatType.SCORE) && pmr.getMatchValues().containsKey(statType)) {
-            validRecord = 0 < Integer.parseInt(pmr.getMatchValues().get(StatType.SCORE));
+        if (pmr.getMatchValues().containsKey(StatType.PING) && pmr.getMatchValues().containsKey(statType)) {
+            validRecord = 0 < Integer.parseInt(pmr.getMatchValues().get(StatType.PING));
         }
         return validRecord;
     }
