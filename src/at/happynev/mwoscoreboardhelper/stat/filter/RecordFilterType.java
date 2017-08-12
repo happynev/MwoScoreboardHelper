@@ -9,12 +9,14 @@ public enum RecordFilterType {
     MATCH,
     PLAYER,
     TEAM,
+    SELF,
     MECHVARIANT,
     MECHCHASSIS,
     MECHTONS,
     MECHCLASS,
     MECHFACTION,
-    MATCHRECENT;
+    MATCHRECENT,
+    MATCHOLD;
 
     public RecordFilter getInstance() {
         switch (this) {
@@ -24,6 +26,8 @@ public enum RecordFilterType {
                 return new RecordFilterByPlayer();
             case TEAM:
                 return new RecordFilterByTeam();
+            case SELF:
+                return new RecordFilterBySelf();
             case MECHVARIANT:
                 return new RecordFilterByStat(StatType.MECH_VARIANT);
             case MECHCHASSIS:
@@ -36,6 +40,8 @@ public enum RecordFilterType {
                 return new RecordFilterByStat(StatType.MECH_FACTION);
             case MATCHRECENT:
                 return new RecordFilterNewerThan(30);
+            case MATCHOLD:
+                return new RecordFilterOlderThan(30);
             default:
                 throw new UnsupportedOperationException(this.toString() + " not implemented");
         }

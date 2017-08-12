@@ -24,7 +24,7 @@ public class StatCalculatorRelativePercent extends StatCalculator {
             Double current = Double.parseDouble(currentRecord.getMatchValues().getOrDefault(statType, "0"));
             Double historic = Double.parseDouble(previousValue);
             if (current == 0.0d && historic == 0.0d) {
-                return "0%";
+                return "0%"; //100% of 0 ist still 0%
             }
             return Utils.getPercentage(current, historic);
         } catch (NumberFormatException e) {

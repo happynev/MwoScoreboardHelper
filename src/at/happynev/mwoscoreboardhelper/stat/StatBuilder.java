@@ -5,6 +5,7 @@ import at.happynev.mwoscoreboardhelper.stat.calculator.StatCalculatorType;
 import at.happynev.mwoscoreboardhelper.stat.filter.RecordFilterType;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -19,28 +20,40 @@ public class StatBuilder {
                 .addCalculationStep(RecordFilterType.PLAYER.getInstance())
                 .addCalculationStep(StatAggregatorType.COUNT.getInstance(StatType.MATCHES))
                 .build());
-        defaultStats.add(StatBuilder.newStat("#C", "Number of records collected for a player in this weightclass")
+        defaultStats.add(StatBuilder.newStat("#Mv", "Number of records collected for a player in this mech variant")
+                .addCalculationStep(RecordFilterType.PLAYER.getInstance())
+                .addCalculationStep(RecordFilterType.MECHVARIANT.getInstance())
+                .addCalculationStep(StatAggregatorType.COUNT.getInstance(StatType.MATCHES))
+                .build());
+        defaultStats.add(StatBuilder.newStat("#Mc", "Number of records collected for a player in this mech chassis")
+                .addCalculationStep(RecordFilterType.PLAYER.getInstance())
+                .addCalculationStep(RecordFilterType.MECHCHASSIS.getInstance())
+                .addCalculationStep(StatAggregatorType.COUNT.getInstance(StatType.MATCHES))
+                .build());
+        defaultStats.add(StatBuilder.newStat("#Mw", "Number of records collected for a player in this weightclass")
                 .addCalculationStep(RecordFilterType.PLAYER.getInstance())
                 .addCalculationStep(RecordFilterType.MECHCLASS.getInstance())
                 .addCalculationStep(StatAggregatorType.COUNT.getInstance(StatType.MATCHES))
                 .build());
+        defaultStats.add(StatBuilder.newStat("#Win", "Number of wins for this player")
+                .addCalculationStep(RecordFilterType.PLAYER.getInstance())
+                .addCalculationStep(StatAggregatorType.COUNT.getInstance(StatType.WINS))
+                .build());
+        defaultStats.add(StatBuilder.newStat("#Loss", "Number of losses for this player")
+                .addCalculationStep(RecordFilterType.PLAYER.getInstance())
+                .addCalculationStep(StatAggregatorType.COUNT.getInstance(StatType.LOSSES))
+                .build());
+
         for (StatType type : StatType.values()) {
             defaultStats.add(StatBuilder.newStat(type.toString(), type.getDescription())
                     .addCalculationStep(StatCalculatorType.RAWVALUE.getInstance(type))
                     .build());
         }
-        defaultStats.add(StatBuilder.newStat("~S", "Score average for this player")
-                .addCalculationStep(RecordFilterType.PLAYER.getInstance())
-                .addCalculationStep(StatAggregatorType.AVERAGE.getInstance(StatType.SCORE))
-                .build());
-        defaultStats.add(StatBuilder.newStat("~D", "Damage average for this player")
-                .addCalculationStep(RecordFilterType.PLAYER.getInstance())
-                .addCalculationStep(StatAggregatorType.AVERAGE.getInstance(StatType.DAMAGE))
-                .build());
-        defaultStats.add(StatBuilder.newStat("~K", "Kills average for this player")
-                .addCalculationStep(RecordFilterType.PLAYER.getInstance())
-                .addCalculationStep(StatAggregatorType.AVERAGE.getInstance(StatType.SCORE))
-                .build());
+        for (StatType type : Arrays.asList(StatType.ASSISTS, StatType.KILLS, StatType.DAMAGE, StatType.SCORE, StatType.PING, StatType.SOLO_KILLS, StatType.KMDDS, StatType.COMPONENT_DESTROYED, StatType.REWARD_CBILLS, StatType.REWARD_XP))
+            defaultStats.add(StatBuilder.newStat("~" + type.toString(), type.getDescription() + " average for this player")
+                    .addCalculationStep(RecordFilterType.PLAYER.getInstance())
+                    .addCalculationStep(StatAggregatorType.AVERAGE.getInstance(StatType.SCORE))
+                    .build());
         defaultStats.add(StatBuilder.newStat("*TSc", "Team Rank by score")
                 .addCalculationStep(RecordFilterType.MATCH.getInstance())
                 .addCalculationStep(RecordFilterType.TEAM.getInstance())
