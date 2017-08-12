@@ -4,10 +4,12 @@ import at.happynev.mwoscoreboardhelper.stat.StatType;
 import at.happynev.mwoscoreboardhelper.tracer.TraceHelpers;
 import org.apache.commons.lang3.StringUtils;
 
-import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Nev on 22.01.2017.
@@ -15,9 +17,6 @@ import java.util.*;
 public class MechRuntime {
     private static Set<String> knownShortNames = new HashSet<>();
     private static Map<String, MechRuntime> knownMechs = new HashMap<>();
-    private static Map<String, Set<MechRuntime>> mechsPerChassis = new HashMap<>();
-    private static Map<String, Set<MechRuntime>> mechsPerWeightClass = new HashMap<>();
-    private static Map<String, Set<MechRuntime>> mechsPerFaction = new HashMap<>();
     private final String id;
     private final String internalName;
     private final String name;
@@ -28,15 +27,8 @@ public class MechRuntime {
     private final int armor;
     private final String faction;
     private final String specialtype;
-    private final List<PlayerMatchRecord> matchRecords;
-    private int avgDamage = 0;
-    private int avgScore = 0;
-    private BigDecimal popularityTotal = BigDecimal.ZERO;
-    private BigDecimal popularityChassis = BigDecimal.ZERO;
-    private BigDecimal popularityClass = BigDecimal.ZERO;
-    private BigDecimal popularityFaction = BigDecimal.ZERO;
 
-    private MechRuntime(String id, String internalName, String name, String shortName, String chassis, int tons, double speed, int armor, String faction, String specialtype, List<PlayerMatchRecord> records) {
+    private MechRuntime(String id, String internalName, String name, String shortName, String chassis, int tons, double speed, int armor, String faction, String specialtype) {
         this.id = id;
         this.internalName = internalName;
         this.name = name;
@@ -47,7 +39,6 @@ public class MechRuntime {
         this.armor = armor;
         this.faction = faction;
         this.specialtype = specialtype;
-        matchRecords = records;
     }
 
     public static Set<String> getKnownShortNames() {
@@ -80,7 +71,7 @@ public class MechRuntime {
     }
 
     public static MechRuntime getReferenceMech() {
-        return new MechRuntime("-1", "Dummy mech", "Dummy mech", "XXX-1X", "Dummy", 0, 50.0, 0, "None", "", new ArrayList<>());
+        return new MechRuntime("-1", "Dummy mech", "Dummy mech", "XXX-1X", "Dummy", 0, 50.0, 0, "None", "");
     }
 
     private static void bulkLoadFromDb() {
@@ -88,9 +79,6 @@ public class MechRuntime {
         try {
             PreparedStatement prep = DbHandler.getInstance().prepareStatement("select api_id,internal_name,name,short_name,chassis,tons,max_speed,max_armor,faction,specialtype from mech_data");
             ResultSet rs = prep.executeQuery();
-            mechsPerFaction.clear();
-            mechsPerChassis.clear();
-            mechsPerWeightClass.clear();
             knownMechs.clear();
             knownShortNames.clear();
 
@@ -106,28 +94,9 @@ public class MechRuntime {
                 int _armor = rs.getInt("max_armor");
                 String _faction = rs.getString("faction");
                 String _special = rs.getString("specialtype");
-                List<PlayerMatchRecord> tmpPmr = new ArrayList<>();
-                MechRuntime mr = new MechRuntime(_id, _internal, _name, _short, _chassis, _tons, _speed, _armor, _faction, _special, tmpPmr);
+                MechRuntime mr = new MechRuntime(_id, _internal, _name, _short, _chassis, _tons, _speed, _armor, _faction, _special);
                 knownMechs.put(mr.getId(), mr);
                 knownShortNames.add(mr.getShortName());
-                Set<MechRuntime> mechListFaction = mechsPerFaction.get(mr.getFaction());
-                if (mechListFaction == null) {
-                    mechListFaction = new HashSet<>();
-                    mechsPerFaction.put(mr.getFaction(), mechListFaction);
-                }
-                mechListFaction.add(mr);
-                Set<MechRuntime> mechListClass = mechsPerWeightClass.get(mr.getWeightClass());
-                if (mechListClass == null) {
-                    mechListClass = new HashSet<>();
-                    mechsPerWeightClass.put(mr.getFaction(), mechListClass);
-                }
-                mechListClass.add(mr);
-                Set<MechRuntime> mechListChassis = mechsPerChassis.get(mr.getChassis());
-                if (mechListChassis == null) {
-                    mechListChassis = new HashSet<>();
-                    mechsPerChassis.put(mr.getFaction(), mechListChassis);
-                }
-                mechListChassis.add(mr);
             }
             rs.close();
             prep.close();
@@ -139,18 +108,6 @@ public class MechRuntime {
 
     private static void calculateStats() {
 
-    }
-
-    public static Map<String, Set<MechRuntime>> getMechsPerChassis() {
-        return mechsPerChassis;
-    }
-
-    public static Map<String, Set<MechRuntime>> getMechsPerWeightClass() {
-        return mechsPerWeightClass;
-    }
-
-    public static Map<String, Set<MechRuntime>> getMechsPerFaction() {
-        return mechsPerFaction;
     }
 
     public static String findMatchingMech(String mech) {
@@ -187,30 +144,6 @@ public class MechRuntime {
     @Override
     public int hashCode() {
         return shortName.hashCode();
-    }
-
-    public BigDecimal getPopularityFaction() {
-        return popularityFaction;
-    }
-
-    public int getAvgDamage() {
-        return avgDamage;
-    }
-
-    public int getAvgScore() {
-        return avgScore;
-    }
-
-    public BigDecimal getPopularityTotal() {
-        return popularityTotal;
-    }
-
-    public BigDecimal getPopularityChassis() {
-        return popularityChassis;
-    }
-
-    public BigDecimal getPopularityClass() {
-        return popularityClass;
     }
 
     public String getWeightClass() {
@@ -267,24 +200,6 @@ public class MechRuntime {
 
     public String getSpecialtype() {
         return specialtype;
-    }
-
-    public List<PlayerMatchRecord> getMatchRecords() {
-        return matchRecords;
-    }
-
-    public int getSeen() {
-        return matchRecords.size();
-    }
-
-    public BigDecimal getDamagePerTon() {
-        double ret = (double) avgDamage / (double) tons;
-        return new BigDecimal(ret).setScale(2, BigDecimal.ROUND_HALF_UP);
-    }
-
-    public BigDecimal getScorePerTon() {
-        double ret = (double) avgScore / (double) tons;
-        return new BigDecimal(ret).setScale(2, BigDecimal.ROUND_HALF_UP);
     }
 
     public Map<StatType, String> getDerivedValues() {
