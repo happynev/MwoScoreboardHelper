@@ -267,7 +267,7 @@ public class SettingsTabController {
             int status = fixPlayerStatus();
             Logger.infoPopup("Fixed " + mechs + " Mech references and " + status + " Player Status records");
         });
-        sliderFontSize.setValue(Double.parseDouble(loadSetting("fontSize", "18")));
+        sliderFontSize.setValue(Double.parseDouble(loadSetting("fontSize", "16")));
         //set changelisteners
         textPlayerName.textProperty().addListener((observable, oldValue, newValue) -> saveSetting("playerName", newValue));
         textScreenshotDirectory.textProperty().addListener((observable, oldValue, newValue) -> saveSetting("screenshotDirectory", newValue));

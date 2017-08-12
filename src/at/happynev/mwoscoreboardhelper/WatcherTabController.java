@@ -38,6 +38,8 @@ public class WatcherTabController {
     @FXML
     ToggleButton toggleAutowatch;
     @FXML
+    GridPane panePersonal;
+    @FXML
     GridPane paneMyTeam;
     @FXML
     GridPane paneEnemyTeam;
@@ -60,7 +62,6 @@ public class WatcherTabController {
     @FXML
     Pane panePlayerdata;
     Timeline watcher = null;
-    private int playersFinished = 0;
     private boolean isProcessing = false;
     private Set<String> alreadyProcessed;
 
@@ -185,9 +186,9 @@ public class WatcherTabController {
         paneWatcherTab.setDisable(false);
         if (sshandler != null) {
             MatchRuntime results = new MatchRuntime(sshandler);
-            playersFinished = 0;
             preliminaryPlayerInfo.clear();
             paneMatchAnalytics.getChildren().clear();
+            GuiUtils.prepareGrid(panePersonal, results, StatTable.WATCHER_PERSONAL);
             GuiUtils.prepareGrid(paneMyTeam, results, StatTable.WATCHER_TEAM);
             GuiUtils.prepareGrid(paneEnemyTeam, results, StatTable.WATCHER_ENEMY);
             labelMap.textProperty().bind(results.mapProperty());
@@ -206,10 +207,14 @@ public class WatcherTabController {
                         paneEnemyTeam.add(preliminaryInfo, 0, 1 + i % 12, GridPane.REMAINING, 1);
                     }
                 }
+                Label preliminaryInfo = new Label("waiting...");
+                GuiUtils.applyPlayerFormat(preliminaryInfo, PlayerRuntime.getReferencePlayer());
+                panePersonal.add(preliminaryInfo, 0, 1, GridPane.REMAINING, 1);
             }
             results.tracingFinishedProperty().addListener((observable, oldValue, newValue) -> {
                 //all players traced. ok to proceed with next screenshot
                 if (newValue) {
+                    buildPlayerGui(PlayerRuntime.getInstance(SettingsTabController.getPlayername()), panePersonal, results, StatTable.WATCHER_PERSONAL);
                     for (PlayerRuntime p : results.getPlayersTeam()) {
                         buildPlayerGui(p, paneMyTeam, results, StatTable.WATCHER_TEAM);
                     }
@@ -242,13 +247,15 @@ public class WatcherTabController {
             Label preliminaryInfo = preliminaryPlayerInfo.get(pr.getPlayerNumber());
             preliminaryPlayerInfo.remove(pr.getPlayerNumber());
             parent.getChildren().remove(preliminaryInfo);
-            int row = pr.getPlayerNumber() % 12;
+            int row = 0;
+            if (table != StatTable.WATCHER_PERSONAL) {
+                row = pr.getPlayerNumber() % 12;
+            }
             row++;//account for header
             GuiUtils.addDataToGrid(parent, row, match, pr, table);
-            playersFinished++;
         } catch (Exception e) {
             Logger.error(e);
-            paneMyTeam.getChildren().add(new Label("Error adding player '" + pr.getPilotname() + "':" + e.toString()));
+            parent.getChildren().add(new Label("Error adding player '" + pr.getPilotname() + "':" + e.toString()));
         }
     }
 

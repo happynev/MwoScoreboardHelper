@@ -41,6 +41,48 @@
          <children>
             <VBox fx:id="panePlayerdata" spacing="5.0" HBox.hgrow="ALWAYS" VBox.vgrow="SOMETIMES">
                <children>
+                  <Label layoutX="10.0" layoutY="10.0" style="-fx-text-fill: #0EDDFE;" text="Personal">
+                     <font>
+                        <Font name="System Bold" size="27.0" />
+                     </font>
+                  </Label>
+                  <GridPane fx:id="panePersonal" layoutX="10.0" layoutY="81.0" VBox.vgrow="SOMETIMES">
+                     <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="0.0" />
+                     </columnConstraints>
+                     <rowConstraints>
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                     </rowConstraints>
+                  </GridPane>
                   <Label style="-fx-text-fill: #0E8DFE;" text="Your Team" VBox.vgrow="NEVER">
                      <font>
                         <Font name="System Bold" size="45.0" />
