@@ -6,6 +6,7 @@ import at.happynev.mwoscoreboardhelper.stat.StatTable;
 import at.happynev.mwoscoreboardhelper.stat.StatType;
 import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
 
+import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -19,7 +20,7 @@ public class StatCalculatorRelativePercent extends StatCalculator {
     }
 
     @Override
-    public String calculateCurrentValue(Set<PlayerMatchRecord> records, PlayerMatchRecord currentRecord, String previousValue) {
+    public String calculateCurrentValue(Collection<PlayerMatchRecord> records, PlayerMatchRecord currentRecord, String previousValue) {
         try {
             Double current = Double.parseDouble(currentRecord.getMatchValues().getOrDefault(statType, "0"));
             Double historic = Double.parseDouble(previousValue);

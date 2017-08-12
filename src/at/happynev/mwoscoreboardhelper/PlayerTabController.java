@@ -149,7 +149,6 @@ public class PlayerTabController {
         //mech stat columns
         buildMechTable();
         buildMatchTable();
-
         refreshData();
     }
 

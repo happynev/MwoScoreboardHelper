@@ -7,6 +7,7 @@ import at.happynev.mwoscoreboardhelper.stat.calculator.StatCalculatorHelpers;
 import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
 
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -21,7 +22,7 @@ public class StatAggregatorAverage extends StatAggregator {
     }
 
     @Override
-    public String aggregateValue(Set<PlayerMatchRecord> allRecords) {
+    public String aggregateValue(Collection<PlayerMatchRecord> allRecords) {
         switch (statType) {
             case STATUS:
             case MECH_VARIANT:

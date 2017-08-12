@@ -6,6 +6,7 @@ import at.happynev.mwoscoreboardhelper.stat.StatType;
 import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -21,8 +22,8 @@ public class StatCalculatorRanking extends StatCalculator {
     }
 
     @Override
-    public String calculateCurrentValue(Set<PlayerMatchRecord> records, PlayerMatchRecord currentRecord, String previousValue) {
-        Set<PlayerMatchRecord> validRecords = StatCalculatorHelpers.filterValidRecords(records, statType);
+    public String calculateCurrentValue(Collection<PlayerMatchRecord> records, PlayerMatchRecord currentRecord, String previousValue) {
+        Collection<PlayerMatchRecord> validRecords = StatCalculatorHelpers.filterValidRecords(records, statType);
         if (validRecords.size() != records.size()) {
             //some records are invalid, ranking makes no sense
             return "?";

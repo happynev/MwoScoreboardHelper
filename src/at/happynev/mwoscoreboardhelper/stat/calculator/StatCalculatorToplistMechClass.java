@@ -6,10 +6,7 @@ import at.happynev.mwoscoreboardhelper.stat.StatType;
 import at.happynev.mwoscoreboardhelper.stat.aggregator.StatAggregatorType;
 import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * Created by Nev on 29.07.2017.
@@ -22,9 +19,9 @@ public class StatCalculatorToplistMechClass extends StatCalculator {
     }
 
     @Override
-    public String calculateCurrentValue(Set<PlayerMatchRecord> records, PlayerMatchRecord currentRecord, String previousValue) {
-        Set<PlayerMatchRecord> validRecords = StatCalculatorHelpers.filterValidRecords(records, StatType.MECH_CLASS);
-        Map<String, Set<PlayerMatchRecord>> recordsPerKey = StatCalculatorHelpers.splitByValue(records, StatType.MECH_CLASS);
+    public String calculateCurrentValue(Collection<PlayerMatchRecord> records, PlayerMatchRecord currentRecord, String previousValue) {
+        Collection<PlayerMatchRecord> validRecords = StatCalculatorHelpers.filterValidRecords(records, StatType.MECH_CLASS);
+        Map<String, Collection<PlayerMatchRecord>> recordsPerKey = StatCalculatorHelpers.splitByValue(records, StatType.MECH_CLASS);
         Map<String, Integer> scorePerKey = new HashMap<>();
         Map<String, Integer> sorted = new TreeMap<>((o1, o2) -> -scorePerKey.get(o1).compareTo(scorePerKey.get(o2)));
         for (String key : recordsPerKey.keySet()) {

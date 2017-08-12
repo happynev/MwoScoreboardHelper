@@ -6,6 +6,7 @@ import at.happynev.mwoscoreboardhelper.stat.StatType;
 import at.happynev.mwoscoreboardhelper.stat.calculator.StatCalculatorHelpers;
 import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
 
+import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -19,7 +20,7 @@ public class StatAggregatorCountValid extends StatAggregator {
     }
 
     @Override
-    public String aggregateValue(Set<PlayerMatchRecord> allRecords) {
+    public String aggregateValue(Collection<PlayerMatchRecord> allRecords) {
         int count = 0;
         for (PlayerMatchRecord pmr : allRecords) {
             if (StatCalculatorHelpers.isValidRecord(pmr, statType)) {

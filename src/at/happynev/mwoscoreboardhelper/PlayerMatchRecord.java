@@ -13,7 +13,7 @@ import java.util.*;
  * Created by Nev on 20.01.2017.
  */
 public class PlayerMatchRecord {
-    private final static Map<PlayerMatchRecord, PlayerMatchRecord> allRecords = new HashMap<>();
+    private final static Map<String, PlayerMatchRecord> allRecords = new HashMap<>();
     private final int playerId;
     private final boolean isEnemy;
     private final boolean isWinner;
@@ -22,58 +22,37 @@ public class PlayerMatchRecord {
     private final Map<StatType, String> matchValues = new TreeMap<>();
     private int matchId;
 
-    private PlayerMatchRecord(int playerId, int matchId) throws IllegalArgumentException, SQLException {
+    private PlayerMatchRecord(int playerId, int matchId, String mech, String status, int matchScore, int kills, int assists, int damage, int ping, boolean isEnemy, long timestamp, String matchResult) {
         this.playerId = playerId;
         this.matchId = matchId;
-        PreparedStatement prep = DbHandler.getInstance().prepareStatement(
-                "select pm.mech,pm.status,pm.score,pm.kills,pm.assists,pm.damage,pm.ping,pm.enemy,m.matchtime,m.matchresult " +
-                        "from player_matchdata pm, match_data m " +
-                        "where pm.player_data_id=? and pm.match_data_id=? and pm.match_data_id=m.id");
-        prep.setInt(1, playerId);
-        prep.setInt(2, matchId);
-        ResultSet rs = prep.executeQuery();
-        if (rs.next()) {
-            String mech = rs.getString(1);
-            String status = rs.getString(2);
-            int matchScore = rs.getInt(3);
-            int kills = rs.getInt(4);
-            int assists = rs.getInt(5);
-            int damage = rs.getInt(6);
-            int ping = rs.getInt(7);
-            isEnemy = rs.getBoolean(8);
-            timestamp = rs.getTimestamp(9).getTime();
-            String matchResult = rs.getString(10);
-            matchValues.putAll(MechRuntime.getMechByShortName(mech).getDerivedValues());
-            matchValues.put(StatType.ASSISTS, "" + assists);
-            matchValues.put(StatType.DAMAGE, "" + damage);
-            matchValues.put(StatType.KILLS, "" + kills);
-            matchValues.put(StatType.PING, "" + ping);
-            matchValues.put(StatType.SCORE, "" + matchScore);
-            matchValues.put(StatType.STATUS, status);
-            if ("DEFEAT".equals(matchResult)) {
-                isWinner = isEnemy;
-                isLoser = !isWinner;
-            } else if ("VICTORY".equals(matchResult)) {
-                isWinner = !isEnemy;
-                isLoser = !isWinner;
-            } else {
-                //TIE
-                isWinner = false;
-                isLoser = false;
-            }
-            if (isWinner) {
-                matchValues.put(StatType.WINS, "1");
-            } else if (isLoser) {
-                matchValues.put(StatType.LOSSES, "1");
-            }
-            matchValues.put(StatType.MATCHES, "1");
+        this.timestamp = timestamp;
+        this.isEnemy = isEnemy;
+        matchValues.putAll(MechRuntime.getMechByShortName(mech).getDerivedValues());
+        matchValues.put(StatType.ASSISTS, "" + assists);
+        matchValues.put(StatType.DAMAGE, "" + damage);
+        matchValues.put(StatType.KILLS, "" + kills);
+        matchValues.put(StatType.PING, "" + ping);
+        matchValues.put(StatType.SCORE, "" + matchScore);
+        matchValues.put(StatType.STATUS, status);
+        if ("DEFEAT".equals(matchResult)) {
+            isWinner = isEnemy;
+            isLoser = !isWinner;
+        } else if ("VICTORY".equals(matchResult)) {
+            isWinner = !isEnemy;
+            isLoser = !isWinner;
         } else {
-            throw new IllegalArgumentException("Match Record for " + playerId + "/" + matchId + " not found");
+            //TIE
+            isWinner = false;
+            isLoser = false;
         }
-        rs.close();
-        prep.close();
+        if (isWinner) {
+            matchValues.put(StatType.WINS, "1");
+        } else if (isLoser) {
+            matchValues.put(StatType.LOSSES, "1");
+        }
+        matchValues.put(StatType.MATCHES, "1");
         mergePersonalStats();
-        allRecords.put(this, this);
+        allRecords.put(playerId + "_" + matchId, this);
     }
 
     private PlayerMatchRecord(boolean isEnemy, int playerId, int matchId) {
@@ -110,8 +89,9 @@ public class PlayerMatchRecord {
         }
     }
 
-    public PlayerMatchRecord(PlayerRuntime player, PlayerInfoTracer info, MatchRuntime match, boolean isEnemy) throws IllegalArgumentException, SQLException {
-        playerId = player.getId();
+    public static PlayerMatchRecord createInstance(PlayerRuntime player, PlayerInfoTracer info, MatchRuntime match, boolean isEnemy) {
+        int playerId = player.getId();
+        int matchId = match.getId();
         if (!info.getFinished()) {
             throw new IllegalArgumentException("PlayerInfoTracer is not ready");
         }
@@ -126,70 +106,49 @@ public class PlayerMatchRecord {
         int assists = info.getAssists();
         int damage = info.getDamage();
         int ping = info.getPing();
-        timestamp = match.getTimestamp();
-        this.isEnemy = isEnemy;
-        matchValues.putAll(MechRuntime.getMechByShortName(mech).getDerivedValues());
-        matchValues.put(StatType.ASSISTS, "" + assists);
-        matchValues.put(StatType.DAMAGE, "" + damage);
-        matchValues.put(StatType.KILLS, "" + kills);
-        matchValues.put(StatType.PING, "" + ping);
-        matchValues.put(StatType.SCORE, "" + matchScore);
-        matchValues.put(StatType.STATUS, status);
+        long timestamp = match.getTimestamp();
         String matchResult = match.getMatchResult();
-        if ("DEFEAT".equals(matchResult)) {
-            isWinner = isEnemy;
-            isLoser = !isWinner;
-        } else if ("VICTORY".equals(matchResult)) {
-            isWinner = !isEnemy;
-            isLoser = !isWinner;
-        } else {
-            //TIE
-            isWinner = false;
-            isLoser = false;
-        }
-        if (isWinner) {
-            matchValues.put(StatType.WINS, "1");
-        } else if (isLoser) {
-            matchValues.put(StatType.LOSSES, "1");
-        }
-        matchValues.put(StatType.MATCHES, "1");
-        mergePersonalStats();
-        allRecords.put(this, this);
+        return new PlayerMatchRecord(playerId, matchId, mech, status, matchScore, kills, assists, damage, ping, isEnemy, timestamp, matchResult);
     }
 
-    public static synchronized Set<PlayerMatchRecord> getAllRecords() {
+    public static synchronized Collection<PlayerMatchRecord> getAllRecords() {
         if (allRecords.isEmpty()) {
             Logger.log("loading all matchrecords");
             try {
-                PreparedStatement loadPmr = DbHandler.getInstance().prepareStatement("select player_data_id,match_data_id from player_matchdata");
-                ResultSet rs = loadPmr.executeQuery();
+                PreparedStatement prep = DbHandler.getInstance().prepareStatement(
+                        "select pm.mech,pm.status,pm.score,pm.kills,pm.assists,pm.damage,pm.ping,pm.enemy,m.matchtime,m.matchresult,pm.player_data_id, pm.match_data_id " +
+                                "from player_matchdata pm, match_data m where pm.match_data_id=m.id");
+                ResultSet rs = prep.executeQuery();
                 while (rs.next()) {
-                    PlayerMatchRecord instance = new PlayerMatchRecord(rs.getInt(1), rs.getInt(2));
-                    allRecords.put(instance, instance);
+                    String mech = rs.getString(1);
+                    String status = rs.getString(2);
+                    int matchScore = rs.getInt(3);
+                    int kills = rs.getInt(4);
+                    int assists = rs.getInt(5);
+                    int damage = rs.getInt(6);
+                    int ping = rs.getInt(7);
+                    boolean isEnemy = rs.getBoolean(8);
+                    long timestamp = rs.getTimestamp(9).getTime();
+                    String matchResult = rs.getString(10);
+                    int playerId = rs.getInt(11);
+                    int matchId = rs.getInt(12);
+                    //saves itself to allRecords map
+                    new PlayerMatchRecord(playerId, matchId, mech, status, matchScore, kills, assists, damage, ping, isEnemy, timestamp, matchResult);
                 }
                 rs.close();
-                loadPmr.close();
+                prep.close();
                 Logger.log("loading all " + allRecords.size() + " matchrecords finished");
             } catch (Exception e) {
                 Logger.alertPopup("loading all matchrecords FAILED");
                 Logger.error(e);
             }
         }
-        return allRecords.keySet();
+        return allRecords.values();
     }
 
-    public static PlayerMatchRecord getInstance(int playerId, int matchId) throws Exception {
+    public static PlayerMatchRecord getInstance(int playerId, int matchId) {
         getAllRecords();
-        PlayerMatchRecord compareDummy = getCompareDummy(playerId, matchId);
-        if (allRecords.keySet().contains(compareDummy)) {
-            return allRecords.get(compareDummy);
-        } else {
-            return new PlayerMatchRecord(playerId, matchId);
-        }
-    }
-
-    private static PlayerMatchRecord getCompareDummy(int playerId, int matchId) {
-        return new PlayerMatchRecord(false, playerId, matchId);
+        return allRecords.get(playerId + "_" + matchId);
     }
 
     public static PlayerMatchRecord getReferenceRecord(boolean isEnemy) {
@@ -241,12 +200,12 @@ public class PlayerMatchRecord {
         mergePersonalStats();
     }
 
-    public boolean mergePersonalStats() throws IllegalArgumentException, SQLException {
+    public boolean mergePersonalStats() {
         try {
             PersonalMatchRecord pers = new PersonalMatchRecord(playerId, matchId);
             matchValues.putAll(pers.getMatchValues());
             return true;
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | SQLException e) {
             return false;
         }
     }
@@ -292,7 +251,7 @@ public class PlayerMatchRecord {
     }
 
     public void delete() throws SQLException {
-        allRecords.remove(this);
+        allRecords.remove(playerId + "_" + matchId);
         //PreparedStatement prep = DbHandler.getInstance().prepareStatement("delete from player_matchdata where player_data_id=? and match_data_id=?");
         //cascaded from match or player
     }

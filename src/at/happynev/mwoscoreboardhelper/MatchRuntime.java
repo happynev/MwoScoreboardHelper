@@ -316,7 +316,7 @@ public class MatchRuntime {
                         pr.setPlayerNumber(p);
                         PlayerMatchRecord prec = null;
                         try {
-                            prec = new PlayerMatchRecord(pr, pi, this, isEnemy);
+                            prec = PlayerMatchRecord.createInstance(pr, pi, this, isEnemy);
                         } catch (Exception e) {
                             Logger.error(e);
                             Logger.log("using dummy match record for " + pi.getPilotName());
@@ -573,12 +573,6 @@ public class MatchRuntime {
             PreparedStatement prep = DbHandler.getInstance().prepareStatement("delete MATCH_DATA where id=?");
             prep.setInt(1, id);
             prep.executeUpdate();
-            for (PlayerRuntime pr : playersTeam) {
-                pr.getMatchRecords().removeAll(playerRecords);//forces recalc of values
-            }
-            for (PlayerRuntime pr : playersEnemy) {
-                pr.getMatchRecords().removeAll(playerRecords);//forces recalc of values
-            }
             for (PlayerMatchRecord pmr : playerRecords) {
                 pmr.delete();//does nothing for now, cascaded from match delete
             }

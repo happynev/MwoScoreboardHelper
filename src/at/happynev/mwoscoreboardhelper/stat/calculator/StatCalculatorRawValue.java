@@ -5,7 +5,7 @@ import at.happynev.mwoscoreboardhelper.stat.StatTable;
 import at.happynev.mwoscoreboardhelper.stat.StatType;
 import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
 
-import java.util.Set;
+import java.util.Collection;
 
 /**
  * Created by Nev on 29.07.2017.
@@ -18,7 +18,7 @@ public class StatCalculatorRawValue extends StatCalculator {
     }
 
     @Override
-    public String calculateCurrentValue(Set<PlayerMatchRecord> records, PlayerMatchRecord currentRecord, String previousValue) {
+    public String calculateCurrentValue(Collection<PlayerMatchRecord> records, PlayerMatchRecord currentRecord, String previousValue) {
         String val = currentRecord.getMatchValues().get(statType);
         if (val == null || val.isEmpty()) {
             val = "?";

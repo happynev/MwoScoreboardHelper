@@ -31,11 +31,11 @@ public class StatCalculatorHelpers {
         });
     }
 
-    public static Map<String, Set<PlayerMatchRecord>> splitByValue(Set<PlayerMatchRecord> records, StatType stat) {
-        Map<String, Set<PlayerMatchRecord>> recordsPerKey = new HashMap<>();
+    public static Map<String, Collection<PlayerMatchRecord>> splitByValue(Collection<PlayerMatchRecord> records, StatType stat) {
+        Map<String, Collection<PlayerMatchRecord>> recordsPerKey = new HashMap<>();
         for (PlayerMatchRecord pmr : records) {
             String key = pmr.getMatchValues().get(stat);
-            Set<PlayerMatchRecord> data = recordsPerKey.get(key);
+            Collection<PlayerMatchRecord> data = recordsPerKey.get(key);
             if (data == null) {
                 data = new HashSet<>();
                 recordsPerKey.put(key, data);
@@ -53,7 +53,7 @@ public class StatCalculatorHelpers {
         return validRecord;
     }
 
-    public static Set<PlayerMatchRecord> filterValidRecords(Set<PlayerMatchRecord> records, StatType statType) {
+    public static Collection<PlayerMatchRecord> filterValidRecords(Collection<PlayerMatchRecord> records, StatType statType) {
         return records.stream().filter(r -> isValidRecord(r, statType)).collect(Collectors.toSet());
     }
 }

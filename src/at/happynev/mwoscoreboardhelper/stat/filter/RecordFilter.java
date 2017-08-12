@@ -6,6 +6,7 @@ import at.happynev.mwoscoreboardhelper.stat.StatPipelineStep;
 import at.happynev.mwoscoreboardhelper.stat.StatTable;
 import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
 
+import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
  */
 public abstract class RecordFilter implements StatPipelineStep {
 
-    protected abstract boolean accept(Set<PlayerMatchRecord> records, PlayerMatchRecord pmr, PlayerMatchRecord reference);
+    protected abstract boolean accept(Collection<PlayerMatchRecord> records, PlayerMatchRecord pmr, PlayerMatchRecord reference);
 
     @Override
     public StatCalculationWorkingSet calculateStep(StatCalculationWorkingSet input) {

@@ -3,6 +3,7 @@ package at.happynev.mwoscoreboardhelper.stat;
 import at.happynev.mwoscoreboardhelper.PlayerMatchRecord;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -26,7 +27,7 @@ public class CustomizableStatRuntime {
 
     public String getValue() {
         if (value.isEmpty()) {
-            Set<PlayerMatchRecord> records = PlayerMatchRecord.getAllRecords();
+            Collection<PlayerMatchRecord> records = PlayerMatchRecord.getAllRecords();
             StatCalculationWorkingSet currentWorkingSet = new StatCalculationWorkingSet(records, currentRecord);
             for (StatPipelineStep step : calculationSteps) {
                 currentWorkingSet = step.calculateStep(currentWorkingSet);

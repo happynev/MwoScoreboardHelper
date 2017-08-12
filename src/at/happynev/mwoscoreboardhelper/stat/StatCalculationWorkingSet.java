@@ -3,6 +3,7 @@ package at.happynev.mwoscoreboardhelper.stat;
 import at.happynev.mwoscoreboardhelper.PlayerMatchRecord;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -12,10 +13,10 @@ import java.util.Set;
 public class StatCalculationWorkingSet {
     private final PlayerMatchRecord reference;
     private List<String> explanation;
-    private Set<PlayerMatchRecord> records;
+    private Collection<PlayerMatchRecord> records;
     private String currentValue;
 
-    public StatCalculationWorkingSet(Set<PlayerMatchRecord> records, PlayerMatchRecord reference) {
+    public StatCalculationWorkingSet(Collection<PlayerMatchRecord> records, PlayerMatchRecord reference) {
         this.records = records;
         this.reference = reference;
         this.currentValue = "";
@@ -37,7 +38,7 @@ public class StatCalculationWorkingSet {
         return explanation;
     }
 
-    public Set<PlayerMatchRecord> getRecords() {
+    public Collection<PlayerMatchRecord> getRecords() {
         return records;
     }
 

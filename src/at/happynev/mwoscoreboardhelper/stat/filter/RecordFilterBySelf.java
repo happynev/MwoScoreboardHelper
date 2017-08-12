@@ -4,6 +4,7 @@ import at.happynev.mwoscoreboardhelper.PlayerMatchRecord;
 import at.happynev.mwoscoreboardhelper.PlayerRuntime;
 import at.happynev.mwoscoreboardhelper.SettingsTabController;
 
+import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -14,7 +15,7 @@ public class RecordFilterBySelf extends RecordFilter {
     private final PlayerRuntime self = PlayerRuntime.getInstance(SettingsTabController.getPlayername());
 
     @Override
-    public boolean accept(Set<PlayerMatchRecord> records, PlayerMatchRecord pmr, PlayerMatchRecord reference) {
+    public boolean accept(Collection<PlayerMatchRecord> records, PlayerMatchRecord pmr, PlayerMatchRecord reference) {
         return pmr.getPlayerId() == self.getId();
     }
 

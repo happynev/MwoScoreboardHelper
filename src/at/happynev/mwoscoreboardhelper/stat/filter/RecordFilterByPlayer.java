@@ -2,6 +2,7 @@ package at.happynev.mwoscoreboardhelper.stat.filter;
 
 import at.happynev.mwoscoreboardhelper.PlayerMatchRecord;
 
+import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -10,7 +11,7 @@ import java.util.Set;
 public class RecordFilterByPlayer extends RecordFilter {
 
     @Override
-    public boolean accept(Set<PlayerMatchRecord> records, PlayerMatchRecord pmr, PlayerMatchRecord reference) {
+    public boolean accept(Collection<PlayerMatchRecord> records, PlayerMatchRecord pmr, PlayerMatchRecord reference) {
         return pmr.getPlayerId() == reference.getPlayerId();
     }
 
