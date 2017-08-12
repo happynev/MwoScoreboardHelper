@@ -10,8 +10,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.scene.Group;
 import javafx.scene.control.*;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -73,7 +72,7 @@ public class SettingsTabController {
     @FXML
     CheckBox checkShowNote;
     @FXML
-    CheckBox checkShowStatSummary;
+    CheckBox checkShowMatchStatSidebar;
     @FXML
     Pane paneStatColumnSelection;
     @FXML
@@ -259,7 +258,7 @@ public class SettingsTabController {
         checkShowUnit.setSelected(Boolean.parseBoolean(loadSetting("layoutShowUnit", "true")));
         checkShowName.setSelected(Boolean.parseBoolean(loadSetting("layoutShowName", "true")));
         checkShowNote.setSelected(Boolean.parseBoolean(loadSetting("layoutShowNote", "true")));
-        checkShowStatSummary.setSelected(Boolean.parseBoolean(loadSetting("layoutShowStatSummary", "true")));
+        checkShowMatchStatSidebar.setSelected(Boolean.parseBoolean(loadSetting("layoutShowStatSummary", "true")));
         //set actions
         textPollingInterval.textProperty().bind(StringExpression.stringExpression(sliderPollingInterval.valueProperty()));
         buttonSelectScreenshotDir.setOnAction(event -> selectDirectory(textScreenshotDirectory));
@@ -295,7 +294,7 @@ public class SettingsTabController {
             saveSetting("layoutShowNote", "" + newValue);
             refreshPreviews();
         });
-        checkShowStatSummary.selectedProperty().addListener((observable, oldValue, newValue) -> {
+        checkShowMatchStatSidebar.selectedProperty().addListener((observable, oldValue, newValue) -> {
             saveSetting("layoutShowStatSummary", "" + newValue);
             refreshPreviews();
         });
@@ -381,27 +380,31 @@ public class SettingsTabController {
             Label labelSsType = new Label("Preview for " + sstype.toString());
             labelSsType.setFont(fontHeader);
             paneStatColumnPreview.getChildren().add(labelSsType);
-            for (StatTable table : StatTable.values()) {
+            HBox boxLine = new HBox();
+            boxLine.setMaxWidth(Double.MAX_VALUE);
+            VBox boxTables = new VBox();
+            boxTables.setMaxWidth(Double.MAX_VALUE);
+            HBox.setHgrow(boxTables, Priority.ALWAYS);
+            for (StatTable table : Arrays.asList(StatTable.WATCHER_PERSONAL, StatTable.WATCHER_TEAM, StatTable.WATCHER_ENEMY)) {
                 GridPane pane = new GridPane();
                 Label labelTable = new Label("    Table " + table.toString());
                 labelTable.setFont(fontHeader);
-                paneStatColumnPreview.getChildren().add(labelTable);
+                boxTables.getChildren().add(labelTable);
                 GuiUtils.prepareGrid(pane, match, table);
                 GuiUtils.addDataToGrid(pane, 1, match, player, table);
-                paneStatColumnPreview.getChildren().add(pane);
-                paneStatColumnPreview.getChildren().add(new Label(" "));//buffer
+                boxTables.getChildren().add(pane);
             }
-        }
-
-        if (getLayoutShowStatSummary()) {
-            //TODO
-            //paneMatchDataPrepPreview.getChildren().add(matchPrep.getMatchStatSideBar());
-            //paneMatchDataPreview.getChildren().add(matchSummary.getMatchStatSideBar());
+            boxLine.getChildren().add(boxTables);
+            if (getLayoutShowMatchStatSidebar()) {
+                boxLine.getChildren().add(match.getMatchStatSideBar());
+            }
+            paneStatColumnPreview.getChildren().add(boxLine);
+            paneStatColumnPreview.getChildren().add(new Label(" "));//buffer
         }
     }
 
-    public boolean getLayoutShowStatSummary() {
-        return checkShowStatSummary.isSelected();
+    public boolean getLayoutShowMatchStatSidebar() {
+        return checkShowMatchStatSidebar.isSelected();
     }
 
     public boolean getLayoutShowName() {
