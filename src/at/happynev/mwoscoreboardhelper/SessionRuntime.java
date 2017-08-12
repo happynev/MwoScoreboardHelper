@@ -99,13 +99,13 @@ public abstract class SessionRuntime {
         Label labelTitle = new Label(title);
         labelTitle.setFont(fontData);
         labelTitle.setStyle(GuiUtils.styleNeutral);
-        labelTitle.setPadding(PlayerRuntime.DATA_INSETS);
+        labelTitle.setPadding(GuiUtils.DATA_INSETS);
         //labelTitle.setRotate(45);
         //
         Label labelTeam = new Label(value);
         labelTeam.setFont(fontData);
         labelTeam.setStyle(GuiUtils.styleTeam);
-        labelTeam.setPadding(PlayerRuntime.DATA_INSETS);
+        labelTeam.setPadding(GuiUtils.DATA_INSETS);
         //
         grid.add(labelTitle, 0, row);
         grid.add(labelTeam, 1, row);

@@ -1,9 +1,4 @@
--- Table: CHALLENGES
-CREATE TABLE CHALLENGES (
-   ID int  NOT NULL DEFAULT seq.nextval,
-   DEFINITION varchar(5000)  NOT NULL,
-   STARTED timestamp  NOT NULL,
-   FINISHED timestamp  NULL,
-   TITLE varchar(500)  NOT NULL,
-   CONSTRAINT CHALLENGES_pk PRIMARY KEY (ID)
-);
+alter table personal_matchdata drop column has_rewards;
+alter table personal_matchdata drop column rating_match;
+alter table personal_matchdata drop column rating_team;
+alter table personal_matchdata drop column rating_enemy;

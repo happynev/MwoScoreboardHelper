@@ -18,11 +18,11 @@ public class Main extends Application {
     private Server dbserver;
 
     public static int getDbVersion() {
-        return 3;
+        return 4;
     }
 
     public static String getVersion() {
-        return "0.3.1 Yen-Lo Wang";
+        return "0.4 Bushwacker";
     }
 
     public static void main(String[] args) {

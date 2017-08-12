@@ -1,13 +1,15 @@
 package at.happynev.mwoscoreboardhelper;
 
+import at.happynev.mwoscoreboardhelper.stat.CustomizableStatTemplate;
+import at.happynev.mwoscoreboardhelper.stat.StatBuilder;
+import at.happynev.mwoscoreboardhelper.stat.StatTable;
 import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
 import at.happynev.mwoscoreboardhelper.tracer.TraceHelpers;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
+import javafx.scene.Group;
 import javafx.scene.control.*;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -18,15 +20,16 @@ import java.io.File;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Nev on 15.01.2017.
  */
 public class SettingsTabController {
     public final static String EMPTY = "~empty~";
+    private static final Map<String, Boolean> statsToDisplay = new HashMap<>();
     private static SettingsTabController instance;
     @FXML
     TextField textPlayerName;
@@ -67,25 +70,11 @@ public class SettingsTabController {
     @FXML
     CheckBox checkShowNote;
     @FXML
-    Pane paneColumnSelectionPrepPlayer;
-    @FXML
-    Pane paneColumnSelectionSummaryMatch;
-    @FXML
-    GridPane paneColumnPreviewPrep;
-    @FXML
-    GridPane paneColumnPreviewSummary;
-    @FXML
-    Pane paneMatchDataPrepPreview;
-    @FXML
-    Pane paneMatchDataPreview;
-    @FXML
     CheckBox checkShowStatSummary;
     @FXML
-    Label labelColorPlayerData;
+    Pane paneStatColumnSelection;
     @FXML
-    Label labelColorMatchData;
-    @FXML
-    Label labelColorPlayerMatchData;
+    Pane paneStatColumnPreview;
 
     private SimpleObjectProperty<Color> playerBackColor = new SimpleObjectProperty<>(Color.web(loadSetting("playerColorBack", "#000000")));
     private SimpleObjectProperty<Color> playerFrontColor = new SimpleObjectProperty<>(Color.web(loadSetting("playerColorFront", "#FFFFFF")));
@@ -143,8 +132,8 @@ public class SettingsTabController {
         saveSetting("activeTab", tab);
     }
 
-    public static String getActiveTab(){
-        return loadSetting("activeTab","tabSettings");
+    public static String getActiveTab() {
+        return loadSetting("activeTab", "tabSettings");
     }
 
     public static File getScreenshotDirectory() {
@@ -317,53 +306,93 @@ public class SettingsTabController {
             PlayerRuntime.getInstance(getPlayername()).guicolor_backProperty().set(newValue);
         });
         //build dynamic part
-        labelColorMatchData.setBackground(new Background(new BackgroundFill(DisplayableStat.COLOR_MATCHDATA, null, null)));
-        labelColorPlayerData.setBackground(new Background(new BackgroundFill(DisplayableStat.COLOR_PLAYERDATA, null, null)));
-        labelColorPlayerMatchData.setBackground(new Background(new BackgroundFill(DisplayableStat.COLOR_PLAYERMATCHDATA, null, null)));
-        List<DisplayableStat> allStats = new ArrayList<>();
-        allStats.addAll(Arrays.asList(MatchStat.class.getEnumConstants()));
-        allStats.addAll(Arrays.asList(PlayerStat.class.getEnumConstants()));
-        addStatSettings(allStats, ScreenshotType.QP_1PREPARATION, paneColumnSelectionPrepPlayer);
-        addStatSettings(allStats, ScreenshotType.QP_4SUMMARY, paneColumnSelectionSummaryMatch);
+        GridPane grid = new GridPane();
+        int textColumnOffset = StatTable.values().length;
+        int col = 0;
+        int row = 0;
+        for (StatTable table : StatTable.values()) {
+            Label labelTable = new Label(table.toString());
+            labelTable.setRotate(90);
+            grid.add(new Group(labelTable), col++, row);
+        }
+        row++;
+        for (ScreenshotType sstype : ScreenshotType.values()) {
+            Label labelSsType = new Label("On " + sstype.toString() + ":");
+            grid.add(labelSsType, 0, row++, GridPane.REMAINING, 1);
+            for (CustomizableStatTemplate stat : StatBuilder.getDefaultStats()) {
+                col = 0;
+                for (StatTable table : StatTable.values()) {
+                    CheckBox check = new CheckBox();
+                    switch (table) {
+                        case WATCHER_TEAM:
+                        case WATCHER_ENEMY:
+                            check.setDisable(false);
+                            break;
+                        default:
+                            check.setDisable(true);
+                    }
+                    boolean selected = getShouldDisplay(sstype, stat, table);
+                    check.setSelected(selected);
+                    check.setTooltip(new Tooltip(stat.getLongName() + " on " + table.toString()));
+                    check.selectedProperty().addListener((observable, oldValue, newValue) -> changeStatDisplay(sstype, stat, table, newValue));
+                    grid.add(check, col++, row);
+                }
+                Label statTitle = new Label(stat.getShortName());
+                grid.add(statTitle, col++, row);
+                Label statDesc = new Label(stat.getLongName());
+                grid.add(statDesc, col++, row);
+                row++;
+            }
+        }
+        paneStatColumnSelection.getChildren().add(grid);
         refreshPreviews();
         WatcherTabController.getInstance().setSettingsLoaded(true);
     }
 
-    private void addStatSettings(List<DisplayableStat> statsForPrep, ScreenshotType type, Pane pane) {
-        for (DisplayableStat stat : statsForPrep) {
-            if (stat.canDisplay(type)) {
-                String desc = stat.getDescription();
-                String name = stat.toString();
-                String checktitle = name;
-                String checkid = "layout" + type + "-" + name;
-                if (!name.equals(desc)) {
-                    checktitle = desc + " ('" + name + "')";
-                }
-                CheckBox check = new CheckBox(checktitle);
-                check.setBackground(new Background(new BackgroundFill(stat.getColor(), null, null)));
-                check.setSelected(Boolean.parseBoolean(loadSetting(checkid, "false")));
-                check.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                    saveSetting(checkid, "" + newValue);
-                    refreshPreviews();
-                });
-                pane.getChildren().add(check);
-            }
+    private void changeStatDisplay(ScreenshotType sstype, CustomizableStatTemplate stat, StatTable table, boolean newValue) {
+        String key = sstype.toString() + stat.getShortName() + table.toString();
+        statsToDisplay.put(key, newValue);
+        saveSetting("statdisplay_" + key, "" + newValue);
+        refreshPreviews();
+    }
+
+    public boolean getShouldDisplay(ScreenshotType sstype, CustomizableStatTemplate stat, StatTable table) {
+        String key = sstype.toString() + stat.getShortName() + table.toString();
+        if (statsToDisplay.containsKey(key)) {
+            return statsToDisplay.get(key);
+        } else {
+            boolean val = Boolean.parseBoolean(loadSetting("statdisplay_" + key, "false"));
+            statsToDisplay.put(key, val);
+            return val;
         }
     }
 
     private void refreshPreviews() {
-        MatchRuntime matchPrep = MatchRuntime.getReferenceMatch(ScreenshotType.QP_1PREPARATION);
-        MatchRuntime matchSummary = MatchRuntime.getReferenceMatch(ScreenshotType.QP_4SUMMARY);
         PlayerRuntime player = PlayerRuntime.getReferencePlayer();
-        GuiUtils.prepareGrid(paneColumnPreviewPrep, matchPrep);
-        GuiUtils.prepareGrid(paneColumnPreviewSummary, matchSummary);
-        player.addDataToGrid(paneColumnPreviewPrep, 1, matchPrep);
-        player.addDataToGrid(paneColumnPreviewSummary, 1, matchSummary);
-        paneMatchDataPrepPreview.getChildren().clear();
-        paneMatchDataPreview.getChildren().clear();
+        paneStatColumnPreview.getChildren().clear();
+        for (ScreenshotType sstype : ScreenshotType.values()) {
+            MatchRuntime match = MatchRuntime.getReferenceMatch(sstype);
+            Label labelSsType = new Label("Preview for " + sstype.toString());
+            paneStatColumnPreview.getChildren().add(labelSsType);
+            for (StatTable table : StatTable.values()) {
+                if (table == StatTable.WATCHER_TEAM || table == StatTable.WATCHER_ENEMY) {
+                    GridPane pane = new GridPane();
+                    Label labelTable = new Label("    Table " + table.toString());
+                    paneStatColumnPreview.getChildren().add(labelTable);
+                    GuiUtils.prepareGrid(pane, match, table);
+                    GuiUtils.addDataToGrid(pane, 1, match, player, table);
+                    paneStatColumnPreview.getChildren().add(pane);
+                } else {
+
+                }
+                paneStatColumnPreview.getChildren().add(new Label(" "));//buffer
+            }
+        }
+
         if (getLayoutShowStatSummary()) {
-            paneMatchDataPrepPreview.getChildren().add(matchPrep.getMatchAnalyticsPane());
-            paneMatchDataPreview.getChildren().add(matchSummary.getMatchAnalyticsPane());
+            //TODO
+            //paneMatchDataPrepPreview.getChildren().add(matchPrep.getMatchAnalyticsPane());
+            //paneMatchDataPreview.getChildren().add(matchSummary.getMatchAnalyticsPane());
         }
     }
 
@@ -381,21 +410,6 @@ public class SettingsTabController {
 
     public boolean getLayoutShowNote() {
         return checkShowNote.isSelected();
-    }
-
-    public List<DisplayableStat> getStatsToDisplay(ScreenshotType type) {
-        List<DisplayableStat> allStats = new ArrayList<>();
-        allStats.addAll(Arrays.asList(MatchStat.class.getEnumConstants()));
-        allStats.addAll(Arrays.asList(PlayerStat.class.getEnumConstants()));
-        List<DisplayableStat> ret = new ArrayList<>();
-        for (DisplayableStat stat : allStats) {
-            String checkid = "layout" + type + "-" + stat;
-            boolean showStat = Boolean.parseBoolean(loadSetting(checkid, "false"));
-            if (showStat) {
-                ret.add(stat);
-            }
-        }
-        return ret;
     }
 
     private int fixMechReferences() {

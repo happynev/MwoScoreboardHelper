@@ -1,5 +1,6 @@
 package at.happynev.mwoscoreboardhelper;
 
+import at.happynev.mwoscoreboardhelper.stat.StatTable;
 import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -187,8 +188,8 @@ public class WatcherTabController {
             playersFinished = 0;
             preliminaryPlayerInfo.clear();
             paneMatchAnalytics.getChildren().clear();
-            GuiUtils.prepareGrid(paneMyTeam, results);
-            GuiUtils.prepareGrid(paneEnemyTeam, results);
+            GuiUtils.prepareGrid(paneMyTeam, results, StatTable.WATCHER_TEAM);
+            GuiUtils.prepareGrid(paneEnemyTeam, results, StatTable.WATCHER_ENEMY);
             labelMap.textProperty().bind(results.mapProperty());
             labelGamemode.textProperty().bind(results.gameModeProperty());
             labelMatchResult.textProperty().bind(results.matchResultProperty());
@@ -197,7 +198,7 @@ public class WatcherTabController {
             if (results.getType() == ScreenshotType.QP_1PREPARATION || results.getType() == ScreenshotType.QP_4SUMMARY) {
                 for (int i = 0; i < 24; i++) {
                     Label preliminaryInfo = new Label();
-                    PlayerRuntime.getReferencePlayer().applyPlayerFormat(preliminaryInfo);
+                    GuiUtils.applyPlayerFormat(preliminaryInfo, PlayerRuntime.getReferencePlayer());
                     preliminaryInfo.textProperty().bind(results.getPreliminaryInfo().get(i));
                     if (i < 12) {
                         paneMyTeam.add(preliminaryInfo, 0, 1 + i, GridPane.REMAINING, 1);
@@ -210,10 +211,10 @@ public class WatcherTabController {
                 //all players traced. ok to proceed with next screenshot
                 if (newValue) {
                     for (PlayerRuntime p : results.getPlayersTeam()) {
-                        buildPlayerGui(p, paneMyTeam, results);
+                        buildPlayerGui(p, paneMyTeam, results, StatTable.WATCHER_TEAM);
                     }
                     for (PlayerRuntime p : results.getPlayersEnemy()) {
-                        buildPlayerGui(p, paneEnemyTeam, results);
+                        buildPlayerGui(p, paneEnemyTeam, results, StatTable.WATCHER_ENEMY);
                     }
 
                     isProcessing = false;
@@ -236,14 +237,14 @@ public class WatcherTabController {
         }
     }
 
-    private void buildPlayerGui(PlayerRuntime pr, GridPane parent, MatchRuntime match) {
+    private void buildPlayerGui(PlayerRuntime pr, GridPane parent, MatchRuntime match, StatTable table) {
         try {
             Label preliminaryInfo = preliminaryPlayerInfo.get(pr.getPlayerNumber());
             preliminaryPlayerInfo.remove(pr.getPlayerNumber());
             parent.getChildren().remove(preliminaryInfo);
             int row = pr.getPlayerNumber() % 12;
             row++;//account for header
-            pr.addDataToGrid(parent, row, match);
+            GuiUtils.addDataToGrid(parent, row, match, pr, table);
             playersFinished++;
         } catch (Exception e) {
             Logger.error(e);

@@ -90,6 +90,34 @@ public class Utils {
         return newValue.toString().replaceAll("..;?$", "");
     }
 
+    public static String getRatio(Integer numerator, Integer denominator) {
+        return getRatio(numerator, denominator, 2);
+    }
+
+    public static String getPercentage(double fraction, double total) {
+        if (total == 0.0d) {
+            return "100%";
+        }
+        return new BigDecimal(fraction / total).multiply(new BigDecimal(100)).setScale(0, BigDecimal.ROUND_HALF_UP).toPlainString() + "%";
+    }
+
+    public static String getRatio(Integer numerator, Integer denominator, int precision) {
+        if (numerator == null) {
+            numerator = 0;
+        }
+        if (denominator == null) {
+            denominator = 0;
+        }
+        if (numerator == 0 && denominator == 0) {
+            return "N/A";
+        }
+        if (denominator > 0) {
+            return new BigDecimal(numerator.doubleValue() / denominator.doubleValue()).setScale(precision, BigDecimal.ROUND_HALF_UP).toPlainString();
+        } else {
+            return new BigDecimal(numerator).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString();
+        }
+    }
+
     public static class NumericStringComparator implements Comparator<String> {
         @Override
         public int compare(String o1, String o2) {

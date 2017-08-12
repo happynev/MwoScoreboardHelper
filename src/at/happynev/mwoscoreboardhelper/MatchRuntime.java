@@ -1,6 +1,8 @@
 package at.happynev.mwoscoreboardhelper;
 
-import at.happynev.mwoscoreboardhelper.controls.RatingControl;
+import at.happynev.mwoscoreboardhelper.stat.CustomizableStatTemplate;
+import at.happynev.mwoscoreboardhelper.stat.StatBuilder;
+import at.happynev.mwoscoreboardhelper.stat.StatTable;
 import at.happynev.mwoscoreboardhelper.tracer.*;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -126,7 +128,7 @@ public class MatchRuntime {
             ResultSet rsPlayers = prepPlayers.executeQuery();
             while (rsPlayers.next()) {
                 int player_id = rsPlayers.getInt(1);
-                PlayerMatchRecord pmr = new PlayerMatchRecord(player_id, id);
+                PlayerMatchRecord pmr = PlayerMatchRecord.getInstance(player_id, id);
                 playerRecords.add(pmr);
                 if (pmr.isEnemy()) {
                     playersEnemy.add(PlayerRuntime.getInstance(player_id));
@@ -221,13 +223,13 @@ public class MatchRuntime {
         Label labelTitle = new Label(title);
         labelTitle.setFont(fontData);
         labelTitle.setStyle(GuiUtils.styleNeutral);
-        labelTitle.setPadding(PlayerRuntime.DATA_INSETS);
+        labelTitle.setPadding(GuiUtils.DATA_INSETS);
         //labelTitle.setRotate(45);
         //
         Label labelTeam = new Label(mc.teamValue);
         labelTeam.setFont(fontData);
         labelTeam.setStyle(GuiUtils.styleTeam);
-        labelTeam.setPadding(PlayerRuntime.DATA_INSETS);
+        labelTeam.setPadding(GuiUtils.DATA_INSETS);
         //
         grid.add(labelTitle, 0, row);
         grid.add(labelTeam, 1, row);
@@ -236,12 +238,12 @@ public class MatchRuntime {
             Label labelEnemy = new Label(mc.enemyValue);
             labelEnemy.setFont(fontData);
             labelEnemy.setStyle(GuiUtils.styleEnemy);
-            labelEnemy.setPadding(PlayerRuntime.DATA_INSETS);
+            labelEnemy.setPadding(GuiUtils.DATA_INSETS);
             //
             Label labelTotal = new Label(mc.totalValue);
             labelTotal.setFont(fontData);
             labelTotal.setStyle(GuiUtils.styleNeutral);
-            labelTotal.setPadding(PlayerRuntime.DATA_INSETS);
+            labelTotal.setPadding(GuiUtils.DATA_INSETS);
             //
             grid.add(labelEnemy, 2, row);
             grid.add(labelTotal, 3, row);
@@ -542,8 +544,15 @@ public class MatchRuntime {
         return id + "-" + gameMode.get() + "-" + map.get() + "-" + formattedTimestamp.get();
     }
 
-    public List<DisplayableStat> getStatsToDisplay() {
-        return SettingsTabController.getInstance().getStatsToDisplay(type);
+    public List<CustomizableStatTemplate> getStatsToDisplay(StatTable table) {
+        List<CustomizableStatTemplate> filtered = new ArrayList<>();
+        List<CustomizableStatTemplate> allStats = StatBuilder.getDefaultStats();
+        for (CustomizableStatTemplate stat : allStats) {
+            if (stat.canDisplay(type, table)) {
+                filtered.add(stat);
+            }
+        }
+        return filtered;
     }
 
     private void startBindingWatchDog(ObservableValue<Boolean> binding, int interval, int timeout) {
@@ -742,18 +751,20 @@ public class MatchRuntime {
     }
 
     public Pane getMatchAnalyticsPane() {
+
         Font fontHeader = Font.font("System", FontWeight.BOLD, 20);
 
         Label labelTeam = new Label("Your Team");
         labelTeam.setStyle(GuiUtils.styleTeam);
         labelTeam.setFont(fontHeader);
-        labelTeam.setPadding(PlayerRuntime.DATA_INSETS);
+        labelTeam.setPadding(GuiUtils.DATA_INSETS);
         labelTeam.setRotate(90);
         //
         VBox columnTitles = new VBox();
         VBox columnTeam = new VBox();
         columnTeam.getChildren().add(new Group(labelTeam));
         GridPane grid = new GridPane();
+        /*
         int line = 0;
         grid.add(new Group(labelTeam), 1, 0);
         if (matchFinished) {
@@ -762,19 +773,19 @@ public class MatchRuntime {
             Label labelEnemy = new Label("Your Enemy");
             labelEnemy.setStyle(GuiUtils.styleEnemy);
             labelEnemy.setFont(fontHeader);
-            labelEnemy.setPadding(PlayerRuntime.DATA_INSETS);
+            labelEnemy.setPadding(GuiUtils.DATA_INSETS);
             labelEnemy.setRotate(90);
             //
             Label labelTotal = new Label("Total / Avg");
             labelTotal.setStyle(GuiUtils.styleNeutral);
             labelTotal.setFont(fontHeader);
-            labelTotal.setPadding(PlayerRuntime.DATA_INSETS);
+            labelTotal.setPadding(GuiUtils.DATA_INSETS);
             labelTotal.setRotate(90);
             //
             Label labelDummy = new Label("");
             labelDummy.setStyle(GuiUtils.styleNeutral);
             labelDummy.setFont(fontHeader);
-            labelDummy.setPadding(PlayerRuntime.DATA_INSETS);
+            labelDummy.setPadding(GuiUtils.DATA_INSETS);
             columnTitles.getChildren().add(labelDummy);
 
             columnEnemy.getChildren().add(new Group(labelEnemy));
@@ -1012,30 +1023,7 @@ public class MatchRuntime {
             buildMatchDataLine(grid, line++, "Missing Mechs", numMissing, matchFinished);
         }
         grid.add(new Label(), 0, line++, GridPane.REMAINING, 1);
-        RatingControl rateMatch = new RatingControl("Rate this Match");
-        RatingControl rateTeam = new RatingControl("Rate Your Team");
-        RatingControl rateEnemy = new RatingControl("Rate Your Enemy");
-
-        rateMatch.valueProperty().addListener((observable, oldValue, newValue) -> {
-            int value = (int) (newValue.doubleValue() * 100);
-            Logger.log("rated match " + value);
-            personalRecord.setRatingMatch(value);
-        });
-        rateTeam.valueProperty().addListener((observable, oldValue, newValue) -> {
-            int value = (int) (newValue.doubleValue() * 100);
-            Logger.log("rated team " + value);
-            personalRecord.setRatingTeam(value);
-        });
-        rateEnemy.valueProperty().addListener((observable, oldValue, newValue) -> {
-            int value = (int) (newValue.doubleValue() * 100);
-            Logger.log("rated enemy " + value);
-            personalRecord.setRatingEnemy(value);
-        });
-
-        grid.add(rateMatch, 0, line++, GridPane.REMAINING, 1);
-        grid.add(rateTeam, 0, line++, GridPane.REMAINING, 1);
-        grid.add(rateEnemy, 0, line++, GridPane.REMAINING, 1);
-
+        */
         return grid;
     }
 

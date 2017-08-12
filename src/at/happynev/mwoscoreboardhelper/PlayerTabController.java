@@ -1,5 +1,6 @@
 package at.happynev.mwoscoreboardhelper;
 
+import at.happynev.mwoscoreboardhelper.stat.StatType;
 import at.happynev.mwoscoreboardhelper.tracer.TraceHelpers;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -10,7 +11,10 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import org.apache.commons.lang3.time.FastDateFormat;
 
@@ -51,7 +55,7 @@ public class PlayerTabController {
     @FXML
     ChoiceBox<String> choiceIcon;
     @FXML
-    TableView<PlayerRuntime.PlayerMechStats> tableMechs;
+    TableView<String> tableMechs;
     @FXML
     Pane panePlayername;
     @FXML
@@ -150,6 +154,7 @@ public class PlayerTabController {
     }
 
     private void buildMechTable() {
+        /*
         TableColumn<PlayerRuntime.PlayerMechStats, String> colMech = new TableColumn<>("Mech");
         colMech.setCellValueFactory(param -> {
             String value = param.getValue().getMech().getShortName();
@@ -170,7 +175,7 @@ public class PlayerTabController {
             col.setComparator(Utils.getNumberComparator());
             tableMechs.getColumns().add(col);
         }
-
+        */
         // colPlayerUnit.prefWidthProperty().bind(tablePlayers.widthProperty().multiply(0.2));
 
     }
@@ -201,8 +206,8 @@ public class PlayerTabController {
             return new SimpleStringProperty(value);
         });
         tablePlayerMatches.getColumns().addAll(colTime, colMap, colGameMode, colMatchResult);
-        for (MatchStat stat : MatchStat.values()) {
-            if (stat == MatchStat.MATCHTONS) {
+        for (StatType stat : StatType.values()) {
+            if (stat == StatType.MECH_TONS) {
                 continue;
             }
             TableColumn<PlayerMatchRecord, String> col = new TableColumn<>();
@@ -269,17 +274,17 @@ public class PlayerTabController {
             listPossibleDuplicates.getItems().addAll(findDuplicates(newPlayer));
             labelSeenInfo.setText("Seen " + newPlayer.getMatchRecords().size() + " times between " + fdfSeen.format(findFirstSeen(newPlayer)) + " and " + fdfSeen.format(findLastSeen(newPlayer)));
             panePlayerstats.getChildren().add(new Label("Overall Stats:"));
-            for (PlayerStat stat : PlayerStat.values()) {
+           /* for (PlayerStat stat : PlayerStat.values()) {
                 Label statdesc = new Label(stat.getDescription() + ":");
                 statdesc.setBackground(new Background(new BackgroundFill(DisplayableStat.COLOR_PLAYERDATA, null, null)));
                 Label statvalue = new Label(newPlayer.getCalculatedValues().get(stat));
                 HBox hbox = new HBox(statdesc, statvalue);
                 hbox.setSpacing(10);
                 panePlayerstats.getChildren().add(hbox);
-            }
+            }*/
             tablePlayerMatches.getItems().addAll(newPlayer.getMatchRecords());
             tablePlayerMatches.sort();
-            tableMechs.getItems().addAll(newPlayer.getMechStats().values());
+            //tableMechs.getItems().addAll(newPlayer.getMechStats().values());
             tableMechs.sort();
         }
     }

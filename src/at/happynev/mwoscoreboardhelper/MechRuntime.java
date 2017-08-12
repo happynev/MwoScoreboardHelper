@@ -1,5 +1,6 @@
 package at.happynev.mwoscoreboardhelper;
 
+import at.happynev.mwoscoreboardhelper.stat.StatType;
 import at.happynev.mwoscoreboardhelper.tracer.TraceHelpers;
 import org.apache.commons.lang3.StringUtils;
 
@@ -86,14 +87,12 @@ public class MechRuntime {
         int i = 0;
         try {
             PreparedStatement prep = DbHandler.getInstance().prepareStatement("select api_id,internal_name,name,short_name,chassis,tons,max_speed,max_armor,faction,specialtype from mech_data");
-            String pmrQuery = "select player_data_id,match_data_id from player_matchdata where mech=?";
             ResultSet rs = prep.executeQuery();
             mechsPerFaction.clear();
             mechsPerChassis.clear();
             mechsPerWeightClass.clear();
             knownMechs.clear();
             knownShortNames.clear();
-            PreparedStatement prepPmr = DbHandler.getInstance().prepareStatement(pmrQuery);
 
             while (rs.next()) {
                 i++;
@@ -108,15 +107,6 @@ public class MechRuntime {
                 String _faction = rs.getString("faction");
                 String _special = rs.getString("specialtype");
                 List<PlayerMatchRecord> tmpPmr = new ArrayList<>();
-                prepPmr.clearParameters();
-                prepPmr.setString(1, _short);
-                ResultSet rsPmr = prepPmr.executeQuery();
-                while (rsPmr.next()) {
-                    int pid = rsPmr.getInt(1);
-                    int mid = rsPmr.getInt(2);
-                    tmpPmr.add(new PlayerMatchRecord(pid, mid));
-                }
-                rsPmr.close();
                 MechRuntime mr = new MechRuntime(_id, _internal, _name, _short, _chassis, _tons, _speed, _armor, _faction, _special, tmpPmr);
                 knownMechs.put(mr.getId(), mr);
                 knownShortNames.add(mr.getShortName());
@@ -139,10 +129,8 @@ public class MechRuntime {
                 }
                 mechListChassis.add(mr);
             }
-            prepPmr.close();
             rs.close();
             prep.close();
-            calculateStats();
         } catch (Exception e) {
             Logger.log("mech:" + i);
             Logger.error(e);
@@ -150,56 +138,7 @@ public class MechRuntime {
     }
 
     private static void calculateStats() {
-        int totalSeenMechs = 0;
-        Map<String, Integer> totalSeenPerChassis = new HashMap<>(mechsPerChassis.size());
-        Map<String, Integer> totalSeenPerClass = new HashMap<>(mechsPerWeightClass.size());
-        Map<String, Integer> totalSeenPerFaction = new HashMap<>(mechsPerFaction.size());
-        for (MechRuntime variant : knownMechs.values()) {
-            Integer seenChassis = totalSeenPerChassis.get(variant.getChassis());
-            Integer seenClass = totalSeenPerClass.get(variant.getWeightClass());
-            Integer seenFaction = totalSeenPerFaction.get(variant.getFaction());
-            if (seenChassis == null) seenChassis = 0;
-            if (seenClass == null) seenClass = 0;
-            if (seenFaction == null) seenFaction = 0;
-            seenChassis += variant.getMatchRecords().size();
-            seenClass += variant.getMatchRecords().size();
-            seenFaction += variant.getMatchRecords().size();
-            totalSeenMechs += variant.getMatchRecords().size();
-            totalSeenPerChassis.put(variant.getChassis(), seenChassis);
-            totalSeenPerClass.put(variant.getWeightClass(), seenClass);
-            totalSeenPerFaction.put(variant.getFaction(), seenFaction);
-            int totalValid = 0;
-            int totalDamage = 0;
-            int totalScore = 0;
-            for (PlayerMatchRecord pmr : variant.getMatchRecords()) {
-                if (pmr.getPing() > 0) {
-                    totalValid++;
-                    totalDamage += pmr.getDamage();
-                    totalScore += pmr.getMatchScore();
-                }
-            }
-            if (totalValid > 0) {
-                variant.avgDamage = totalDamage / totalValid;
-                variant.avgScore = totalScore / totalValid;
-            }
-        }
-        //loop again for totals
-        for (MechRuntime variant : knownMechs.values()) {
-            variant.popularityTotal = calculateFraction(variant.getMatchRecords().size(), totalSeenMechs);
-            variant.popularityChassis = calculateFraction(variant.getMatchRecords().size(), totalSeenPerChassis.get(variant.getChassis()));
-            variant.popularityClass = calculateFraction(variant.getMatchRecords().size(), totalSeenPerClass.get(variant.getWeightClass()));
-            variant.popularityFaction = calculateFraction(variant.getMatchRecords().size(), totalSeenPerFaction.get(variant.getFaction()));
-        }
-    }
 
-    private static BigDecimal calculateFraction(int _value, int _total) {
-        if (_total == 0) {
-            return BigDecimal.ZERO;
-        }
-        BigDecimal value = new BigDecimal(_value);
-        BigDecimal total = new BigDecimal(_total);
-        BigDecimal fraction = value.divide(total, 3, BigDecimal.ROUND_HALF_UP).multiply(BigDecimal.valueOf(100)).setScale(1);
-        return fraction;
     }
 
     public static Map<String, Set<MechRuntime>> getMechsPerChassis() {
@@ -233,6 +172,21 @@ public class MechRuntime {
             Logger.log("changed mech: " + mech + "-->" + guess);
         }
         return guess;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        MechRuntime that = (MechRuntime) o;
+
+        return shortName.equals(that.shortName);
+    }
+
+    @Override
+    public int hashCode() {
+        return shortName.hashCode();
     }
 
     public BigDecimal getPopularityFaction() {
@@ -331,5 +285,15 @@ public class MechRuntime {
     public BigDecimal getScorePerTon() {
         double ret = (double) avgScore / (double) tons;
         return new BigDecimal(ret).setScale(2, BigDecimal.ROUND_HALF_UP);
+    }
+
+    public Map<StatType, String> getDerivedValues() {
+        Map<StatType, String> mechStats = new HashMap<>(5);
+        mechStats.put(StatType.MECH_CHASSIS, getChassis());
+        mechStats.put(StatType.MECH_CLASS, getWeightClass());
+        mechStats.put(StatType.MECH_FACTION, getFaction());
+        mechStats.put(StatType.MECH_TONS, "" + getTons());
+        mechStats.put(StatType.MECH_VARIANT, getShortName());
+        return mechStats;
     }
 }

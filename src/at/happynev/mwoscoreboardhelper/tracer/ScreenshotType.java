@@ -56,4 +56,19 @@ public enum ScreenshotType {
         }
         return UNDEFINED;
     }
+
+    @Override
+    public String toString() {
+        switch (this) {
+            case QP_1PREPARATION:
+                return "Quickplay Drop preparation";
+            case QP_3REWARDS:
+                return "Quickplay Match Rewards";
+            case QP_4SUMMARY:
+                return "Quickplay Match Summary";
+            case UNDEFINED:
+                return "Unrecognized Screenshot";
+        }
+        return "undefined";
+    }
 }

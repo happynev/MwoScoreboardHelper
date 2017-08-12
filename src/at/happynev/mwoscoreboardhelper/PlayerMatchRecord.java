@@ -1,28 +1,28 @@
 package at.happynev.mwoscoreboardhelper;
 
+import at.happynev.mwoscoreboardhelper.stat.StatType;
 import at.happynev.mwoscoreboardhelper.tracer.PlayerInfoTracer;
 import at.happynev.mwoscoreboardhelper.tracer.TraceHelpers;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * Created by Nev on 20.01.2017.
  */
 public class PlayerMatchRecord {
+    private final static Map<PlayerMatchRecord, PlayerMatchRecord> allRecords = new HashMap<>();
     private final int playerId;
     private final boolean isEnemy;
     private final boolean isWinner;
     private final boolean isLoser;
     private final long timestamp;
-    private final Map<MatchStat, String> matchValues = new TreeMap<>();
+    private final Map<StatType, String> matchValues = new TreeMap<>();
     private int matchId;
 
-    public PlayerMatchRecord(int playerId, int matchId) throws Exception {
+    private PlayerMatchRecord(int playerId, int matchId) throws IllegalArgumentException, SQLException {
         this.playerId = playerId;
         this.matchId = matchId;
         PreparedStatement prep = DbHandler.getInstance().prepareStatement(
@@ -43,13 +43,13 @@ public class PlayerMatchRecord {
             isEnemy = rs.getBoolean(8);
             timestamp = rs.getTimestamp(9).getTime();
             String matchResult = rs.getString(10);
-            matchValues.put(MatchStat.MATCHMECH, mech);
-            matchValues.put(MatchStat.MATCHASSISTS, "" + assists);
-            matchValues.put(MatchStat.MATCHDAMAGE, "" + damage);
-            matchValues.put(MatchStat.MATCHKILLS, "" + kills);
-            matchValues.put(MatchStat.MATCHPING, "" + ping);
-            matchValues.put(MatchStat.MATCHSCORE, "" + matchScore);
-            matchValues.put(MatchStat.MATCHSTATUS, status);
+            matchValues.putAll(MechRuntime.getMechByShortName(mech).getDerivedValues());
+            matchValues.put(StatType.ASSISTS, "" + assists);
+            matchValues.put(StatType.DAMAGE, "" + damage);
+            matchValues.put(StatType.KILLS, "" + kills);
+            matchValues.put(StatType.PING, "" + ping);
+            matchValues.put(StatType.SCORE, "" + matchScore);
+            matchValues.put(StatType.STATUS, status);
             if ("DEFEAT".equals(matchResult)) {
                 isWinner = isEnemy;
                 isLoser = !isWinner;
@@ -61,37 +61,53 @@ public class PlayerMatchRecord {
                 isWinner = false;
                 isLoser = false;
             }
-            //cannot add because of recursion matchValues.put(MatchStat.MATCHTONS, new SimpleStringProperty("" + MechRuntime.getMechByShortName(mech).getTons()));
+            if (isWinner) {
+                matchValues.put(StatType.WINS, "1");
+            } else if (isLoser) {
+                matchValues.put(StatType.LOSSES, "1");
+            }
+            matchValues.put(StatType.MATCHES, "1");
         } else {
-            throw new Exception("Match Record for " + playerId + "/" + matchId + " not found");
+            throw new IllegalArgumentException("Match Record for " + playerId + "/" + matchId + " not found");
         }
         rs.close();
         prep.close();
+        mergePersonalStats();
+        allRecords.put(this, this);
     }
 
-    private PlayerMatchRecord(boolean isEnemy) {
-        playerId = -1;
-        matchId = -1;
-        String mech = MechRuntime.getReferenceMech().getShortName();
+    private PlayerMatchRecord(boolean isEnemy, int playerId, int matchId) {
+        this.playerId = playerId;
+        this.matchId = matchId;
         String status = "DEAD";
         int matchScore = 1000;
         int kills = 10;
         int assists = 10;
         int damage = 1000;
         int ping = 100;
-        int tons = 50;
-        matchValues.put(MatchStat.MATCHMECH, mech);
-        matchValues.put(MatchStat.MATCHASSISTS, "" + assists);
-        matchValues.put(MatchStat.MATCHDAMAGE, "" + damage);
-        matchValues.put(MatchStat.MATCHKILLS, "" + kills);
-        matchValues.put(MatchStat.MATCHPING, "" + ping);
-        matchValues.put(MatchStat.MATCHSCORE, "" + matchScore);
-        matchValues.put(MatchStat.MATCHSTATUS, status);
-        matchValues.put(MatchStat.MATCHTONS, "" + tons);
+        matchValues.putAll(MechRuntime.getReferenceMech().getDerivedValues());
+        matchValues.put(StatType.ASSISTS, "" + assists);
+        matchValues.put(StatType.DAMAGE, "" + damage);
+        matchValues.put(StatType.KILLS, "" + kills);
+        matchValues.put(StatType.PING, "" + ping);
+        matchValues.put(StatType.SCORE, "" + matchScore);
+        matchValues.put(StatType.STATUS, status);
         this.isEnemy = isEnemy;
         this.isWinner = true;
         this.isLoser = false;
+        if (isWinner) {
+            matchValues.put(StatType.WINS, "1");
+        } else if (isLoser) {
+            matchValues.put(StatType.LOSSES, "1");
+        }
+        matchValues.put(StatType.MATCHES, "1");
         timestamp = 0;
+        try {
+            mergePersonalStats();
+        } catch (Exception e) {
+            Logger.log("failed to merge personal stats");
+            Logger.error(e);
+        }
     }
 
     public PlayerMatchRecord(PlayerRuntime player, PlayerInfoTracer info, MatchRuntime match, boolean isEnemy) throws IllegalArgumentException, SQLException {
@@ -112,14 +128,13 @@ public class PlayerMatchRecord {
         int ping = info.getPing();
         timestamp = match.getTimestamp();
         this.isEnemy = isEnemy;
-        matchValues.put(MatchStat.MATCHMECH, mech);
-        matchValues.put(MatchStat.MATCHASSISTS, "" + assists);
-        matchValues.put(MatchStat.MATCHDAMAGE, "" + damage);
-        matchValues.put(MatchStat.MATCHKILLS, "" + kills);
-        matchValues.put(MatchStat.MATCHPING, "" + ping);
-        matchValues.put(MatchStat.MATCHSCORE, "" + matchScore);
-        matchValues.put(MatchStat.MATCHSTATUS, status);
-        matchValues.put(MatchStat.MATCHTONS, "" + MechRuntime.getMechByShortName(mech).getTons());
+        matchValues.putAll(MechRuntime.getMechByShortName(mech).getDerivedValues());
+        matchValues.put(StatType.ASSISTS, "" + assists);
+        matchValues.put(StatType.DAMAGE, "" + damage);
+        matchValues.put(StatType.KILLS, "" + kills);
+        matchValues.put(StatType.PING, "" + ping);
+        matchValues.put(StatType.SCORE, "" + matchScore);
+        matchValues.put(StatType.STATUS, status);
         String matchResult = match.getMatchResult();
         if ("DEFEAT".equals(matchResult)) {
             isWinner = isEnemy;
@@ -132,25 +147,87 @@ public class PlayerMatchRecord {
             isWinner = false;
             isLoser = false;
         }
+        if (isWinner) {
+            matchValues.put(StatType.WINS, "1");
+        } else if (isLoser) {
+            matchValues.put(StatType.LOSSES, "1");
+        }
+        matchValues.put(StatType.MATCHES, "1");
+        mergePersonalStats();
+        allRecords.put(this, this);
+    }
+
+    public static synchronized Set<PlayerMatchRecord> getAllRecords() {
+        if (allRecords.isEmpty()) {
+            Logger.log("loading all matchrecords");
+            try {
+                PreparedStatement loadPmr = DbHandler.getInstance().prepareStatement("select player_data_id,match_data_id from player_matchdata");
+                ResultSet rs = loadPmr.executeQuery();
+                while (rs.next()) {
+                    PlayerMatchRecord instance = new PlayerMatchRecord(rs.getInt(1), rs.getInt(2));
+                    allRecords.put(instance, instance);
+                }
+                rs.close();
+                loadPmr.close();
+                Logger.log("loading all " + allRecords.size() + " matchrecords finished");
+            } catch (Exception e) {
+                Logger.alertPopup("loading all matchrecords FAILED");
+                Logger.error(e);
+            }
+        }
+        return allRecords.keySet();
+    }
+
+    public static PlayerMatchRecord getInstance(int playerId, int matchId) throws Exception {
+        getAllRecords();
+        PlayerMatchRecord compareDummy = getCompareDummy(playerId, matchId);
+        if (allRecords.keySet().contains(compareDummy)) {
+            return allRecords.get(compareDummy);
+        } else {
+            return new PlayerMatchRecord(playerId, matchId);
+        }
+    }
+
+    private static PlayerMatchRecord getCompareDummy(int playerId, int matchId) {
+        return new PlayerMatchRecord(false, playerId, matchId);
     }
 
     public static PlayerMatchRecord getReferenceRecord(boolean isEnemy) {
-        return new PlayerMatchRecord(isEnemy);
+        return new PlayerMatchRecord(isEnemy, -1, -1);
     }
 
-    public void saveData(int matchId) throws SQLException {
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PlayerMatchRecord that = (PlayerMatchRecord) o;
+
+        if (playerId != that.playerId) return false;
+        return matchId == that.matchId;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = playerId;
+        result = 31 * result + matchId;
+        return result;
+    }
+
+    public void saveData(int matchId) throws IllegalArgumentException, SQLException {
+        //matchId provided externally because it may have changed because of duplicate match detection
         this.matchId = matchId;
         try {
             PreparedStatement prep = DbHandler.getInstance().prepareStatement("insert into player_matchdata(player_data_id,match_data_id,mech,status,score,kills,assists,damage,ping,enemy) values(?,?,?,?,?,?,?,?,?,?)");
             prep.setInt(1, playerId);
             prep.setInt(2, matchId);
-            prep.setString(3, matchValues.get(MatchStat.MATCHMECH));
-            prep.setString(4, matchValues.get(MatchStat.MATCHSTATUS));
-            prep.setInt(5, Integer.parseInt(matchValues.get(MatchStat.MATCHSCORE)));
-            prep.setInt(6, Integer.parseInt(matchValues.get(MatchStat.MATCHKILLS)));
-            prep.setInt(7, Integer.parseInt(matchValues.get(MatchStat.MATCHASSISTS)));
-            prep.setInt(8, Integer.parseInt(matchValues.get(MatchStat.MATCHDAMAGE)));
-            prep.setInt(9, Integer.parseInt(matchValues.get(MatchStat.MATCHPING)));
+            prep.setString(3, matchValues.get(StatType.MECH_VARIANT));
+            prep.setString(4, matchValues.get(StatType.STATUS));
+            prep.setInt(5, Integer.parseInt(matchValues.get(StatType.SCORE)));
+            prep.setInt(6, Integer.parseInt(matchValues.get(StatType.KILLS)));
+            prep.setInt(7, Integer.parseInt(matchValues.get(StatType.ASSISTS)));
+            prep.setInt(8, Integer.parseInt(matchValues.get(StatType.DAMAGE)));
+            prep.setInt(9, Integer.parseInt(matchValues.get(StatType.PING)));
             prep.setBoolean(10, this.isEnemy);
             prep.executeUpdate();
         } catch (SQLException e) {
@@ -160,9 +237,21 @@ public class PlayerMatchRecord {
                 throw e;
             }
         }
+        //reload personal stats
+        mergePersonalStats();
     }
 
-    public Map<MatchStat, String> getMatchValues() {
+    public boolean mergePersonalStats() throws IllegalArgumentException, SQLException {
+        try {
+            PersonalMatchRecord pers = new PersonalMatchRecord(playerId, matchId);
+            matchValues.putAll(pers.getMatchValues());
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    public Map<StatType, String> getMatchValues() {
         return matchValues;
     }
 
@@ -174,35 +263,36 @@ public class PlayerMatchRecord {
         return isEnemy;
     }
 
-    public String getMech() {
-        return matchValues.get(MatchStat.MATCHMECH);
+    public MechRuntime getMech() {
+        return MechRuntime.getMechByShortName(matchValues.get(StatType.MECH_VARIANT));
     }
 
     public int getMatchScore() {
-        return Integer.parseInt(matchValues.get(MatchStat.MATCHSCORE));
+        return Integer.parseInt(matchValues.get(StatType.SCORE));
     }
 
     public int getKills() {
-        return Integer.parseInt(matchValues.get(MatchStat.MATCHKILLS));
+        return Integer.parseInt(matchValues.get(StatType.KILLS));
     }
 
     public int getAssists() {
-        return Integer.parseInt(matchValues.get(MatchStat.MATCHASSISTS));
+        return Integer.parseInt(matchValues.get(StatType.ASSISTS));
     }
 
     public int getDamage() {
-        return Integer.parseInt(matchValues.get(MatchStat.MATCHDAMAGE));
+        return Integer.parseInt(matchValues.get(StatType.DAMAGE));
     }
 
     public String getStatus() {
-        return matchValues.get(MatchStat.MATCHSTATUS);
+        return matchValues.get(StatType.STATUS);
     }
 
     public int getPing() {
-        return Integer.parseInt(matchValues.get(MatchStat.MATCHPING));
+        return Integer.parseInt(matchValues.get(StatType.PING));
     }
 
     public void delete() throws SQLException {
+        allRecords.remove(this);
         //PreparedStatement prep = DbHandler.getInstance().prepareStatement("delete from player_matchdata where player_data_id=? and match_data_id=?");
         //cascaded from match or player
     }

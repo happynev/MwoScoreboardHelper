@@ -1,22 +1,11 @@
 package at.happynev.mwoscoreboardhelper;
 
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
-import javafx.scene.control.*;
-import javafx.scene.effect.Bloom;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 
-import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -27,8 +16,6 @@ import java.util.*;
  */
 public class PlayerRuntime {
 
-    static final Insets DATA_INSETS = new Insets(2, 5, 2, 5);
-    private static final Insets PLAYER_INSETS = new Insets(0, 10, 0, 10);
     private static Map<String, PlayerRuntime> playersByName = new HashMap<>();
     private static Map<Integer, PlayerRuntime> playersById = new HashMap<>();
     private final int id;
@@ -41,13 +28,10 @@ public class PlayerRuntime {
     private final SimpleStringProperty icon = new SimpleStringProperty("");
     private final SimpleStringProperty shortnote = new SimpleStringProperty("");
     private final ObservableList<PlayerMatchRecord> matchRecords = FXCollections.observableArrayList();
-    private final Map<String, PlayerMechStats> mechStats = new TreeMap<>();
-    private final Map<PlayerStat, String> calculatedValues = new TreeMap<>();
     private int playerNumber = -1;
 
     private PlayerRuntime(int id) {
         this.id = id;
-        setupCalculatedValues();
         refreshDataFromDb();
         initBindings();
     }
@@ -57,7 +41,6 @@ public class PlayerRuntime {
         unit.set("[XXXX]");
         pilotname.set("Mechwarrior12345678901234567890");
         shortnote.set("this is not a real player");
-        setupCalculatedValues();
         matchRecords.add(PlayerMatchRecord.getReferenceRecord(false));
     }
 
@@ -171,97 +154,6 @@ public class PlayerRuntime {
         return ret;
     }
 
-    private static void clickPlayer(MouseEvent event, PlayerRuntime pr) {
-        if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
-            PlayerTabController.getInstance().selectPlayerFromList(pr);
-        }
-    }
-
-    public Control applyPlayerFormat(Control node) {
-        SimpleObjectProperty<Color> frontColor = new SimpleObjectProperty<>(Color.WHITE);
-        SimpleObjectProperty<Color> backColor = new SimpleObjectProperty<>(Color.BLACK);
-        frontColor.bind(guicolor_front);
-        backColor.bind(guicolor_back);
-        ObjectBinding<Background> backBinding = Bindings.createObjectBinding(() -> {
-            BackgroundFill fill = new BackgroundFill(backColor.getValue(), CornerRadii.EMPTY, Insets.EMPTY);
-            return new Background(fill);
-        }, backColor);
-        ObjectBinding<String> textBinding = Bindings.createObjectBinding(() -> "-fx-text-fill:" + Utils.getWebColor(frontColor.get()).replaceAll("0x", "#"), frontColor);
-        node.backgroundProperty().bind(backBinding);
-        GridPane.setFillWidth(node, true);
-        node.setMaxWidth(Double.MAX_VALUE);
-        node.setPadding(PLAYER_INSETS);
-        if (node instanceof Labeled) {
-            Labeled lnode = (Labeled) node;
-            lnode.setFont(new Font(SettingsTabController.getInstance().getFontSize()));
-            lnode.textFillProperty().bind(frontColor);
-        }
-        if (node instanceof TextInputControl) {
-            TextInputControl tnode = (TextInputControl) node;
-            tnode.styleProperty().bind(textBinding);
-            tnode.setFont(new Font(SettingsTabController.getInstance().getFontSize() - 2));
-        }
-        return node;
-    }
-
-    public void addDataToGrid(GridPane parent, int row, MatchRuntime currentMatch) {
-        PlayerMatchRecord thisMatchRecord = currentMatch.getPlayerMatchRecord(this);
-        Label labelUnit = new Label();
-        Label labelName = new Label();
-        TextField textShortNote = new TextField();
-        applyPlayerFormat(labelUnit);
-        applyPlayerFormat(labelName);
-        applyPlayerFormat(textShortNote);
-        labelName.effectProperty().bind(Bindings.when(labelName.hoverProperty()).then(new Bloom(0)).otherwise((Bloom) null));
-        labelName.setTooltip(new Tooltip("Double-click to jump to player tab"));
-        labelName.setOnMouseClicked(event -> clickPlayer(event, this));
-        labelUnit.textProperty().bind(unit);
-        labelName.textProperty().bind(pilotname);
-        Tooltip noteTooltip = new Tooltip();
-        noteTooltip.textProperty().bind(textShortNote.textProperty());
-        textShortNote.textProperty().bindBidirectional(shortnote);
-        textShortNote.setTooltip(noteTooltip);
-        int col = 0;
-        if (SettingsTabController.getInstance().getLayoutShowUnit()) {
-            parent.add(labelUnit, col++, row);
-        }
-        if (SettingsTabController.getInstance().getLayoutShowName()) {
-            ColumnConstraints tmp = GuiUtils.getColumnConstraint(labelName);
-            ColumnConstraints cc = parent.getColumnConstraints().get(col);
-            if (cc.getMinWidth() < tmp.getPrefWidth()) {
-                cc.setMinWidth(tmp.getPrefWidth());
-            }
-            parent.add(labelName, col++, row);
-        }
-        if (SettingsTabController.getInstance().getLayoutShowNote()) {
-            parent.add(textShortNote, col++, row);
-        }
-
-        for (DisplayableStat key : currentMatch.getStatsToDisplay()) {
-            String value = null;
-            if (key instanceof PlayerStat) {
-                value = calculatedValues.get(key);
-            } else if (thisMatchRecord != null && key instanceof MatchStat) {
-                value = thisMatchRecord.getMatchValues().get(key);
-            }
-            if (value == null) {
-                value = new String("x?");
-            }
-            Label l = new Label();
-            applyPlayerFormat(l);
-            l.setText(value);
-            Tooltip tt = new Tooltip();
-            tt.setText(value);
-            l.setTooltip(tt);
-            ColumnConstraints tmp = GuiUtils.getColumnConstraint(l);
-            ColumnConstraints cc = parent.getColumnConstraints().get(col);
-            if (cc.getPrefWidth() < tmp.getPrefWidth()) {
-                cc.setPrefWidth(tmp.getPrefWidth());
-            }
-            parent.add(l, col++, row);
-        }
-    }
-
     public int mergeInto(PlayerRuntime orig) {
         try {
             PreparedStatement prep = DbHandler.getInstance().prepareStatement("update player_matchdata set player_data_id=? where player_data_id=?");
@@ -305,10 +197,6 @@ public class PlayerRuntime {
         this.playerNumber = playerNumber;
     }
 
-    public Map<PlayerStat, String> getCalculatedValues() {
-        return calculatedValues;
-    }
-
     public ObservableList<PlayerMatchRecord> getMatchRecords() {
         if (matchRecords.size() == 0) {
             //lazy load
@@ -317,24 +205,15 @@ public class PlayerRuntime {
         return matchRecords;
     }
 
-    public Map<String, PlayerMechStats> getMechStats() {
-        if (mechStats.size() == 0) {
-            //lazy load
-            reloadMatchRecordsFromDb();
-        }
-        return mechStats;
-    }
-
     private synchronized void reloadMatchRecordsFromDb() {
         try {
             PreparedStatement prepRecords = DbHandler.getInstance().prepareStatement("select match_data_id from player_matchdata where player_data_id=?");
             prepRecords.setInt(1, this.id);
             ResultSet rsRecords = prepRecords.executeQuery();
             ObservableList<PlayerMatchRecord> tmp = FXCollections.observableArrayList();
-            mechStats.clear();
             while (rsRecords.next()) {
                 int matchId = rsRecords.getInt(1);
-                PlayerMatchRecord pmr = new PlayerMatchRecord(this.id, matchId);
+                PlayerMatchRecord pmr = PlayerMatchRecord.getInstance(this.id, matchId);
                 tmp.add(pmr);
             }
             rsRecords.close();
@@ -472,207 +351,7 @@ public class PlayerRuntime {
         }
     }
 
-    private void setupCalculatedValues() {
-        initPlayerStatCollection(calculatedValues);
-        matchRecords.addListener((ListChangeListener<? super PlayerMatchRecord>) c -> {
-            //Utils.log("recalc values for " + pilotname.get());
-            List<PlayerMatchRecord> addedSubList = new ArrayList<>();
-            while (c.next()) {
-                addedSubList.addAll(c.getAddedSubList());
-            }
-            calculatePmrCollection(matchRecords, calculatedValues, addedSubList);
-            for (PlayerMatchRecord pmr : addedSubList) {
-                PlayerMechStats mechstat = mechStats.get(pmr.getMech());
-                if (mechstat == null) {
-                    mechstat = new PlayerMechStats(pmr.getMech());
-                    mechStats.put(pmr.getMech(), mechstat);
-                }
-                mechstat.addMatchRecord(pmr);
-            }
-        });
-    }
-
-    private void initPlayerStatCollection(Map<PlayerStat, String> col) {
-        final String favMechs = "?";
-        final String bestMechs = "?";
-        final String timesSeen = "?";
-        final String timesFinished = "?";
-        final String avgDamage = "?";
-        final String avgScore = "?";
-        final String avgKills = "?";
-        final String avgAssists = "?";
-        final String survivalRate = "?";
-        final String kdr = "?";
-        final String wlr = "?";
-        col.clear();
-        col.put(PlayerStat.FAVMECHS, favMechs);
-        col.put(PlayerStat.BESTMECHS, bestMechs);
-        col.put(PlayerStat.TIMESSEEN, timesSeen);
-        col.put(PlayerStat.TIMESFINISHED, timesFinished);
-        col.put(PlayerStat.AVGDAMAGE, avgDamage);
-        col.put(PlayerStat.AVGSCORE, avgScore);
-        col.put(PlayerStat.AVGKILLS, avgKills);
-        col.put(PlayerStat.SURVIVAL, survivalRate);
-        col.put(PlayerStat.AVGASSISTS, avgAssists);
-        col.put(PlayerStat.KDR, kdr);
-        col.put(PlayerStat.WLR, wlr);
-    }
-
-    private void calculatePmrCollection(Collection<PlayerMatchRecord> pmrs, Map<PlayerStat, String> resultValues, List<PlayerMatchRecord> addedSubList) {
-        int totalDamage = 0;
-        int totalScore = 0;
-        int totalAlive = 0;
-        int totalKills = 0;
-        int totalAssists = 0;
-        int totalValidMatches = 0;
-        int totalWins = 0;
-        int totalLosses = 0;
-        Map<String, Integer> mechsSeen = new TreeMap<>();
-        Map<String, List<Integer>> mechScores = new HashMap<>();
-        Map<String, Integer> mechWins = new HashMap();
-        Map<String, Integer> mechLosses = new HashMap();
-        for (PlayerMatchRecord mr : pmrs) {
-            boolean isValidMatch = mr.getPing() > 0;
-            if (isValidMatch) {
-                totalValidMatches++;
-                totalScore += mr.getMatchScore();
-                totalDamage += mr.getDamage();
-                totalAssists += mr.getAssists();
-                totalKills += mr.getKills();
-                if (mr.getStatus().equals("ALIVE")) totalAlive++;
-                if (mr.isWinner()) {
-                    totalWins++;
-                    Integer mw = mechWins.get(mr.getMech());
-                    if (mw == null) {
-                        mw = 0;
-                    }
-                    mw += 1;
-                    mechWins.put(mr.getMech(), mw);
-                }
-                if (mr.isLoser()) {
-                    totalLosses++;
-                    Integer ml = mechLosses.get(mr.getMech());
-                    if (ml == null) {
-                        ml = 0;
-                    }
-                    ml += 1;
-                    mechLosses.put(mr.getMech(), ml);
-                }
-            }
-            if (mr.getMech() != null && !mr.getMech().isEmpty()) {
-                Integer seen = mechsSeen.get(mr.getMech());
-                List<Integer> mechScore = mechScores.get(mr.getMech());
-                if (seen == null) {
-                    seen = 0;
-                }
-                if (mechScore == null) {
-                    mechScore = new ArrayList<>();
-                    mechScores.put(mr.getMech(), mechScore);
-                }
-                mechsSeen.put(mr.getMech(), seen + 1);
-                if (isValidMatch) {
-                    mechScore.add(mr.getMatchScore());
-                }
-            }
-        }
-        Map<String, Integer> mechAvgScores = new HashMap();
-        for (Map.Entry<String, List<Integer>> e : mechScores.entrySet()) {
-            double totalMechScore = 0;
-            for (Integer s : e.getValue()) {
-                totalMechScore += s;
-            }
-            double davgScore = totalMechScore / (double) e.getValue().size();
-            mechAvgScores.put(e.getKey(), (int) davgScore);
-        }
-        if (totalValidMatches > 0) {
-            int iAvgScore = (int) ((double) totalScore / (double) totalValidMatches);
-            int iTotalDamage = (int) ((double) totalDamage / (double) totalValidMatches);
-            resultValues.put(PlayerStat.AVGDAMAGE, "" + iTotalDamage);
-            resultValues.put(PlayerStat.AVGSCORE, "" + iAvgScore);
-            String assists = new BigDecimal((double) totalAssists / (double) totalValidMatches).setScale(1, BigDecimal.ROUND_HALF_UP).toPlainString();
-            String kills = new BigDecimal((double) totalKills / (double) totalValidMatches).setScale(1, BigDecimal.ROUND_HALF_UP).toPlainString();
-            int totalDead = totalValidMatches - totalAlive;
-            resultValues.put(PlayerStat.KDR, getRatio(totalKills, totalDead));
-            resultValues.put(PlayerStat.WLR, getRatio(totalWins, totalLosses));
-            resultValues.put(PlayerStat.AVGKILLS, kills);
-            resultValues.put(PlayerStat.AVGASSISTS, assists);
-            String aliveRatio = new BigDecimal((double) totalAlive / (double) totalValidMatches).multiply(new BigDecimal(100)).setScale(0, BigDecimal.ROUND_HALF_UP).toPlainString();
-            resultValues.put(PlayerStat.SURVIVAL, aliveRatio + "%");
-
-            for (PlayerMatchRecord pmr : addedSubList) {
-                String mech = pmr.getMech();
-                if (mechLosses.containsKey(mech) || mechWins.containsKey(mech)) {
-                    pmr.getMatchValues().put(MatchStat.MATCHMECHWLR, getRatio(mechWins.get(mech), mechLosses.get(mech)));
-                }
-                if (mechAvgScores.keySet().contains(mech)) {
-                    int mechavg = mechAvgScores.get(mech);
-                    if (mechavg > 0) {
-                        String mechperf = new BigDecimal((double) pmr.getMatchScore() / (double) mechavg).multiply(new BigDecimal(100)).setScale(0, BigDecimal.ROUND_HALF_UP).toPlainString();
-                        pmr.getMatchValues().put(MatchStat.MATCHMECHPERF, mechperf + "%");
-                    } else {
-                        pmr.getMatchValues().put(MatchStat.MATCHMECHPERF, "x0%");
-                    }
-                } else {
-                    //Logger.log("no avg for " + pmr.getMech());
-                }
-                if (iAvgScore > 0) {
-                    String perf = new BigDecimal((double) pmr.getMatchScore() / (double) iAvgScore).multiply(new BigDecimal(100)).setScale(0, BigDecimal.ROUND_HALF_UP).toPlainString();
-                    pmr.getMatchValues().put(MatchStat.MATCHPERF, perf + "%");
-                } else {
-                    pmr.getMatchValues().put(MatchStat.MATCHPERF, "x%");
-                }
-            }
-        }
-        List<Map.Entry<String, Integer>> favMechSorted = sortByValue(mechsSeen);
-        List<Map.Entry<String, Integer>> bestMechSorted = sortByValue(mechAvgScores);
-        resultValues.put(PlayerStat.FAVMECHS, appendTopEntries(favMechSorted, 5));
-        resultValues.put(PlayerStat.BESTMECHS, appendTopEntries(bestMechSorted, 5));
-        resultValues.put(PlayerStat.TIMESSEEN, "" + pmrs.size());
-        resultValues.put(PlayerStat.TIMESFINISHED, "" + totalValidMatches);
-    }
-
     public void removeMatchRecord(int oldMatchId) {
         matchRecords.removeIf(pmr -> pmr.getMatchId() == oldMatchId);
-    }
-
-    private String getRatio(Integer numerator, Integer denominator) {
-        if (numerator == null) {
-            numerator = 0;
-        }
-        if (denominator == null) {
-            denominator = 0;
-        }
-        if (numerator == 0 && denominator == 0) {
-            return "N/A";
-        }
-        if (denominator > 0) {
-            return new BigDecimal(numerator.doubleValue() / denominator.doubleValue()).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString();
-        } else {
-            return new BigDecimal(numerator).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString();
-        }
-    }
-
-    public class PlayerMechStats {
-        private final MechRuntime mech;
-        private final Set<PlayerMatchRecord> matches = new HashSet<>();
-        private final Map<PlayerStat, String> stats = new HashMap<>();
-
-        public PlayerMechStats(String mechname) {
-            mech = MechRuntime.getMechByShortName(mechname);
-            initPlayerStatCollection(stats);
-        }
-
-        public MechRuntime getMech() {
-            return mech;
-        }
-
-        public Map<PlayerStat, String> getStats() {
-            return stats;
-        }
-
-        public void addMatchRecord(PlayerMatchRecord pmr) {
-            matches.add(pmr);
-            calculatePmrCollection(matches, stats, new ArrayList<>(0));
-        }
     }
 }
