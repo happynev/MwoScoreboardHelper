@@ -756,24 +756,23 @@ public class MatchRuntime {
 
         int line = 0;
         grid.add(new Group(labelTeam), 1, 0);
-        if (matchFinished) {
-            VBox columnEnemy = new VBox();
-            VBox columnTotal = new VBox();
-            Label labelEnemy = new Label("Your Enemy");
-            labelEnemy.setStyle(GuiUtils.styleEnemy);
-            labelEnemy.setFont(fontHeader);
-            labelEnemy.setPadding(GuiUtils.DATA_INSETS);
-            labelEnemy.setRotate(90);
-            //
-            Label labelDummy = new Label("");
-            labelDummy.setStyle(GuiUtils.styleNeutral);
-            labelDummy.setFont(fontHeader);
-            labelDummy.setPadding(GuiUtils.DATA_INSETS);
-            columnTitles.getChildren().add(labelDummy);
+        VBox columnEnemy = new VBox();
+        VBox columnTotal = new VBox();
+        Label labelEnemy = new Label("Your Enemy");
+        labelEnemy.setStyle(GuiUtils.styleEnemy);
+        labelEnemy.setFont(fontHeader);
+        labelEnemy.setPadding(GuiUtils.DATA_INSETS);
+        labelEnemy.setRotate(90);
+        //
+        Label labelDummy = new Label("");
+        labelDummy.setStyle(GuiUtils.styleNeutral);
+        labelDummy.setFont(fontHeader);
+        labelDummy.setPadding(GuiUtils.DATA_INSETS);
+        columnTitles.getChildren().add(labelDummy);
 
-            columnEnemy.getChildren().add(new Group(labelEnemy));
-            grid.add(new Group(labelEnemy), 2, 0);
-        }
+        columnEnemy.getChildren().add(new Group(labelEnemy));
+        grid.add(new Group(labelEnemy), 2, 0);
+
         line++;
         for (CustomizableStatTemplate stat : getStatsToDisplay(StatTable.WATCHER_SIDEBAR)) {
             CustomizableStatRuntime team = stat.getRuntimeInstance(PlayerMatchRecord.getReferenceRecord(false, id));

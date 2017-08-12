@@ -45,23 +45,25 @@ public class GuiUtils {
         grid.getChildren().clear();
         grid.getColumnConstraints().clear();
         int col = 0;
-        if (SettingsTabController.getInstance().getLayoutShowUnit()) {
-            Label labelUnit = applyHeaderFormat(new Label("Unit"), null);
-            grid.getColumnConstraints().add(getColumnConstraint(labelUnit));
-            labelUnit.setTooltip(new Tooltip(labelUnit.getText()));
-            grid.add(labelUnit, col++, 0);
-        }
-        if (SettingsTabController.getInstance().getLayoutShowName()) {
-            Label labelPilotname = applyHeaderFormat(new Label("Pilot Name"), null);
-            grid.getColumnConstraints().add(getColumnConstraint(labelPilotname));
-            labelPilotname.setTooltip(new Tooltip(labelPilotname.getText()));
-            grid.add(labelPilotname, col++, 0);
-        }
-        if (SettingsTabController.getInstance().getLayoutShowNote()) {
-            Label labelShortnote = applyHeaderFormat(new Label("Short Note"), null);
-            grid.getColumnConstraints().add(getColumnConstraint(labelShortnote));
-            labelShortnote.setTooltip(new Tooltip(labelShortnote.getText()));
-            grid.add(labelShortnote, col++, 0);
+        if (table != StatTable.WATCHER_PERSONAL) {
+            if (SettingsTabController.getInstance().getLayoutShowUnit()) {
+                Label labelUnit = applyHeaderFormat(new Label("Unit"), null);
+                grid.getColumnConstraints().add(getColumnConstraint(labelUnit));
+                labelUnit.setTooltip(new Tooltip(labelUnit.getText()));
+                grid.add(labelUnit, col++, 0);
+            }
+            if (SettingsTabController.getInstance().getLayoutShowName()) {
+                Label labelPilotname = applyHeaderFormat(new Label("Pilot Name"), null);
+                grid.getColumnConstraints().add(getColumnConstraint(labelPilotname));
+                labelPilotname.setTooltip(new Tooltip(labelPilotname.getText()));
+                grid.add(labelPilotname, col++, 0);
+            }
+            if (SettingsTabController.getInstance().getLayoutShowNote()) {
+                Label labelShortnote = applyHeaderFormat(new Label("Short Note"), null);
+                grid.getColumnConstraints().add(getColumnConstraint(labelShortnote));
+                labelShortnote.setTooltip(new Tooltip(labelShortnote.getText()));
+                grid.add(labelShortnote, col++, 0);
+            }
         }
         for (CustomizableStatTemplate key : match.getStatsToDisplay(table)) {
             Label label = applyHeaderFormat(new Label(key.getShortName()), key);
@@ -120,37 +122,39 @@ public class GuiUtils {
 
     public static void addDataToGrid(GridPane parent, int row, MatchRuntime match, PlayerRuntime player, StatTable table) {
         PlayerMatchRecord thisMatchRecord = match.getPlayerMatchRecord(player);
-        Label labelUnit = new Label();
-        Label labelName = new Label();
-        TextField textShortNote = new TextField();
-        applyPlayerFormat(labelUnit, player);
-        applyPlayerFormat(labelName, player);
-        applyPlayerFormat(textShortNote, player);
-        labelName.effectProperty().bind(Bindings.when(labelName.hoverProperty()).then(new Bloom(0)).otherwise((Bloom) null));
-        labelName.setTooltip(new Tooltip("Double-click to jump to player tab"));
-        labelName.setOnMouseClicked(event -> clickPlayer(event, player));
-        labelUnit.textProperty().bind(player.unitProperty());
-        labelName.textProperty().bind(player.pilotnameProperty());
-        Tooltip noteTooltip = new Tooltip();
-        noteTooltip.textProperty().bind(textShortNote.textProperty());
-        textShortNote.textProperty().bindBidirectional(player.shortnoteProperty());
-        textShortNote.setTooltip(noteTooltip);
         int col = 0;
-        if (SettingsTabController.getInstance().getLayoutShowUnit()) {
-            parent.add(labelUnit, col++, row);
-        }
-        if (SettingsTabController.getInstance().getLayoutShowName()) {
-            ColumnConstraints tmp = GuiUtils.getColumnConstraint(labelName);
-            ColumnConstraints cc = parent.getColumnConstraints().get(col);
-            if (cc.getMinWidth() < tmp.getPrefWidth()) {
-                cc.setMinWidth(tmp.getPrefWidth());
-            }
-            parent.add(labelName, col++, row);
-        }
-        if (SettingsTabController.getInstance().getLayoutShowNote()) {
-            parent.add(textShortNote, col++, row);
-        }
+        if (table != StatTable.WATCHER_PERSONAL) {
+            Label labelUnit = new Label();
+            Label labelName = new Label();
+            TextField textShortNote = new TextField();
+            applyPlayerFormat(labelUnit, player);
+            applyPlayerFormat(labelName, player);
+            applyPlayerFormat(textShortNote, player);
 
+            labelName.effectProperty().bind(Bindings.when(labelName.hoverProperty()).then(new Bloom(0)).otherwise((Bloom) null));
+            labelName.setTooltip(new Tooltip("Double-click to jump to player tab"));
+            labelName.setOnMouseClicked(event -> clickPlayer(event, player));
+            labelUnit.textProperty().bind(player.unitProperty());
+            labelName.textProperty().bind(player.pilotnameProperty());
+            Tooltip noteTooltip = new Tooltip();
+            noteTooltip.textProperty().bind(textShortNote.textProperty());
+            textShortNote.textProperty().bindBidirectional(player.shortnoteProperty());
+            textShortNote.setTooltip(noteTooltip);
+            if (SettingsTabController.getInstance().getLayoutShowUnit()) {
+                parent.add(labelUnit, col++, row);
+            }
+            if (SettingsTabController.getInstance().getLayoutShowName()) {
+                ColumnConstraints tmp = GuiUtils.getColumnConstraint(labelName);
+                ColumnConstraints cc = parent.getColumnConstraints().get(col);
+                if (cc.getMinWidth() < tmp.getPrefWidth()) {
+                    cc.setMinWidth(tmp.getPrefWidth());
+                }
+                parent.add(labelName, col++, row);
+            }
+            if (SettingsTabController.getInstance().getLayoutShowNote()) {
+                parent.add(textShortNote, col++, row);
+            }
+        }
         for (CustomizableStatTemplate stat : match.getStatsToDisplay(table)) {
             CustomizableStatRuntime statRuntime = stat.getRuntimeInstance(thisMatchRecord);
             String value = statRuntime.getValue();
