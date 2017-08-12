@@ -13,6 +13,8 @@ import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
@@ -29,6 +31,7 @@ import java.util.Map;
  */
 public class SettingsTabController {
     public final static String EMPTY = "~empty~";
+    private final static Font fontHeader = Font.font("System", FontWeight.BOLD, 20);
     private static final Map<String, Boolean> statsToDisplay = new HashMap<>();
     private static SettingsTabController instance;
     @FXML
@@ -318,6 +321,7 @@ public class SettingsTabController {
         row++;
         for (ScreenshotType sstype : Arrays.asList(ScreenshotType.QP_1PREPARATION, ScreenshotType.QP_4SUMMARY)) {
             Label labelSsType = new Label("On " + sstype.toString() + ":");
+            labelSsType.setFont(fontHeader);
             grid.add(labelSsType, 0, row++, GridPane.REMAINING, 1);
             for (CustomizableStatTemplate stat : StatBuilder.getDefaultStats()) {
                 col = 0;
@@ -331,14 +335,18 @@ public class SettingsTabController {
                     } else {
                         check.setSelected(false);
                     }
-                    check.setTooltip(new Tooltip(stat.getLongName() + " on " + table.toString()));
+                    check.setTooltip(new Tooltip("on " + table.toString()));
                     check.selectedProperty().addListener((observable, oldValue, newValue) -> changeStatDisplay(sstype, stat, table, newValue));
                     grid.add(check, col++, row);
                 }
+                Tooltip statExpl = new Tooltip(stat.getDescription());
                 Label statTitle = new Label(stat.getShortName());
+                statTitle.setTooltip(statExpl);
                 grid.add(statTitle, col++, row);
+
                 Label statDesc = new Label(stat.getLongName());
                 grid.add(statDesc, col++, row);
+                statDesc.setTooltip(statExpl);
                 row++;
             }
         }
@@ -371,10 +379,12 @@ public class SettingsTabController {
         for (ScreenshotType sstype : Arrays.asList(ScreenshotType.QP_1PREPARATION, ScreenshotType.QP_4SUMMARY)) {
             MatchRuntime match = MatchRuntime.getReferenceMatch(sstype);
             Label labelSsType = new Label("Preview for " + sstype.toString());
+            labelSsType.setFont(fontHeader);
             paneStatColumnPreview.getChildren().add(labelSsType);
             for (StatTable table : StatTable.values()) {
                 GridPane pane = new GridPane();
                 Label labelTable = new Label("    Table " + table.toString());
+                labelTable.setFont(fontHeader);
                 paneStatColumnPreview.getChildren().add(labelTable);
                 GuiUtils.prepareGrid(pane, match, table);
                 GuiUtils.addDataToGrid(pane, 1, match, player, table);
@@ -385,8 +395,8 @@ public class SettingsTabController {
 
         if (getLayoutShowStatSummary()) {
             //TODO
-            //paneMatchDataPrepPreview.getChildren().add(matchPrep.getMatchAnalyticsPane());
-            //paneMatchDataPreview.getChildren().add(matchSummary.getMatchAnalyticsPane());
+            //paneMatchDataPrepPreview.getChildren().add(matchPrep.getMatchStatSideBar());
+            //paneMatchDataPreview.getChildren().add(matchSummary.getMatchStatSideBar());
         }
     }
 
