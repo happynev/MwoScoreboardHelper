@@ -29,19 +29,19 @@ public enum RecordFilterType {
             case SELF:
                 return new RecordFilterBySelf();
             case MECHVARIANT:
-                return new RecordFilterByStat(StatType.MECH_VARIANT,parameters);
+                return new RecordFilterByStat(StatType.MECH_VARIANT, parameters);
             case MECHCHASSIS:
-                return new RecordFilterByStat(StatType.MECH_CHASSIS,parameters);
+                return new RecordFilterByStat(StatType.MECH_CHASSIS, parameters);
             case MECHTONS:
-                return new RecordFilterByStat(StatType.MECH_TONS,parameters);
+                return new RecordFilterByStat(StatType.MECH_TONS, parameters);
             case MECHCLASS:
-                return new RecordFilterByStat(StatType.MECH_CLASS,parameters);
+                return new RecordFilterByStat(StatType.MECH_CLASS, parameters);
             case MECHFACTION:
-                return new RecordFilterByStat(StatType.MECH_FACTION,parameters);
+                return new RecordFilterByStat(StatType.MECH_FACTION, parameters);
             case MATCHRECENT:
-                return new RecordFilterNewerThan(30);
+                return new RecordFilterNewerThan(parameters);
             case MATCHOLD:
-                return new RecordFilterOlderThan(30);
+                return new RecordFilterOlderThan(parameters);
             default:
                 throw new UnsupportedOperationException(this.toString() + " not implemented");
         }

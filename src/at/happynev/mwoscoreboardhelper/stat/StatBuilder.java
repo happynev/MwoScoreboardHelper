@@ -20,6 +20,11 @@ public class StatBuilder {
                 .addCalculationStep(RecordFilterType.PLAYER.getInstance())
                 .addCalculationStep(StatAggregatorType.COUNT.getInstance(StatType.MATCHES))
                 .build());
+        defaultStats.add(StatBuilder.newStat("#Today", "Number of records collected for a player in the last 24h")
+                .addCalculationStep(RecordFilterType.PLAYER.getInstance())
+                .addCalculationStep(RecordFilterType.MATCHRECENT.getInstance("1"))
+                .addCalculationStep(StatAggregatorType.COUNT.getInstance(StatType.MATCHES))
+                .build());
         defaultStats.add(StatBuilder.newStat("#MechV", "Number of records collected for a player in this mech variant")
                 .addCalculationStep(RecordFilterType.PLAYER.getInstance())
                 .addCalculationStep(RecordFilterType.MECHVARIANT.getInstance())
