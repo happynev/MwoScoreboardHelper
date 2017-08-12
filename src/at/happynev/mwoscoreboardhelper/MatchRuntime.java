@@ -7,6 +7,7 @@ import at.happynev.mwoscoreboardhelper.stat.StatTable;
 import at.happynev.mwoscoreboardhelper.tracer.*;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
@@ -315,7 +316,7 @@ public class MatchRuntime {
                         } catch (Exception e) {
                             Logger.error(e);
                             Logger.log("using dummy match record for " + pi.getPilotName());
-                            prec = PlayerMatchRecord.getReferenceRecord(isEnemy,-1);
+                            prec = PlayerMatchRecord.getReferenceRecord(isEnemy, -1);
                         }
                         pr.getMatchRecords().add(prec);
                         playerRecords.add(prec);
@@ -374,13 +375,15 @@ public class MatchRuntime {
             }
         });
         //set up duplicate check for when tracing finishes
-        tracingFinished.bind(Bindings.size(playersTeam).isEqualTo(12).and(Bindings.size(playersEnemy).isEqualTo(12)).and(mapDataFinished));
-        startBindingWatchDog(tracingFinished, 300, TRACE_TIMEOUT);
-        tracingFinished.addListener((observable, oldValue, newValue) -> {
+        BooleanProperty internalWorkFinished = new SimpleBooleanProperty(false);
+        internalWorkFinished.bind(Bindings.size(playersTeam).isEqualTo(12).and(Bindings.size(playersEnemy).isEqualTo(12)).and(mapDataFinished));
+        startBindingWatchDog(internalWorkFinished, 300, TRACE_TIMEOUT);
+        internalWorkFinished.addListener((observable, oldValue, newValue) -> {
             Logger.log("tracingfinished:" + newValue);
             if (newValue) {
                 saveOrUpdateMatch();
                 screenshot.archiveFile(id);
+                tracingFinished.set(true);
             }
         });
     }
@@ -773,8 +776,8 @@ public class MatchRuntime {
         }
         line++;
         for (CustomizableStatTemplate stat : getStatsToDisplay(StatTable.WATCHER_SIDEBAR)) {
-            CustomizableStatRuntime team = stat.getRuntimeInstance(PlayerMatchRecord.getReferenceRecord(false,id));
-            CustomizableStatRuntime enemy = stat.getRuntimeInstance(PlayerMatchRecord.getReferenceRecord(true,id));
+            CustomizableStatRuntime team = stat.getRuntimeInstance(PlayerMatchRecord.getReferenceRecord(false, id));
+            CustomizableStatRuntime enemy = stat.getRuntimeInstance(PlayerMatchRecord.getReferenceRecord(true, id));
             buildMatchDataLine(grid, line++, team, enemy);
         }
         grid.add(new Label(), 0, line++, GridPane.REMAINING, 1);
