@@ -59,6 +59,13 @@ public class StatBuilder {
                     .addCalculationStep(RecordFilterType.PLAYER.getInstance())
                     .addCalculationStep(StatAggregatorType.AVERAGE.getInstance(stat))
                     .build());
+        defaultStats.add(StatBuilder.newStat("~CB/MGC", "Average C-Bill rewards for this gamemode on this map with this weightclass")
+                .addCalculationStep(RecordFilterType.PLAYER.getInstance())
+                .addCalculationStep(RecordFilterType.GAMEMODE.getInstance())
+                .addCalculationStep(RecordFilterType.MAP.getInstance())
+                .addCalculationStep(RecordFilterType.MECHCLASS.getInstance())
+                .addCalculationStep(StatAggregatorType.AVERAGE.getInstance(StatType.REWARD_CBILLS))
+                .build());
         defaultStats.add(StatBuilder.newStat("%CB/GM", "Relative C-Bill rewards for this gamemode")
                 .addCalculationStep(RecordFilterType.PLAYER.getInstance())
                 .addCalculationStep(RecordFilterType.GAMEMODE.getInstance())
