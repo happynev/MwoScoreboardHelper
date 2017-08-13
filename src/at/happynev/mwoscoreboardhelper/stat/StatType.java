@@ -28,10 +28,12 @@ public enum StatType implements DisplayableStat {
     REWARD_XP,
     WINS,
     LOSSES,
-    MATCHES;
+    MATCHES,
+    GAMEMODE,
+    MAP;
 
-    private static final Collection<StatType> prepTeamVisible = Arrays.asList(MECH_VARIANT, MECH_TONS, MECH_FACTION, MECH_CHASSIS, MECH_CLASS, PING);
-    private static final Collection<StatType> prepEnemyVisible = Arrays.asList(PING);
+    private static final Collection<StatType> prepTeamVisible = Arrays.asList(MECH_VARIANT, MECH_TONS, MECH_FACTION, MECH_CHASSIS, MECH_CLASS, PING, GAMEMODE, MAP);
+    private static final Collection<StatType> prepEnemyVisible = Arrays.asList(PING, GAMEMODE, MAP);
     private static final Collection<StatType> personal = Arrays.asList(KMDDS, SOLO_KILLS, COMPONENT_DESTROYED, REWARD_CBILLS, REWARD_XP);
 
     public boolean canDisplay(ScreenshotType type, StatTable table) {
@@ -51,11 +53,7 @@ public enum StatType implements DisplayableStat {
                 switch (table) {
                     case WATCHER_PERSONAL:
                         return personal.contains(this);
-                    case WATCHER_TEAM:
-                        return false;
-                    case WATCHER_ENEMY:
-                        return false;
-                    case WATCHER_SIDEBAR:
+                    default:
                         return false;
                 }
             case QP_4SUMMARY:
@@ -136,6 +134,10 @@ public enum StatType implements DisplayableStat {
                 return "Loss";
             case MATCHES:
                 return "Match";
+            case GAMEMODE:
+                return "Mode";
+            case MAP:
+                return "Map";
         }
         return "undefined";
     }
@@ -181,6 +183,10 @@ public enum StatType implements DisplayableStat {
                 return "Match lost";
             case MATCHES:
                 return "Match finished";
+            case GAMEMODE:
+                return "Game Mode";
+            case MAP:
+                return "Map";
         }
         return "undefined";
     }

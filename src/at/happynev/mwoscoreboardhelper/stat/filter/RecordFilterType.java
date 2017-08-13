@@ -16,7 +16,9 @@ public enum RecordFilterType {
     MECHCLASS,
     MECHFACTION,
     MATCHRECENT,
-    MATCHOLD;
+    MATCHOLD,
+    GAMEMODE,
+    MAP;
 
     public RecordFilter getInstance(String... parameters) {
         switch (this) {
@@ -42,6 +44,10 @@ public enum RecordFilterType {
                 return new RecordFilterNewerThan(parameters);
             case MATCHOLD:
                 return new RecordFilterOlderThan(parameters);
+            case GAMEMODE:
+                return new RecordFilterByStat(StatType.GAMEMODE, parameters);
+            case MAP:
+                return new RecordFilterByStat(StatType.MAP, parameters);
             default:
                 throw new UnsupportedOperationException(this.toString() + " not implemented");
         }

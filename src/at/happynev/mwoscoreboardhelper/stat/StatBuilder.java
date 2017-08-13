@@ -59,6 +59,12 @@ public class StatBuilder {
                     .addCalculationStep(RecordFilterType.PLAYER.getInstance())
                     .addCalculationStep(StatAggregatorType.AVERAGE.getInstance(stat))
                     .build());
+        defaultStats.add(StatBuilder.newStat("%CB/GM", "Relative C-Bill rewards for this gamemode")
+                .addCalculationStep(RecordFilterType.PLAYER.getInstance())
+                .addCalculationStep(RecordFilterType.GAMEMODE.getInstance())
+                .addCalculationStep(StatAggregatorType.AVERAGE.getInstance(StatType.REWARD_CBILLS))
+                .addCalculationStep(StatCalculatorType.RELATIVE.getInstance(StatType.REWARD_CBILLS))
+                .build());
         defaultStats.add(StatBuilder.newStat("*TScore", "Team Rank by score")
                 .addCalculationStep(RecordFilterType.MATCH.getInstance())
                 .addCalculationStep(RecordFilterType.TEAM.getInstance())

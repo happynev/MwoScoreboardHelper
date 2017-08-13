@@ -22,7 +22,7 @@ public class PlayerMatchRecord {
     private final Map<StatType, String> matchValues = new TreeMap<>();
     private int matchId;
 
-    private PlayerMatchRecord(int playerId, int matchId, String mech, String status, int matchScore, int kills, int assists, int damage, int ping, boolean isEnemy, long timestamp, String matchResult) {
+    private PlayerMatchRecord(int playerId, int matchId, String mech, String status, int matchScore, int kills, int assists, int damage, int ping, boolean isEnemy, long timestamp, String matchResult, String gameMode, String map) {
         this.playerId = playerId;
         this.matchId = matchId;
         this.timestamp = timestamp;
@@ -33,7 +33,10 @@ public class PlayerMatchRecord {
         matchValues.put(StatType.KILLS, "" + kills);
         matchValues.put(StatType.PING, "" + ping);
         matchValues.put(StatType.SCORE, "" + matchScore);
+        matchValues.put(StatType.GAMEMODE, gameMode);
+        matchValues.put(StatType.MAP, map);
         matchValues.put(StatType.STATUS, status);
+
         if ("DEFEAT".equals(matchResult)) {
             isWinner = isEnemy;
             isLoser = !isWinner;
@@ -108,7 +111,9 @@ public class PlayerMatchRecord {
         int ping = info.getPing();
         long timestamp = match.getTimestamp();
         String matchResult = match.getMatchResult();
-        return new PlayerMatchRecord(playerId, matchId, mech, status, matchScore, kills, assists, damage, ping, isEnemy, timestamp, matchResult);
+        String gameMode = match.getGameMode();
+        String map = match.getMap();
+        return new PlayerMatchRecord(playerId, matchId, mech, status, matchScore, kills, assists, damage, ping, isEnemy, timestamp, matchResult, gameMode, map);
     }
 
     public static synchronized Collection<PlayerMatchRecord> getAllRecords() {
@@ -116,7 +121,8 @@ public class PlayerMatchRecord {
             Logger.log("loading all matchrecords");
             try {
                 PreparedStatement prep = DbHandler.getInstance().prepareStatement(
-                        "select pm.mech,pm.status,pm.score,pm.kills,pm.assists,pm.damage,pm.ping,pm.enemy,m.matchtime,m.matchresult,pm.player_data_id, pm.match_data_id " +
+                        "select pm.mech,pm.status,pm.score,pm.kills,pm.assists,pm.damage,pm.ping,pm.enemy," +
+                                "m.matchtime,m.matchresult,pm.player_data_id, pm.match_data_id, m.gamemode, m.map " +
                                 "from player_matchdata pm, match_data m where pm.match_data_id=m.id");
                 ResultSet rs = prep.executeQuery();
                 while (rs.next()) {
@@ -132,8 +138,10 @@ public class PlayerMatchRecord {
                     String matchResult = rs.getString(10);
                     int playerId = rs.getInt(11);
                     int matchId = rs.getInt(12);
+                    String gameMode = rs.getString(13);
+                    String map = rs.getString(14);
                     //saves itself to allRecords map
-                    new PlayerMatchRecord(playerId, matchId, mech, status, matchScore, kills, assists, damage, ping, isEnemy, timestamp, matchResult);
+                    new PlayerMatchRecord(playerId, matchId, mech, status, matchScore, kills, assists, damage, ping, isEnemy, timestamp, matchResult, gameMode, map);
                 }
                 rs.close();
                 prep.close();
