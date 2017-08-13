@@ -107,11 +107,11 @@ public class StatBuilder {
                 .build());
         defaultStats.add(StatBuilder.newStat("Classes", "Best performing mech classes for this player, sorted by average score")
                 .addCalculationStep(RecordFilterType.PLAYER.getInstance())
-                .addCalculationStep(StatCalculatorType.TOPLISTCLASS.getInstance(StatType.SCORE))
+                .addCalculationStep(StatAggregatorType.TOPLISTCLASS.getInstance(StatType.SCORE))
                 .build());
         defaultStats.add(StatBuilder.newStat("Mechs", "Best performing mechs for a player, sorted by average score")
                 .addCalculationStep(RecordFilterType.PLAYER.getInstance())
-                .addCalculationStep(StatCalculatorType.TOPLISTMECH.getInstance(StatType.SCORE))
+                .addCalculationStep(StatAggregatorType.TOPLISTMECH.getInstance(StatType.SCORE))
                 .build());
         defaultStats.add(StatBuilder.newStat("Total Score", "Total Score per team")
                 .addCalculationStep(RecordFilterType.MATCH.getInstance())

@@ -8,7 +8,9 @@ import at.happynev.mwoscoreboardhelper.stat.StatType;
 public enum StatAggregatorType {
     AVERAGE,
     COUNT,
-    SUM;
+    SUM,
+    TOPLISTMECH,
+    TOPLISTCLASS;
 
     public StatAggregator getInstance(StatType statType) {
         switch (this) {
@@ -18,6 +20,10 @@ public enum StatAggregatorType {
                 return new StatAggregatorCountValid(statType);
             case SUM:
                 return new StatAggregatorSum(statType);
+            case TOPLISTMECH:
+                return new StatAggregatorToplistMechVariant(statType);
+            case TOPLISTCLASS:
+                return new StatAggregatorToplistMechClass(statType);
             default:
                 throw new UnsupportedOperationException(this.toString() + " not implemented");
         }

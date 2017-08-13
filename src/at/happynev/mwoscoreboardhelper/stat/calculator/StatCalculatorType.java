@@ -9,9 +9,7 @@ public enum StatCalculatorType {
     RANKING,
     RAWVALUE,
     RELATIVE,
-    RATIO,
-    TOPLISTMECH,
-    TOPLISTCLASS;
+    RATIO;
 
     public StatCalculator getInstance(StatType statType) {
         switch (this) {
@@ -23,10 +21,6 @@ public enum StatCalculatorType {
                 return new StatCalculatorRelativePercent(statType);
             case RATIO:
                 return new StatCalculatorRatio(statType);
-            case TOPLISTMECH:
-                return new StatCalculatorToplistMechVariant(statType);
-            case TOPLISTCLASS:
-                return new StatCalculatorToplistMechClass(statType);
             default:
                 throw new UnsupportedOperationException(this.toString() + " not implemented");
         }

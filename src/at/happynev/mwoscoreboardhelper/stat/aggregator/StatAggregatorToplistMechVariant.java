@@ -1,9 +1,11 @@
-package at.happynev.mwoscoreboardhelper.stat.calculator;
+package at.happynev.mwoscoreboardhelper.stat.aggregator;
 
 import at.happynev.mwoscoreboardhelper.PlayerMatchRecord;
 import at.happynev.mwoscoreboardhelper.stat.StatTable;
 import at.happynev.mwoscoreboardhelper.stat.StatType;
 import at.happynev.mwoscoreboardhelper.stat.aggregator.StatAggregatorType;
+import at.happynev.mwoscoreboardhelper.stat.calculator.StatCalculator;
+import at.happynev.mwoscoreboardhelper.stat.calculator.StatCalculatorHelpers;
 import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
 
 import java.util.*;
@@ -11,17 +13,17 @@ import java.util.*;
 /**
  * Created by Nev on 29.07.2017.
  */
-public class StatCalculatorToplistMechClass extends StatCalculator {
+public class StatAggregatorToplistMechVariant extends StatAggregator {
     private final StatType statType;
 
-    public StatCalculatorToplistMechClass(StatType statType) {
+    public StatAggregatorToplistMechVariant(StatType statType) {
         this.statType = statType;
     }
 
     @Override
-    public String calculateCurrentValue(Collection<PlayerMatchRecord> records, PlayerMatchRecord currentRecord, String previousValue) {
-        Collection<PlayerMatchRecord> validRecords = StatCalculatorHelpers.filterValidRecords(records, StatType.MECH_CLASS);
-        Map<String, Collection<PlayerMatchRecord>> recordsPerKey = StatCalculatorHelpers.splitByValue(records, StatType.MECH_CLASS);
+    public String aggregateValue(Collection<PlayerMatchRecord> records) {
+        Collection<PlayerMatchRecord> validRecords = StatCalculatorHelpers.filterValidRecords(records, StatType.MECH_VARIANT);
+        Map<String, Collection<PlayerMatchRecord>> recordsPerKey = StatCalculatorHelpers.splitByValue(records, StatType.MECH_VARIANT);
         Map<String, Integer> scorePerKey = new HashMap<>();
         Map<String, Integer> sorted = new TreeMap<>((o1, o2) -> -scorePerKey.get(o1).compareTo(scorePerKey.get(o2)));
         for (String key : recordsPerKey.keySet()) {
@@ -52,6 +54,6 @@ public class StatCalculatorToplistMechClass extends StatCalculator {
 
     @Override
     public boolean canDisplay(ScreenshotType type, StatTable table) {
-        return true; //historic values only
+        return true;//historic values only
     }
 }
