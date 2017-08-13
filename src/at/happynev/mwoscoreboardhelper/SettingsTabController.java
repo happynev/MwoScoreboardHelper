@@ -267,7 +267,8 @@ public class SettingsTabController {
         buttonFixOldData.setOnAction(event -> {
             int mechs = fixMechReferences();
             int status = fixPlayerStatus();
-            Logger.infoPopup("Fixed " + mechs + " Mech references and " + status + " Player Status records");
+            int personal = fixPlayerStatusPersonal();
+            Logger.infoPopup("Fixed " + mechs + " Mech references and " + status + " Player Status records and " + personal + " personal status records");
         });
         sliderFontSize.setValue(Double.parseDouble(loadSetting("fontSize", "16")));
         //set changelisteners
@@ -352,6 +353,37 @@ public class SettingsTabController {
         paneStatColumnSelection.getChildren().add(grid);
         refreshPreviews();
         WatcherTabController.getInstance().setSettingsLoaded(true);
+    }
+
+    private int fixPlayerStatusPersonal() {
+        //old traces used to identify the , in cbill_rewards 123,456 as an extra digit, reading 1233456
+        int fixed = 0;
+        try {
+            PreparedStatement prepFind = DbHandler.getInstance().prepareStatement("select player_data_id,match_data_id, reward_cbills,reward_cbills / (reward_xp+1) from personal_matchdata");
+            PreparedStatement prepFix = DbHandler.getInstance().prepareStatement("update personal_matchdata set reward_cbills=? where player_data_id=? and match_data_id=?");
+            ResultSet rs = prepFind.executeQuery();
+            while (rs.next()) {
+                int id1 = rs.getInt(1);
+                int id2 = rs.getInt(2);
+                int cbills = rs.getInt(3);
+                int ratio = rs.getInt(4);
+                if (cbills > 200000 && ratio > 500) {
+                    String cbills_fixed = String.valueOf(cbills).replaceAll("^(\\d+)\\d(\\d{3})$", "$1$2");
+                    prepFix.clearParameters();
+                    prepFix.setString(1, cbills_fixed);
+                    prepFix.setInt(2, id1);
+                    prepFix.setInt(3, id2);
+                    prepFix.addBatch();
+                    Logger.log("cbills:" + cbills + "-->" + cbills_fixed);
+                }
+            }
+            int[] parts = prepFix.executeBatch();
+            for (int i : parts) fixed += i;
+            rs.close();
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+        return fixed;
     }
 
     private void changeStatDisplay(ScreenshotType sstype, CustomizableStatTemplate stat, StatTable table, boolean newValue) {
