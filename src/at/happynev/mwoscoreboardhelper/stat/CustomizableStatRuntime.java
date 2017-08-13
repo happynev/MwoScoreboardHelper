@@ -29,7 +29,7 @@ public class CustomizableStatRuntime {
             for (StatPipelineStep step : calculationSteps) {
                 currentWorkingSet = step.calculateStep(currentWorkingSet);
             }
-            String value = currentWorkingSet.getCurrentValue();
+            String value = currentWorkingSet.getLastValue();
             stepExplanation.addAll(currentWorkingSet.getExplanation());
             if (value == null) {
                 value = "null?";

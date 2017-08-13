@@ -5,7 +5,6 @@ import at.happynev.mwoscoreboardhelper.stat.StatCalculationWorkingSet;
 import at.happynev.mwoscoreboardhelper.stat.StatPipelineStep;
 
 import java.util.Collection;
-import java.util.Set;
 
 /**
  * Created by Nev on 06.08.2017.
@@ -17,7 +16,7 @@ public abstract class StatAggregator implements StatPipelineStep {
     public StatCalculationWorkingSet calculateStep(StatCalculationWorkingSet input) {
         StatCalculationWorkingSet ret = new StatCalculationWorkingSet(input);
         String value = aggregateValue(input.getRecords());
-        ret.setCurrentValue(value);
+        ret.getResultValues().add(value);
         ret.addStepExplanation(this.getStepDescription() + " --> " + value);
         return ret;
     }

@@ -18,7 +18,8 @@ public enum RecordFilterType {
     MATCHRECENT,
     MATCHOLD,
     GAMEMODE,
-    MAP;
+    MAP,
+    RESET;
 
     public RecordFilter getInstance(String... parameters) {
         switch (this) {
@@ -48,6 +49,8 @@ public enum RecordFilterType {
                 return new RecordFilterByStat(StatType.GAMEMODE, parameters);
             case MAP:
                 return new RecordFilterByStat(StatType.MAP, parameters);
+            case RESET:
+                return new RecordFilterReset();
             default:
                 throw new UnsupportedOperationException(this.toString() + " not implemented");
         }

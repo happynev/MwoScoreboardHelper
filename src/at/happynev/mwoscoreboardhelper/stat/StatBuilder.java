@@ -1,7 +1,8 @@
 package at.happynev.mwoscoreboardhelper.stat;
 
 import at.happynev.mwoscoreboardhelper.stat.aggregator.StatAggregatorType;
-import at.happynev.mwoscoreboardhelper.stat.calculator.StatCalculatorType;
+import at.happynev.mwoscoreboardhelper.stat.calculator.AggregatedStatCalculatorType;
+import at.happynev.mwoscoreboardhelper.stat.calculator.MatchStatCalculatorType;
 import at.happynev.mwoscoreboardhelper.stat.filter.RecordFilterType;
 
 import java.util.ArrayList;
@@ -48,10 +49,32 @@ public class StatBuilder {
                 .addCalculationStep(RecordFilterType.PLAYER.getInstance())
                 .addCalculationStep(StatAggregatorType.COUNT.getInstance(StatType.LOSSES))
                 .build());
+        defaultStats.add(StatBuilder.newStat("W/L", "Win/Loss Ratio for this player")
+                .addCalculationStep(RecordFilterType.PLAYER.getInstance())
+                .addCalculationStep(StatAggregatorType.COUNT.getInstance(StatType.LOSSES))
+                .addCalculationStep(StatAggregatorType.COUNT.getInstance(StatType.WINS))
+                .addCalculationStep(AggregatedStatCalculatorType.RATIO.getInstance())
+                .build());
+        defaultStats.add(StatBuilder.newStat("MW/L", "Win/Loss Raio with this mech")
+                .addCalculationStep(RecordFilterType.PLAYER.getInstance())
+                .addCalculationStep(RecordFilterType.MECHVARIANT.getInstance())
+                .addCalculationStep(StatAggregatorType.COUNT.getInstance(StatType.LOSSES))
+                .addCalculationStep(StatAggregatorType.COUNT.getInstance(StatType.WINS))
+                .addCalculationStep(AggregatedStatCalculatorType.RATIO.getInstance())
+                .build());
+        defaultStats.add(StatBuilder.newStat("%Mech", "Relative mech performance vs player average")
+                .addCalculationStep(RecordFilterType.PLAYER.getInstance())
+                .addCalculationStep(StatAggregatorType.AVERAGE.getInstance(StatType.SCORE))
+                .addCalculationStep(RecordFilterType.RESET.getInstance())
+                .addCalculationStep(RecordFilterType.PLAYER.getInstance())
+                .addCalculationStep(RecordFilterType.MECHVARIANT.getInstance())
+                .addCalculationStep(StatAggregatorType.AVERAGE.getInstance(StatType.SCORE))
+                .addCalculationStep(AggregatedStatCalculatorType.RELATIVE.getInstance())
+                .build());
 
         for (StatType stat : StatType.values()) {
             defaultStats.add(StatBuilder.newStat(stat.toString(), stat.getDescription())
-                    .addCalculationStep(StatCalculatorType.RAWVALUE.getInstance(stat))
+                    .addCalculationStep(MatchStatCalculatorType.RAWVALUE.getInstance(stat))
                     .build());
         }
         for (StatType stat : Arrays.asList(StatType.ASSISTS, StatType.KILLS, StatType.DAMAGE, StatType.SCORE, StatType.PING, StatType.SOLO_KILLS, StatType.KMDDS, StatType.COMPONENT_DESTROYED, StatType.REWARD_CBILLS, StatType.REWARD_XP))
@@ -70,40 +93,46 @@ public class StatBuilder {
                 .addCalculationStep(RecordFilterType.PLAYER.getInstance())
                 .addCalculationStep(RecordFilterType.GAMEMODE.getInstance())
                 .addCalculationStep(StatAggregatorType.AVERAGE.getInstance(StatType.REWARD_CBILLS))
-                .addCalculationStep(StatCalculatorType.RELATIVE.getInstance(StatType.REWARD_CBILLS))
+                .addCalculationStep(MatchStatCalculatorType.RAWVALUE.getInstance(StatType.REWARD_CBILLS))
+                .addCalculationStep(AggregatedStatCalculatorType.RELATIVE.getInstance())
                 .build());
         defaultStats.add(StatBuilder.newStat("*TScore", "Team Rank by score")
                 .addCalculationStep(RecordFilterType.MATCH.getInstance())
                 .addCalculationStep(RecordFilterType.TEAM.getInstance())
-                .addCalculationStep(StatCalculatorType.RANKING.getInstance(StatType.SCORE))
+                .addCalculationStep(MatchStatCalculatorType.RANKING.getInstance(StatType.SCORE))
                 .build());
         defaultStats.add(StatBuilder.newStat("%Score", "Score relative to average for this player")
                 .addCalculationStep(RecordFilterType.PLAYER.getInstance())
                 .addCalculationStep(StatAggregatorType.AVERAGE.getInstance(StatType.SCORE))
-                .addCalculationStep(StatCalculatorType.RELATIVE.getInstance(StatType.SCORE))
+                .addCalculationStep(MatchStatCalculatorType.RAWVALUE.getInstance(StatType.SCORE))
+                .addCalculationStep(AggregatedStatCalculatorType.RELATIVE.getInstance())
                 .build());
         defaultStats.add(StatBuilder.newStat("%MScore", "Score relative to average for this player's mech")
                 .addCalculationStep(RecordFilterType.PLAYER.getInstance())
                 .addCalculationStep(RecordFilterType.MECHVARIANT.getInstance())
                 .addCalculationStep(StatAggregatorType.AVERAGE.getInstance(StatType.SCORE))
-                .addCalculationStep(StatCalculatorType.RELATIVE.getInstance(StatType.SCORE))
+                .addCalculationStep(MatchStatCalculatorType.RAWVALUE.getInstance(StatType.SCORE))
+                .addCalculationStep(AggregatedStatCalculatorType.RELATIVE.getInstance())
                 .build());
         defaultStats.add(StatBuilder.newStat("%MScoreG", "Score relative to global average of this mech")
                 .addCalculationStep(RecordFilterType.MECHVARIANT.getInstance())
                 .addCalculationStep(StatAggregatorType.AVERAGE.getInstance(StatType.SCORE))
-                .addCalculationStep(StatCalculatorType.RELATIVE.getInstance(StatType.SCORE))
+                .addCalculationStep(MatchStatCalculatorType.RAWVALUE.getInstance(StatType.SCORE))
+                .addCalculationStep(AggregatedStatCalculatorType.RELATIVE.getInstance())
                 .build());
         defaultStats.add(StatBuilder.newStat("%CScore", "Score relative to average for this player's mech's weightclass")
                 .addCalculationStep(RecordFilterType.PLAYER.getInstance())
                 .addCalculationStep(RecordFilterType.MECHCLASS.getInstance())
                 .addCalculationStep(StatAggregatorType.AVERAGE.getInstance(StatType.SCORE))
-                .addCalculationStep(StatCalculatorType.RELATIVE.getInstance(StatType.SCORE))
+                .addCalculationStep(MatchStatCalculatorType.RAWVALUE.getInstance(StatType.SCORE))
+                .addCalculationStep(AggregatedStatCalculatorType.RELATIVE.getInstance())
                 .build());
         defaultStats.add(StatBuilder.newStat("S/D", "Score to Damage Ratio for this player")
                 .addCalculationStep(RecordFilterType.PLAYER.getInstance())
                 .addCalculationStep(RecordFilterType.MATCH.getInstance())
-                .addCalculationStep(StatCalculatorType.RAWVALUE.getInstance(StatType.DAMAGE))
-                .addCalculationStep(StatCalculatorType.RATIO.getInstance(StatType.SCORE))
+                .addCalculationStep(MatchStatCalculatorType.RAWVALUE.getInstance(StatType.DAMAGE))
+                .addCalculationStep(MatchStatCalculatorType.RAWVALUE.getInstance(StatType.SCORE))
+                .addCalculationStep(AggregatedStatCalculatorType.RATIO.getInstance())
                 .build());
         defaultStats.add(StatBuilder.newStat("Classes", "Best performing mech classes for this player, sorted by average score")
                 .addCalculationStep(RecordFilterType.PLAYER.getInstance())

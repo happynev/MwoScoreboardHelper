@@ -12,21 +12,21 @@ import java.util.Set;
  */
 public class StatCalculationWorkingSet {
     private final PlayerMatchRecord reference;
+    private final List<String> resultValues;
     private List<String> explanation;
     private Collection<PlayerMatchRecord> records;
-    private String currentValue;
 
     public StatCalculationWorkingSet(Collection<PlayerMatchRecord> records, PlayerMatchRecord reference) {
         this.records = records;
         this.reference = reference;
-        this.currentValue = "";
+        this.resultValues = new ArrayList<>();
         explanation = new ArrayList<>();
     }
 
     public StatCalculationWorkingSet(StatCalculationWorkingSet previous) {
         this.records = previous.getRecords();
         this.reference = previous.getReference();
-        this.currentValue = previous.getCurrentValue();
+        this.resultValues = previous.getResultValues();
         this.explanation = previous.getExplanation();
     }
 
@@ -46,12 +46,16 @@ public class StatCalculationWorkingSet {
         this.records = records;
     }
 
-    public String getCurrentValue() {
-        return currentValue;
+    public List<String> getResultValues() {
+        return resultValues;
     }
 
-    public void setCurrentValue(String currentValue) {
-        this.currentValue = currentValue;
+    public String getLastValue() {
+        if (resultValues.isEmpty()) {
+            return "";
+        } else {
+            return resultValues.get(resultValues.size() - 1);
+        }
     }
 
     public PlayerMatchRecord getReference() {

@@ -8,7 +8,6 @@ import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by Nev on 29.07.2017.
@@ -22,7 +21,7 @@ public class StatCalculatorRanking extends StatCalculator {
     }
 
     @Override
-    public String calculateCurrentValue(Collection<PlayerMatchRecord> records, PlayerMatchRecord currentRecord, String previousValue) {
+    public String calculateCurrentValue(Collection<PlayerMatchRecord> records, PlayerMatchRecord currentRecord, List<String> previousValues) {
         Collection<PlayerMatchRecord> validRecords = StatCalculatorHelpers.filterValidRecords(records, statType);
         if (validRecords.size() != records.size()) {
             //some records are invalid, ranking makes no sense

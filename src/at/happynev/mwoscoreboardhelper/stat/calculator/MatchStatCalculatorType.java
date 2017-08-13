@@ -5,11 +5,9 @@ import at.happynev.mwoscoreboardhelper.stat.StatType;
 /**
  * Created by Nev on 06.08.2017.
  */
-public enum StatCalculatorType {
+public enum MatchStatCalculatorType {
     RANKING,
-    RAWVALUE,
-    RELATIVE,
-    RATIO;
+    RAWVALUE;
 
     public StatCalculator getInstance(StatType statType) {
         switch (this) {
@@ -17,10 +15,6 @@ public enum StatCalculatorType {
                 return new StatCalculatorRanking(statType);
             case RAWVALUE:
                 return new StatCalculatorRawValue(statType);
-            case RELATIVE:
-                return new StatCalculatorRelativePercent(statType);
-            case RATIO:
-                return new StatCalculatorRatio(statType);
             default:
                 throw new UnsupportedOperationException(this.toString() + " not implemented");
         }
