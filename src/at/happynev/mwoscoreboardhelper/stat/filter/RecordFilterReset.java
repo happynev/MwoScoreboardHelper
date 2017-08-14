@@ -1,7 +1,9 @@
 package at.happynev.mwoscoreboardhelper.stat.filter;
 
+import at.happynev.mwoscoreboardhelper.GuiUtils;
 import at.happynev.mwoscoreboardhelper.PlayerMatchRecord;
 import at.happynev.mwoscoreboardhelper.stat.StatCalculationWorkingSet;
+import at.happynev.mwoscoreboardhelper.stat.StatExplanationStep;
 
 import java.util.Collection;
 
@@ -19,12 +21,12 @@ public class RecordFilterReset extends RecordFilter {
     public StatCalculationWorkingSet calculateStep(StatCalculationWorkingSet input) {
         input.getRecords().clear();
         input.getRecords().addAll(PlayerMatchRecord.getAllRecords());
-        input.addStepExplanation(this.getStepDescription() + " --> " + input.getRecords().size() + " records");
+        input.addStepExplanation(new StatExplanationStep(this.getStepDescription(), input.getRecords().size() + " records"));
         return input;
     }
 
     @Override
-    public String getStepDescription() {
-        return "reset filters";
+    public StatExplanationStep getStepDescription() {
+        return new StatExplanationStep(GuiUtils.DEFAULT_FRONT_COLOR, "reset filters");
     }
 }

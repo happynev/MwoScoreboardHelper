@@ -1,9 +1,10 @@
 package at.happynev.mwoscoreboardhelper.stat.filter;
 
 import at.happynev.mwoscoreboardhelper.PlayerMatchRecord;
+import at.happynev.mwoscoreboardhelper.stat.StatExplanationStep;
+import javafx.scene.paint.Color;
 
 import java.util.Collection;
-import java.util.Set;
 
 /**
  * Created by Nev on 29.07.2017.
@@ -15,7 +16,7 @@ public class RecordFilterByMatch extends RecordFilter {
     }
 
     @Override
-    public String getStepDescription() {
-        return "filtered by match";
+    public StatExplanationStep getStepDescription() {
+        return new StatExplanationStep(Color.YELLOW, "filtered by match");
     }
 }

@@ -1,6 +1,8 @@
 package at.happynev.mwoscoreboardhelper.stat.aggregator;
 
+import at.happynev.mwoscoreboardhelper.GuiUtils;
 import at.happynev.mwoscoreboardhelper.PlayerMatchRecord;
+import at.happynev.mwoscoreboardhelper.stat.StatExplanationStep;
 import at.happynev.mwoscoreboardhelper.stat.StatTable;
 import at.happynev.mwoscoreboardhelper.stat.StatType;
 import at.happynev.mwoscoreboardhelper.stat.calculator.StatCalculatorHelpers;
@@ -49,8 +51,8 @@ public class StatAggregatorToplistMechClass extends StatAggregator {
     }
 
     @Override
-    public String getStepDescription() {
-        return "best mech variants by " + statType.getDescription();
+    public StatExplanationStep getStepDescription() {
+        return new StatExplanationStep(GuiUtils.DEFAULT_FRONT_COLOR, "best mech variants by " + statType.getDescription());
     }
 
     @Override

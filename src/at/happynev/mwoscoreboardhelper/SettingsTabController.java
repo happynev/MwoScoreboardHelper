@@ -8,6 +8,7 @@ import at.happynev.mwoscoreboardhelper.tracer.TraceHelpers;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -325,6 +326,12 @@ public class SettingsTabController {
             grid.add(labelSsType, 0, row++, GridPane.REMAINING, 1);
             for (CustomizableStatTemplate stat : StatBuilder.getDefaultStats()) {
                 col = 0;
+                Label statTitle = new Label(stat.getShortName());
+                GuiUtils.applyStatFormat(statTitle, stat);
+
+                Label statDesc = new Label(stat.getLongName());
+                GuiUtils.applyStatFormat(statDesc, stat);
+                statDesc.setTextFill(GuiUtils.DEFAULT_FRONT_COLOR);//better readability;
                 for (StatTable table : StatTable.values()) {
                     CheckBox check = new CheckBox();
                     boolean canDisplay = stat.canDisplay(sstype, table);
@@ -332,6 +339,7 @@ public class SettingsTabController {
                     if (canDisplay) {
                         boolean selected = getShouldDisplay(sstype, stat, table);
                         check.setSelected(selected);
+                        check.setBackground(new Background(new BackgroundFill(statTitle.getTextFill(), CornerRadii.EMPTY, Insets.EMPTY)));
                     } else {
                         check.setSelected(false);
                     }
@@ -339,14 +347,8 @@ public class SettingsTabController {
                     check.selectedProperty().addListener((observable, oldValue, newValue) -> changeStatDisplay(sstype, stat, table, newValue));
                     grid.add(check, col++, row);
                 }
-                Tooltip statExpl = new Tooltip(stat.getDescription());
-                Label statTitle = new Label(stat.getShortName());
-                statTitle.setTooltip(statExpl);
                 grid.add(statTitle, col++, row);
-
-                Label statDesc = new Label(stat.getLongName());
                 grid.add(statDesc, col++, row);
-                statDesc.setTooltip(statExpl);
                 row++;
             }
         }

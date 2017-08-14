@@ -1,6 +1,8 @@
 package at.happynev.mwoscoreboardhelper.stat.filter;
 
+import at.happynev.mwoscoreboardhelper.GuiUtils;
 import at.happynev.mwoscoreboardhelper.PlayerMatchRecord;
+import at.happynev.mwoscoreboardhelper.stat.StatExplanationStep;
 import at.happynev.mwoscoreboardhelper.stat.StatType;
 
 import java.util.Collection;
@@ -36,7 +38,11 @@ public class RecordFilterByStat extends RecordFilter {
     }
 
     @Override
-    public String getStepDescription() {
-        return "filtered by " + stat.getDescription();
+    public StatExplanationStep getStepDescription() {
+        String text = "filtered by " + stat.getDescription();
+        if (refValue != null) {
+            text += " (" + refValue + ")";
+        }
+        return new StatExplanationStep(GuiUtils.DEFAULT_FRONT_COLOR, text);
     }
 }

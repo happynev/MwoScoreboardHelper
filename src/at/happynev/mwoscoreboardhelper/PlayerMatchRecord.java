@@ -61,18 +61,18 @@ public class PlayerMatchRecord {
     private PlayerMatchRecord(boolean isEnemy, int playerId, int matchId) {
         this.playerId = playerId;
         this.matchId = matchId;
-        String status = "DEAD";
+        String status = "UNKNOWN";
         int matchScore = 1000;
         int kills = 10;
         int assists = 10;
         int damage = 1000;
         int ping = 100;
         matchValues.putAll(MechRuntime.getReferenceMech().getDerivedValues());
-        matchValues.put(StatType.ASSISTS, "" + assists);
-        matchValues.put(StatType.DAMAGE, "" + damage);
-        matchValues.put(StatType.KILLS, "" + kills);
-        matchValues.put(StatType.PING, "" + ping);
-        matchValues.put(StatType.SCORE, "" + matchScore);
+        matchValues.put(StatType.ASSISTS, "x" + assists);
+        matchValues.put(StatType.DAMAGE, "x" + damage);
+        matchValues.put(StatType.KILLS, "x" + kills);
+        matchValues.put(StatType.PING, "x" + ping);
+        matchValues.put(StatType.SCORE, "x" + matchScore);
         matchValues.put(StatType.STATUS, status);
         this.isEnemy = isEnemy;
         this.isWinner = true;

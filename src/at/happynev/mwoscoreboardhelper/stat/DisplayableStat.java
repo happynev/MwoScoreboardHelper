@@ -1,17 +1,18 @@
 package at.happynev.mwoscoreboardhelper.stat;
 
-import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+
+import java.util.List;
 
 /**
  * Created by Nev on 03.02.2017.
  */
 public interface DisplayableStat {
-    Color COLOR_PERSONALDATA = Color.NAVAJOWHITE;
-    Color COLOR_MATCHDATA = Color.CORAL;
-    Color COLOR_PLAYERDATA = Color.LIGHTGREEN;
-    Color COLOR_PERSONALMATCHDATA = Color.CORNFLOWERBLUE;
+    String getShortName();
 
-    String getDescription();
+    String getLongName();
 
-    Color getColor();
+    List<StatExplanationStep> getExplanation();
+
+    Paint getOverridePaint();
 }

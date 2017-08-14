@@ -1,9 +1,11 @@
 package at.happynev.mwoscoreboardhelper.stat.calculator;
 
 import at.happynev.mwoscoreboardhelper.PlayerMatchRecord;
+import at.happynev.mwoscoreboardhelper.stat.StatExplanationStep;
 import at.happynev.mwoscoreboardhelper.stat.StatTable;
 import at.happynev.mwoscoreboardhelper.stat.StatType;
 import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
+import javafx.scene.paint.Color;
 
 import java.util.Collection;
 import java.util.List;
@@ -28,8 +30,8 @@ public class StatCalculatorRawValue extends StatCalculator {
     }
 
     @Override
-    public String getStepDescription() {
-        return "traced " + statType.getDescription();
+    public StatExplanationStep getStepDescription() {
+        return new StatExplanationStep(Color.RED, statType.getDescription() + " from screenshot");
     }
 
     @Override

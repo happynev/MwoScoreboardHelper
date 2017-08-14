@@ -2,6 +2,7 @@ package at.happynev.mwoscoreboardhelper.stat.filter;
 
 import at.happynev.mwoscoreboardhelper.PlayerMatchRecord;
 import at.happynev.mwoscoreboardhelper.stat.StatCalculationWorkingSet;
+import at.happynev.mwoscoreboardhelper.stat.StatExplanationStep;
 import at.happynev.mwoscoreboardhelper.stat.StatPipelineStep;
 import at.happynev.mwoscoreboardhelper.stat.StatTable;
 import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
@@ -22,7 +23,7 @@ public abstract class RecordFilter implements StatPipelineStep {
         StatCalculationWorkingSet ret = new StatCalculationWorkingSet(input);
         Set<PlayerMatchRecord> filtered = input.getRecords().parallelStream().filter(playerMatchRecord -> accept(input.getRecords(), playerMatchRecord, input.getReference())).collect(Collectors.toSet());
         ret.setRecords(filtered);
-        ret.addStepExplanation(this.getStepDescription() + " --> " + filtered.size() + " records");
+        ret.addStepExplanation(new StatExplanationStep(this.getStepDescription(), filtered.size() + " records"));
         return ret;
     }
 

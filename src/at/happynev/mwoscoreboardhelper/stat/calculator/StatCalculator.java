@@ -2,6 +2,7 @@ package at.happynev.mwoscoreboardhelper.stat.calculator;
 
 import at.happynev.mwoscoreboardhelper.PlayerMatchRecord;
 import at.happynev.mwoscoreboardhelper.stat.StatCalculationWorkingSet;
+import at.happynev.mwoscoreboardhelper.stat.StatExplanationStep;
 import at.happynev.mwoscoreboardhelper.stat.StatPipelineStep;
 
 import java.util.Collection;
@@ -18,7 +19,7 @@ public abstract class StatCalculator implements StatPipelineStep {
         StatCalculationWorkingSet ret = new StatCalculationWorkingSet(input);
         String result = calculateCurrentValue(input.getRecords(), input.getReference(), input.getResultValues());
         ret.getResultValues().add(result);
-        ret.addStepExplanation(this.getStepDescription() + " --> " + result);
+        ret.addStepExplanation(new StatExplanationStep(this.getStepDescription(), result));
         return ret;
     }
 }

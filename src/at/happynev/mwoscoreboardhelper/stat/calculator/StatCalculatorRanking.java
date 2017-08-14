@@ -1,6 +1,8 @@
 package at.happynev.mwoscoreboardhelper.stat.calculator;
 
+import at.happynev.mwoscoreboardhelper.GuiUtils;
 import at.happynev.mwoscoreboardhelper.PlayerMatchRecord;
+import at.happynev.mwoscoreboardhelper.stat.StatExplanationStep;
 import at.happynev.mwoscoreboardhelper.stat.StatTable;
 import at.happynev.mwoscoreboardhelper.stat.StatType;
 import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
@@ -35,8 +37,8 @@ public class StatCalculatorRanking extends StatCalculator {
     }
 
     @Override
-    public String getStepDescription() {
-        return "ranked by " + statType.getDescription();
+    public StatExplanationStep getStepDescription() {
+        return new StatExplanationStep(GuiUtils.DEFAULT_FRONT_COLOR, "ranked by " + statType.getDescription());
     }
 
     @Override

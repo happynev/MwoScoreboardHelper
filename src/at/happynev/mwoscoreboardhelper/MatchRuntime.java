@@ -15,7 +15,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Group;
 import javafx.scene.control.Label;
-import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -229,13 +228,15 @@ public class MatchRuntime {
         //labelTitle.setRotate(45);
         //
         Label labelTeam = new Label(teamValue.getValue());
-        labelTeam.setTooltip(new Tooltip(teamValue.getExplanation()));
+        GuiUtils.applyStatFormat(labelTeam, teamValue);
+        labelTeam.setBackground(null);
         labelTeam.setFont(fontData);
         labelTeam.setStyle(GuiUtils.styleTeam);
         labelTeam.setPadding(GuiUtils.DATA_INSETS);
         //
         Label labelEnemy = new Label(enemyValue.getValue());
-        labelEnemy.setTooltip(new Tooltip(enemyValue.getExplanation()));
+        GuiUtils.applyStatFormat(labelEnemy, enemyValue);
+        labelEnemy.setBackground(null);
         labelEnemy.setFont(fontData);
         labelEnemy.setStyle(GuiUtils.styleEnemy);
         labelEnemy.setPadding(GuiUtils.DATA_INSETS);

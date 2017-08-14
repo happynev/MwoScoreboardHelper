@@ -8,7 +8,7 @@ import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
 public interface StatPipelineStep {
     StatCalculationWorkingSet calculateStep(StatCalculationWorkingSet input);
 
-    String getStepDescription();
+    StatExplanationStep getStepDescription();
 
     boolean canDisplay(ScreenshotType type, StatTable table);
 }

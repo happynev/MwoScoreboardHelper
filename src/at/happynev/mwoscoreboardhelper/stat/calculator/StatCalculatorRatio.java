@@ -1,7 +1,9 @@
 package at.happynev.mwoscoreboardhelper.stat.calculator;
 
+import at.happynev.mwoscoreboardhelper.GuiUtils;
 import at.happynev.mwoscoreboardhelper.PlayerMatchRecord;
 import at.happynev.mwoscoreboardhelper.Utils;
+import at.happynev.mwoscoreboardhelper.stat.StatExplanationStep;
 import at.happynev.mwoscoreboardhelper.stat.StatTable;
 import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
 
@@ -30,8 +32,8 @@ public class StatCalculatorRatio extends StatCalculator {
     }
 
     @Override
-    public String getStepDescription() {
-        return "ratio between last 2 results";
+    public StatExplanationStep getStepDescription() {
+        return new StatExplanationStep(GuiUtils.DEFAULT_FRONT_COLOR, "ratio between last 2 results");
     }
 
     @Override

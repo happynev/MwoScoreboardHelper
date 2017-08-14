@@ -4,7 +4,7 @@ import at.happynev.mwoscoreboardhelper.PlayerMatchRecord;
 import at.happynev.mwoscoreboardhelper.stat.filter.RecordFilterByPlayer;
 import at.happynev.mwoscoreboardhelper.stat.filter.RecordFilterByTeam;
 import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
-import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +23,16 @@ public class CustomizableStatTemplate implements DisplayableStat {
         sampleRuntime = getRuntimeInstance(PlayerMatchRecord.getReferenceRecord(false, -1));
         this.shortName = shortName;
         this.longName = longName;
+    }
+
+    public CustomizableStatRuntime getSampleRuntime() {
+        return sampleRuntime;
+    }
+
+    @Override
+    public Paint getOverridePaint() {
+        sampleRuntime.getValue();//"calculate"
+        return sampleRuntime.getOverridePaint();
     }
 
     public List<StatPipelineStep> getCalculationSteps() {
@@ -56,25 +66,30 @@ public class CustomizableStatTemplate implements DisplayableStat {
         return rt;
     }
 
-    @Override
     public String getDescription() {
         StringBuilder sb = new StringBuilder();
         sb.append(longName).append("\n");
         for (StatPipelineStep step : calculationSteps) {
-            sb.append(step.getStepDescription()).append("\n");
+            sb.append(step.getStepDescription().getDescription()).append("\n");
         }
         return sb.toString();
     }
 
     @Override
-    public Color getColor() {
-        return Color.BURLYWOOD;
+    public List<StatExplanationStep> getExplanation() {
+        List<StatExplanationStep> explanation = new ArrayList<>(calculationSteps.size());
+        for (StatPipelineStep step : calculationSteps) {
+            explanation.add(step.getStepDescription());
+        }
+        return explanation;
     }
 
+    @Override
     public String getShortName() {
         return shortName;
     }
 
+    @Override
     public String getLongName() {
         return longName;
     }

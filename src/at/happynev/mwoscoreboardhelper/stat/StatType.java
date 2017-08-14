@@ -1,7 +1,6 @@
 package at.happynev.mwoscoreboardhelper.stat;
 
 import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
-import javafx.scene.paint.Color;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -9,7 +8,7 @@ import java.util.Collection;
 /**
  * Created by Nev on 02.02.2017.
  */
-public enum StatType implements DisplayableStat {
+public enum StatType {
     SCORE,
     DAMAGE,
     STATUS,
@@ -65,35 +64,6 @@ public enum StatType implements DisplayableStat {
     }
 
     @Override
-    public Color getColor() {
-        switch (this) {
-            case SCORE:
-            case DAMAGE:
-            case STATUS:
-            case KILLS:
-            case ASSISTS:
-            case MECH_VARIANT:
-            case MECH_TONS:
-            case MECH_FACTION:
-            case MECH_CHASSIS:
-            case MECH_CLASS:
-            case PING:
-            case WINS:
-            case LOSSES:
-            case MATCHES:
-                return COLOR_MATCHDATA;
-            case KMDDS:
-            case SOLO_KILLS:
-            case COMPONENT_DESTROYED:
-            case REWARD_CBILLS:
-            case REWARD_XP:
-                return COLOR_PERSONALMATCHDATA;
-            default:
-                return Color.LIGHTCORAL;
-        }
-    }
-
-    @Override
     public String toString() {
         switch (this) {
             case SCORE:
@@ -142,7 +112,6 @@ public enum StatType implements DisplayableStat {
         return "undefined";
     }
 
-    @Override
     public String getDescription() {
         switch (this) {
             case SCORE:

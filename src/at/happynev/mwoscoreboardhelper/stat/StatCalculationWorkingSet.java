@@ -1,6 +1,7 @@
 package at.happynev.mwoscoreboardhelper.stat;
 
 import at.happynev.mwoscoreboardhelper.PlayerMatchRecord;
+import javafx.scene.paint.Paint;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,8 +14,9 @@ import java.util.Set;
 public class StatCalculationWorkingSet {
     private final PlayerMatchRecord reference;
     private final List<String> resultValues;
-    private List<String> explanation;
+    private List<StatExplanationStep> explanation;
     private Collection<PlayerMatchRecord> records;
+    private Paint overridePaint = null;
 
     public StatCalculationWorkingSet(Collection<PlayerMatchRecord> records, PlayerMatchRecord reference) {
         this.records = records;
@@ -30,11 +32,23 @@ public class StatCalculationWorkingSet {
         this.explanation = previous.getExplanation();
     }
 
-    public void addStepExplanation(String exp) {
+    public Paint getOverridePaint() {
+        return overridePaint;
+    }
+
+    public void setOverridePaint(Paint overridePaint) {
+        this.overridePaint = overridePaint;
+    }
+
+    public boolean hasOverridePaint() {
+        return overridePaint != null;
+    }
+
+    public void addStepExplanation(StatExplanationStep exp) {
         explanation.add(exp);
     }
 
-    public List<String> getExplanation() {
+    public List<StatExplanationStep> getExplanation() {
         return explanation;
     }
 

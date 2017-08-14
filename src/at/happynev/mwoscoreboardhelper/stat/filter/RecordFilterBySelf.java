@@ -1,8 +1,10 @@
 package at.happynev.mwoscoreboardhelper.stat.filter;
 
+import at.happynev.mwoscoreboardhelper.GuiUtils;
 import at.happynev.mwoscoreboardhelper.PlayerMatchRecord;
 import at.happynev.mwoscoreboardhelper.PlayerRuntime;
 import at.happynev.mwoscoreboardhelper.SettingsTabController;
+import at.happynev.mwoscoreboardhelper.stat.StatExplanationStep;
 
 import java.util.Collection;
 
@@ -19,7 +21,7 @@ public class RecordFilterBySelf extends RecordFilterByPlayer {
     }
 
     @Override
-    public String getStepDescription() {
-        return "filtered by player " + self.getPilotname();
+    public StatExplanationStep getStepDescription() {
+        return new StatExplanationStep(GuiUtils.DEFAULT_FRONT_COLOR, "filtered by player (" + self.getPilotname() + ")");
     }
 }

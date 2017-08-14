@@ -1,7 +1,9 @@
 package at.happynev.mwoscoreboardhelper.stat.filter;
 
+import at.happynev.mwoscoreboardhelper.GuiUtils;
 import at.happynev.mwoscoreboardhelper.MatchRuntime;
 import at.happynev.mwoscoreboardhelper.PlayerMatchRecord;
+import at.happynev.mwoscoreboardhelper.stat.StatExplanationStep;
 
 import java.util.Collection;
 
@@ -30,7 +32,7 @@ public class RecordFilterOlderThan extends RecordFilter {
     }
 
     @Override
-    public String getStepDescription() {
-        return "filtered older than " + days + " days";
+    public StatExplanationStep getStepDescription() {
+        return new StatExplanationStep(GuiUtils.DEFAULT_FRONT_COLOR, "filtered older than " + days + " days");
     }
 }
