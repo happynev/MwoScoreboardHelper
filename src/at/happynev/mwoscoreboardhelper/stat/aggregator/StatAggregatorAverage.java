@@ -8,7 +8,6 @@ import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
 
 import java.math.BigDecimal;
 import java.util.Collection;
-import java.util.Set;
 
 /**
  * Created by Nev on 06.08.2017.
@@ -42,8 +41,16 @@ public class StatAggregatorAverage extends StatAggregator {
         if (valid == 0) {
             return "0";
         }
-        BigDecimal ret = new BigDecimal(sum).divide(new BigDecimal(valid), 2, BigDecimal.ROUND_HALF_UP);
-        return ret.toPlainString();
+        BigDecimal ret = new BigDecimal(sum).divide(new BigDecimal(valid), 5, BigDecimal.ROUND_HALF_UP);
+        int precision = 2;
+        if (ret.doubleValue() > 100) {
+            precision = 0;
+        } else if (ret.doubleValue() > 10) {
+            precision = 1;
+        } else if (ret.doubleValue() < 1) {
+            precision = 3;
+        }
+        return ret.setScale(precision, BigDecimal.ROUND_HALF_UP).toPlainString();
     }
 
     @Override
