@@ -10,6 +10,7 @@ public enum RecordFilterType {
     PLAYER,
     TEAM,
     SELF,
+    NOTSELF,
     MECHVARIANT,
     MECHCHASSIS,
     MECHTONS,
@@ -31,6 +32,8 @@ public enum RecordFilterType {
                 return new RecordFilterByTeam();
             case SELF:
                 return new RecordFilterBySelf();
+            case NOTSELF:
+                return new RecordFilterExcludeSelf();
             case MECHVARIANT:
                 return new RecordFilterByStat(StatType.MECH_VARIANT, parameters);
             case MECHCHASSIS:
