@@ -25,9 +25,7 @@ public class RecordFilterOlderThan extends RecordFilter {
 
     @Override
     public boolean accept(Collection<PlayerMatchRecord> records, PlayerMatchRecord pmr, PlayerMatchRecord reference) {
-        MatchRuntime match = MatchRuntime.getInstanceById(pmr.getMatchId());
-        MatchRuntime refmatch = MatchRuntime.getInstanceById(reference.getMatchId());
-        long diff = refmatch.getTimestamp() - match.getTimestamp();
+        long diff = reference.getTimestamp() - pmr.getTimestamp();
         return diff > (days * factorMillis);
     }
 

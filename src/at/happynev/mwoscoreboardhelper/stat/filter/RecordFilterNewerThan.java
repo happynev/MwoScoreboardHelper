@@ -1,7 +1,6 @@
 package at.happynev.mwoscoreboardhelper.stat.filter;
 
 import at.happynev.mwoscoreboardhelper.GuiUtils;
-import at.happynev.mwoscoreboardhelper.MatchRuntime;
 import at.happynev.mwoscoreboardhelper.PlayerMatchRecord;
 import at.happynev.mwoscoreboardhelper.stat.StatExplanationStep;
 
@@ -24,9 +23,7 @@ public class RecordFilterNewerThan extends RecordFilter {
 
     @Override
     public boolean accept(Collection<PlayerMatchRecord> records, PlayerMatchRecord pmr, PlayerMatchRecord reference) {
-        MatchRuntime match = MatchRuntime.getInstanceById(pmr.getMatchId());
-        MatchRuntime refmatch = MatchRuntime.getInstanceById(reference.getMatchId());
-        long diff = refmatch.getTimestamp() - match.getTimestamp();
+        long diff = reference.getTimestamp() - pmr.getTimestamp();
         if (diff < 0) {
             //future
             return false;
