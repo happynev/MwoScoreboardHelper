@@ -22,7 +22,7 @@ public class Main extends Application {
     }
 
     public static String getVersion() {
-        return "0.4 Bushwacker";
+        return "0.41 High Roller";
     }
 
     public static void main(String[] args) {
