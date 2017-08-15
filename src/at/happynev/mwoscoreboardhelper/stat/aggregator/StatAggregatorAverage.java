@@ -45,11 +45,11 @@ public class StatAggregatorAverage extends StatAggregator {
         }
         BigDecimal ret = new BigDecimal(sum).divide(new BigDecimal(valid), 5, BigDecimal.ROUND_HALF_UP);
         int precision = 2;
-        if (ret.doubleValue() > 100) {
+        if (ret.abs().doubleValue() > 100 || ret.signum() != 0) {
             precision = 0;
-        } else if (ret.doubleValue() > 10) {
+        } else if (ret.abs().doubleValue() > 10) {
             precision = 1;
-        } else if (ret.doubleValue() < 1) {
+        } else if (ret.abs().doubleValue() < 1) {
             precision = 3;
         }
         return ret.setScale(precision, BigDecimal.ROUND_HALF_UP).toPlainString();

@@ -90,10 +90,6 @@ public class Utils {
         return newValue.toString().replaceAll("..;?$", "");
     }
 
-    public static String getRatio(double numerator, double denominator) {
-        return getRatio(numerator, denominator, 2);
-    }
-
     public static String getPercentage(double fraction, double total) {
         if (total == 0.0d) {
             return "100%";
@@ -101,7 +97,7 @@ public class Utils {
         return new BigDecimal(fraction / total).multiply(new BigDecimal(100)).setScale(0, BigDecimal.ROUND_HALF_UP).toPlainString() + "%";
     }
 
-    public static String getRatio(Double numerator, Double denominator, int precision) {
+    public static String getRatio(Double numerator, Double denominator) {
         if (numerator == null) {
             numerator = 0.0;
         }
@@ -111,11 +107,17 @@ public class Utils {
         if (numerator == 0.0d && denominator == 0.0d) {
             return "N/A";
         }
-        if (denominator > 0.0d) {
-            return new BigDecimal(numerator.doubleValue() / denominator.doubleValue()).setScale(precision, BigDecimal.ROUND_HALF_UP).toPlainString();
-        } else {
-            return new BigDecimal(numerator).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString();
+
+        BigDecimal ret = new BigDecimal(numerator.doubleValue() / denominator.doubleValue()).setScale(10, BigDecimal.ROUND_HALF_UP);
+        int precision = 2;
+        if (ret.abs().doubleValue() > 100 || ret.signum() != 0) {
+            precision = 0;
+        } else if (ret.abs().doubleValue() > 10) {
+            precision = 1;
+        } else if (ret.abs().doubleValue() < 1) {
+            precision = 3;
         }
+        return ret.setScale(precision, BigDecimal.ROUND_HALF_UP).toPlainString();
     }
 
     public static class NumericStringComparator implements Comparator<String> {

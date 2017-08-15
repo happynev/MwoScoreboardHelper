@@ -148,6 +148,9 @@ public class MatchRuntime {
     }
 
     public static MatchRuntime getInstanceById(int id) {
+        if (id == -1) {
+            return getReferenceMatch(ScreenshotType.QP_4SUMMARY);
+        }
         MatchRuntime ret = matchesById.get(id);
         if (ret == null) {
             ret = getInstanceFromDb(id);
