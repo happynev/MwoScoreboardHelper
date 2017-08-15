@@ -2,12 +2,16 @@ package at.happynev.mwoscoreboardhelper;
 
 import at.happynev.mwoscoreboardhelper.stat.*;
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
+import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.ObjectBinding;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.effect.Bloom;
+import javafx.scene.effect.Glow;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
@@ -35,6 +39,11 @@ public class GuiUtils {
     public static final Insets PLAYER_INSETS = new Insets(0, 10, 0, 10);
     public static final Color DEFAULT_FRONT_COLOR = Color.WHITE;
     public static final Color DEFAULT_BACK_COLOR = Color.BLACK;
+    private static final Bloom HOVERBLOOM = new Bloom(0);
+
+    static {
+        HOVERBLOOM.setInput(new Glow(1));
+    }
 
     public static ColumnConstraints getColumnConstraint(Label label) {
         Text measure = new Text(label.getText());
@@ -120,15 +129,18 @@ public class GuiUtils {
     public static void addDataToGrid(GridPane parent, int row, MatchRuntime match, PlayerRuntime player, StatTable table) {
         PlayerMatchRecord thisMatchRecord = match.getPlayerMatchRecord(player);
         int col = 0;
+        Label labelName = new Label();
+        BooleanExpression hoveringProperty = BooleanBinding.booleanExpression(labelName.hoverProperty());
+        ObjectProperty<Bloom> hoverEffectProperty = new SimpleObjectProperty<>();
         if (table != StatTable.WATCHER_PERSONAL) {
             Label labelUnit = new Label();
-            Label labelName = new Label();
             TextField textShortNote = new TextField();
             applyPlayerFormat(labelUnit, player);
+            hoveringProperty = hoveringProperty.or(labelUnit.hoverProperty());
+            labelName.effectProperty().bind(hoverEffectProperty);
+            labelUnit.effectProperty().bind(hoverEffectProperty);
             applyPlayerFormat(labelName, player);
             applyPlayerFormat(textShortNote, player);
-
-            labelName.effectProperty().bind(Bindings.when(labelName.hoverProperty()).then(new Bloom(0)).otherwise((Bloom) null));
             labelName.setTooltip(new Tooltip("Double-click to jump to player tab"));
             labelName.setOnMouseClicked(event -> clickPlayer(event, player));
             labelUnit.textProperty().bind(player.unitProperty());
@@ -164,13 +176,16 @@ public class GuiUtils {
             l.setTooltip(tt);
             applyDefaultFormat(l);
             applyStatFormat(l, statRuntime);
+            l.effectProperty().bind(hoverEffectProperty);
             ColumnConstraints tmp = GuiUtils.getColumnConstraint(l);
             ColumnConstraints cc = parent.getColumnConstraints().get(col);
             if (cc.getPrefWidth() < tmp.getPrefWidth()) {
                 cc.setPrefWidth(tmp.getPrefWidth());
             }
             parent.add(l, col++, row);
+            hoveringProperty = hoveringProperty.or(l.hoverProperty());
         }
+        hoverEffectProperty.bind(Bindings.when(hoveringProperty).then(HOVERBLOOM).otherwise((Bloom) null));
     }
 
     private static void applyDefaultFormat(Label l) {
