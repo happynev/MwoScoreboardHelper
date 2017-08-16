@@ -101,16 +101,13 @@ public class Utils {
         if (numerator == null) {
             numerator = 0.0;
         }
-        if (denominator == null) {
-            denominator = 0.0;
-        }
-        if (numerator == 0.0d && denominator == 0.0d) {
-            return "N/A";
+        if (denominator == null || denominator == 0.0d) {
+            denominator = 1.0;//
         }
 
         BigDecimal ret = new BigDecimal(numerator.doubleValue() / denominator.doubleValue()).setScale(10, BigDecimal.ROUND_HALF_UP);
         int precision = 2;
-        if (ret.abs().doubleValue() > 100 || ret.signum() != 0) {
+        if (ret.abs().doubleValue() > 100 || ret.signum() == 0) {
             precision = 0;
         } else if (ret.abs().doubleValue() > 10) {
             precision = 1;

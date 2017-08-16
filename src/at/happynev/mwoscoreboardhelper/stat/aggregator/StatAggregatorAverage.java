@@ -45,7 +45,7 @@ public class StatAggregatorAverage extends StatAggregator {
         }
         BigDecimal ret = new BigDecimal(sum).divide(new BigDecimal(valid), 5, BigDecimal.ROUND_HALF_UP);
         int precision = 2;
-        if (ret.abs().doubleValue() > 100 || ret.signum() != 0) {
+        if (ret.abs().doubleValue() > 100 || ret.signum() == 0) {
             precision = 0;
         } else if (ret.abs().doubleValue() > 10) {
             precision = 1;
