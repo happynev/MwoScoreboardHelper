@@ -8,14 +8,21 @@ import javafx.stage.Stage;
 import org.h2.tools.Server;
 
 import java.net.URL;
+import java.util.Arrays;
 
 public class Main extends Application {
+    private static boolean debug = false;
+
     static {
         System.setProperty("logback.configurationFile", Main.class.getResource("logback.xml").toString());
         Logger.log("############################# Application STARTED ###########################");
     }
 
     private Server dbserver;
+
+    public static boolean isDebug() {
+        return debug;
+    }
 
     public static int getDbVersion() {
         return 4;
@@ -26,6 +33,9 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) {
+        if (Arrays.asList(args).contains("debug")) {
+            debug = true;
+        }
         launch(args);
     }
 

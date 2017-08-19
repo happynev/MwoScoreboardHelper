@@ -10,21 +10,16 @@
                 <fx:include source="WatcherTab.fxml" />
             </content>
         </Tab>
-        <!--Tab closable="false" text="Match Stats">
-            <content>
-                <fx:include source="MatchTab.fxml"/>
-            </content>
-        </Tab-->
         <Tab fx:id="tabPlayers" closable="false" text="Player Stats">
             <content>
                 <fx:include source="PlayerTab.fxml" />
             </content>
         </Tab>
-        <!--Tab fx:id="tabPersonal" closable="false" text="Personal">
+        <Tab fx:id="tabPersonal" closable="false" text="Personal">
             <content>
                 <fx:include source="PersonalTab.fxml" />
             </content>
-        </Tab-->
+        </Tab>
         <Tab fx:id="tabMechs" closable="false" text="Mech Stats">
             <content>
                 <fx:include source="MechsTab.fxml" />
@@ -38,6 +33,11 @@
         <Tab fx:id="tabPreview" closable="false" text="Preview">
             <content>
                 <fx:include source="PreviewTab.fxml" />
+            </content>
+        </Tab>
+        <Tab fx:id="tabGraphs" closable="false" text="Graphs">
+            <content>
+                <fx:include source="GraphTab.fxml"/>
             </content>
         </Tab>
         <Tab fx:id="tabSql" closable="false" text="SQL">

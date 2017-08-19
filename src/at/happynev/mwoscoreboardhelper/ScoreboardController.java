@@ -20,6 +20,10 @@ public class ScoreboardController {
     Tab tabMechs;
     @FXML
     Tab tabPreview;
+    @FXML
+    Tab tabGraphs;
+    @FXML
+    Tab tabPersonal;
 
     public ScoreboardController() {
         instance = this;
@@ -34,6 +38,9 @@ public class ScoreboardController {
 
     @FXML
     private void initialize() {
+        if (!Main.isDebug()) {
+            tabMainApplication.getTabs().removeAll(tabGraphs, tabPersonal);
+        }
         String activeTab = SettingsTabController.getActiveTab();
         for (Tab t : tabMainApplication.getTabs()) {
             if (t.getId().equals(activeTab)) {
