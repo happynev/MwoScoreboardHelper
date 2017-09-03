@@ -24,6 +24,7 @@ public abstract class SessionRuntime {
     public static int wins = 0;
     public static int losses = 0;
     public static int totalMatches = 0;
+    private static long battleTimeMillis = 0;
 
     public static Pane getSessionStatsPane() {
         Font fontHeader = Font.font("System", FontWeight.BOLD, 20);
@@ -91,7 +92,13 @@ public abstract class SessionRuntime {
         buildSessionDataLine(grid, row++, "Cbills earned", "" + totalCbills);
         buildSessionDataLine(grid, row++, "Xp earned", "" + totalXp);
         buildSessionDataLine(grid, row++, "Matches per Hour", "" + matchPerHour.toPlainString());
+        buildSessionDataLine(grid, row++, "Battle Time %", "" + getWaitVsBattle());
         return grid;
+    }
+
+    private static String getWaitVsBattle() {
+        long totalMillis = System.currentTimeMillis() - started;
+        return Utils.getPercentage(battleTimeMillis, totalMillis);
     }
 
     private static void buildSessionDataLine(GridPane grid, int row, String title, String value) {
@@ -109,5 +116,15 @@ public abstract class SessionRuntime {
         //
         grid.add(labelTitle, 0, row);
         grid.add(labelTeam, 1, row);
+    }
+
+    public static void addBattleTime(String battleTime) {
+        if (battleTime != null && battleTime.matches("\\d+:\\d+")) {
+            String[] time = battleTime.split(":");
+            battleTimeMillis += Integer.parseInt(time[0]) * 60 * 1000;
+            battleTimeMillis += Integer.parseInt(time[1]) * 1000;
+        } else {
+            Logger.warning("invalid battletime: " + battleTime);
+        }
     }
 }

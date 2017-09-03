@@ -304,6 +304,7 @@ public class MatchRuntime implements Preloadable {
                         playerRecords.add(prec);
                         if (type == ScreenshotType.QP_4SUMMARY && pr.getPilotname().equals(SettingsTabController.getPlayername())) {
                             SessionRuntime.sessionMatchRecords.add(prec);
+                            SessionRuntime.addBattleTime(this.getBattleTime());
                         }
                         //last because other triggers depend on it
                         if (isEnemy) {
