@@ -144,6 +144,14 @@ public class PlayerMatchRecord implements Preloadable {
         return new PlayerMatchRecord(isEnemy, -1, matchId);
     }
 
+    //for player tab/mechlist
+    public static PlayerMatchRecord getReferenceRecord(int playerId, String mechVariant) {
+        PlayerMatchRecord pmr = new PlayerMatchRecord(false, playerId, -1);
+        MechRuntime mr = MechRuntime.getMechByShortName(mechVariant);
+        pmr.getMatchValues().putAll(mr.getDerivedValues());
+        return pmr;
+    }
+
     public static Preloadable getPreloaderInstance() {
         return getReferenceRecord(false, -1);
     }

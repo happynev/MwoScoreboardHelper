@@ -15,6 +15,7 @@ import java.util.List;
  */
 public class StatBuilder {
     private static final List<CustomizableStatTemplate> defaultStats;
+    private static final List<CustomizableStatTemplate> defaultPlayerTabMechStats;
 
     static {
         defaultStats = new ArrayList<>();
@@ -224,6 +225,23 @@ public class StatBuilder {
                 .addCalculationStep(RecordFilterType.MECHCLASS.getInstance("Assault"))
                 .addCalculationStep(StatAggregatorType.COUNT.getInstance(StatType.MECH_CLASS))
                 .build());
+
+        defaultPlayerTabMechStats = new ArrayList<>();
+        defaultPlayerTabMechStats.add(StatBuilder.newStat("#", "Number of records collected with this mech")
+                .addCalculationStep(RecordFilterType.PLAYER.getInstance())
+                .addCalculationStep(RecordFilterType.MECHVARIANT.getInstance())
+                .addCalculationStep(StatAggregatorType.COUNT.getInstance(StatType.MATCHES))
+                .build());
+        for (StatType stat : Arrays.asList(StatType.ASSISTS, StatType.KILLS, StatType.DAMAGE, StatType.SCORE, StatType.SOLO_KILLS))
+            defaultPlayerTabMechStats.add(StatBuilder.newStat("~" + stat.toString(), stat.getDescription() + " average in this mech")
+                    .addCalculationStep(RecordFilterType.PLAYER.getInstance())
+                    .addCalculationStep(RecordFilterType.MECHVARIANT.getInstance())
+                    .addCalculationStep(StatAggregatorType.AVERAGE.getInstance(stat))
+                    .build());
+    }
+
+    public static List<CustomizableStatTemplate> getDefaultPlayerTabMechStats() {
+        return defaultPlayerTabMechStats;
     }
 
     public static List<CustomizableStatTemplate> getDefaultStats() {

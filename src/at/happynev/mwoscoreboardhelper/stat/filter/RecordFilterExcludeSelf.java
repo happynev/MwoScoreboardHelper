@@ -13,15 +13,17 @@ import java.util.Collection;
  */
 public class RecordFilterExcludeSelf extends RecordFilterByPlayer {
 
-    private final PlayerRuntime self = PlayerRuntime.getInstance(SettingsTabController.getPlayername());
+    public RecordFilterExcludeSelf() {
+        super("" + PlayerRuntime.getInstance(SettingsTabController.getPlayername()).getId());
+    }
 
     @Override
     public boolean accept(Collection<PlayerMatchRecord> records, PlayerMatchRecord pmr, PlayerMatchRecord reference) {
-        return pmr.getPlayerId() != self.getId();
+        return !super.accept(records, pmr, reference);
     }
 
     @Override
     public StatExplanationStep getStepDescription() {
-        return new StatExplanationStep(GuiUtils.DEFAULT_FRONT_COLOR, "remove " + self.getPilotname() + "'s records");
+        return new StatExplanationStep(GuiUtils.DEFAULT_FRONT_COLOR, "remove " + SettingsTabController.getPlayername() + "'s records");
     }
 }

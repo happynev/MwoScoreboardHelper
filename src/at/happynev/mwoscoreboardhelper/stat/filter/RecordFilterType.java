@@ -27,7 +27,7 @@ public enum RecordFilterType {
             case MATCH:
                 return new RecordFilterByMatch();
             case PLAYER:
-                return new RecordFilterByPlayer();
+                return new RecordFilterByPlayer(parameters);
             case TEAM:
                 return new RecordFilterByTeam();
             case SELF:

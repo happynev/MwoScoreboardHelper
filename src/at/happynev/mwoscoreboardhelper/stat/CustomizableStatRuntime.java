@@ -29,9 +29,12 @@ public class CustomizableStatRuntime implements DisplayableStat {
     }
 
     public String getValue() {
+        return getValue(PlayerMatchRecord.getAllRecords().values());
+    }
+
+    public String getValue(Collection<PlayerMatchRecord> recordList) {
         if (value.isEmpty()) {
-            Collection<PlayerMatchRecord> records = PlayerMatchRecord.getAllRecords().values();
-            StatCalculationWorkingSet currentWorkingSet = new StatCalculationWorkingSet(records, currentRecord);
+            StatCalculationWorkingSet currentWorkingSet = new StatCalculationWorkingSet(recordList, currentRecord);
             for (StatPipelineStep step : calculationSteps) {
                 currentWorkingSet = step.calculateStep(currentWorkingSet);
                 if (currentWorkingSet.hasOverridePaint()) {

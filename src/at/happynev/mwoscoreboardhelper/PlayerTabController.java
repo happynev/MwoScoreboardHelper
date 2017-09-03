@@ -150,18 +150,16 @@ public class PlayerTabController {
 
     private void buildMechTable() {
         /*
-        TableColumn<PlayerRuntime.PlayerMechStats, String> colMech = new TableColumn<>("Mech");
+        RecordFilterType.PLAYER.getInstance()
+        TableColumn<CustomizableStatRuntime, String> colMech = new TableColumn<>("Mech");
         colMech.setCellValueFactory(param -> {
             String value = param.getValue().getMech().getShortName();
-            return new SimpleStringProperty(value);
+            return new ReadOnlyStringWrapper("test");
         });
         tableMechs.getColumns().add(colMech);
-        for (PlayerStat stat : PlayerStat.values()) {
-            if (stat == PlayerStat.FAVMECHS || stat == PlayerStat.BESTMECHS) {
-                continue;
-            }
-            TableColumn<PlayerRuntime.PlayerMechStats, String> col = new TableColumn<>();
-            col.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getStats().get(stat)));
+        for (CustomizableStatTemplate stat : StatBuilder.getDefaultPlayerTabMechStats()) {
+            TableColumn<CustomizableStatRuntime, String> col = new TableColumn<>();
+            col.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().getValue()));
             Label columnHeader = new Label(stat.toString());
             columnHeader.setTooltip(new Tooltip(stat.getDescription()));
             col.setGraphic(columnHeader);
@@ -169,10 +167,7 @@ public class PlayerTabController {
             col.setPrefWidth(GuiUtils.getColumnConstraint(columnHeader).getPrefWidth());
             col.setComparator(Utils.getNumberComparator());
             tableMechs.getColumns().add(col);
-        }
-        */
-        // colPlayerUnit.prefWidthProperty().bind(tablePlayers.widthProperty().multiply(0.2));
-
+        }*/
     }
 
     private void buildMatchTable() {
