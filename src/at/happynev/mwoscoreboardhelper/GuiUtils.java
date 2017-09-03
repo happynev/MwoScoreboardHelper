@@ -207,7 +207,7 @@ public class GuiUtils {
         labelHeader.setFont(tooltipFont);
         fancyTooltip.add(labelHeader, 0, row++, GridPane.REMAINING, 1);
         List<Paint> colors = new ArrayList<>();
-        colors.add(startingColor);
+        //colors.add(startingColor);
         for (StatExplanationStep step : stat.getExplanation()) {
             String text = step.getDescription();
             Label labelText = new Label(text);
@@ -235,15 +235,7 @@ public class GuiUtils {
             }
             row++;
         }
-        Paint finalColor = null;
-        if (stat.getOverridePaint() != null) {
-            finalColor = stat.getOverridePaint();
-        } else {
-            finalColor = getAverageColor(colors);
-            if (finalColor == null) {
-                finalColor = new Color(0, 0, 0, 0);
-            }
-        }
+        Paint finalColor = stat.getPaint();
         Tooltip tt = new Tooltip();
         tt.setGraphic(fancyTooltip);
         l.setTooltip(tt);
@@ -252,7 +244,7 @@ public class GuiUtils {
         l.setMaxWidth(Double.MAX_VALUE);
     }
 
-    private static Paint getAverageColor(List<Paint> colors) {
+    public static Paint getAverageColor(List<Paint> colors) {
         double r = 0;
         double g = 0;
         double b = 0;

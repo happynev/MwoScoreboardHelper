@@ -1,6 +1,8 @@
 package at.happynev.mwoscoreboardhelper.stat;
 
+import at.happynev.mwoscoreboardhelper.GuiUtils;
 import at.happynev.mwoscoreboardhelper.PlayerMatchRecord;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 
 import java.util.ArrayList;
@@ -24,7 +26,7 @@ public class CustomizableStatRuntime implements DisplayableStat {
         this.template = template;
     }
 
-    public Paint getOverridePaint() {
+    public Paint getPaint() {
         return overridePaint;
     }
 
@@ -33,12 +35,15 @@ public class CustomizableStatRuntime implements DisplayableStat {
     }
 
     public String getValue(Collection<PlayerMatchRecord> recordList) {
+        List<Paint> colors = new ArrayList<>();
         if (value.isEmpty()) {
             StatCalculationWorkingSet currentWorkingSet = new StatCalculationWorkingSet(recordList, currentRecord);
             for (StatPipelineStep step : calculationSteps) {
                 currentWorkingSet = step.calculateStep(currentWorkingSet);
                 if (currentWorkingSet.hasOverridePaint()) {
                     this.overridePaint = currentWorkingSet.getOverridePaint();
+                } else {
+                    colors.add(step.getStepDescription().getPaint());
                 }
             }
             String value = currentWorkingSet.getLastValue();
@@ -47,6 +52,12 @@ public class CustomizableStatRuntime implements DisplayableStat {
                 value = "null?";
             }
             this.value = value;
+        }
+        if (this.overridePaint == null) {
+            this.overridePaint = GuiUtils.getAverageColor(colors);
+            if (this.overridePaint == null) {
+                this.overridePaint = new Color(40, 40, 40, 0);
+            }
         }
         return value;
     }

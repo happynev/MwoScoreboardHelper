@@ -14,5 +14,5 @@ public interface DisplayableStat {
 
     List<StatExplanationStep> getExplanation();
 
-    Paint getOverridePaint();
+    Paint getPaint();
 }
