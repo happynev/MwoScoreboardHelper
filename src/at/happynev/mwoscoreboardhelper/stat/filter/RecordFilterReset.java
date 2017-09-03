@@ -20,7 +20,7 @@ public class RecordFilterReset extends RecordFilter {
     @Override
     public StatCalculationWorkingSet calculateStep(StatCalculationWorkingSet input) {
         input.getRecords().clear();
-        input.getRecords().addAll(PlayerMatchRecord.getAllRecords());
+        input.getRecords().addAll(PlayerMatchRecord.getAllRecords().values());
         input.addStepExplanation(new StatExplanationStep(this.getStepDescription(), input.getRecords().size() + " records"));
         return input;
     }

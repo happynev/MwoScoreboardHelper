@@ -1,5 +1,6 @@
 package at.happynev.mwoscoreboardhelper;
 
+import at.happynev.mwoscoreboardhelper.preloader.Preloadable;
 import at.happynev.mwoscoreboardhelper.stat.CustomizableStatRuntime;
 import at.happynev.mwoscoreboardhelper.stat.CustomizableStatTemplate;
 import at.happynev.mwoscoreboardhelper.stat.StatBuilder;
@@ -7,12 +8,17 @@ import at.happynev.mwoscoreboardhelper.stat.StatTable;
 import at.happynev.mwoscoreboardhelper.tracer.*;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.binding.IntegerBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableIntegerValue;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
+import javafx.concurrent.Task;
 import javafx.scene.Group;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
@@ -35,11 +41,12 @@ import java.util.*;
 /**
  * Created by Nev on 15.01.2017.
  */
-public class MatchRuntime {
+public class MatchRuntime implements Preloadable {
 
     private static final int TRACE_TIMEOUT = 1000 * 30;
     private static final long maxMatchTimeDifference = 1000 * 60 * (15 + 4);//15 minutes matchtime+4 to account for pre/post match;
-    private static Map<Integer, MatchRuntime> matchesById = new HashMap<>();
+    private static ObservableMap<Integer, MatchRuntime> matchesById = FXCollections.observableHashMap();
+    private final static IntegerBinding totalRecords = Bindings.size(matchesById);
     private final SimpleStringProperty matchName = new SimpleStringProperty("");
     private final SimpleStringProperty map = new SimpleStringProperty("");
     private final SimpleStringProperty server = new SimpleStringProperty("");
@@ -97,54 +104,34 @@ public class MatchRuntime {
         }
     }
 
-    private MatchRuntime(int id) {
-        try {
-            PreparedStatement prep = DbHandler.getInstance().prepareStatement("select matchtime,gamemode,map,matchResult,matchname,battletime,maptimeofday from MATCH_DATA where id=?");
-            prep.setInt(1, id);
-            ResultSet rs = prep.executeQuery();
-            if (rs.next()) {
-                long _timestamp = rs.getTimestamp(1).getTime();
-                String _gamemode = rs.getString(2);
-                String _map = rs.getString(3);
-                String _matchresult = rs.getString(4);
-                String _matchname = rs.getString(5);
-                String _battletime = rs.getString(6);
-                String _maptod = rs.getString(7);
-                timestamp = _timestamp;
-                formattedTimestamp.setValue(sdf.format(new Date(_timestamp)));
-                this.matchName.set(_matchname);
-                if (_gamemode != null) this.gameMode.set(_gamemode);
-                if (_map != null) this.map.set(_map);
-                if (_matchresult != null) this.matchResult.set(_matchresult);
-                if (_battletime != null) this.battleTime.set(_battletime);
-                if (_maptod != null) this.mapTimeOfDay.set(_maptod);
-                //initChangeListeners();
+    private MatchRuntime(int id, long timestamp, String gamemode, String map, String matchresult, String matchname, String battletime, String maptod) throws SQLException {
+        this.id = id;
+        this.timestamp = timestamp;
+        this.formattedTimestamp.setValue(sdf.format(new Date(timestamp)));
+        if (gamemode != null) this.gameMode.set(gamemode);
+        if (map != null) this.map.set(map);
+        if (matchresult != null) this.matchResult.set(matchresult);
+        if (battletime != null) this.battleTime.set(battletime);
+        if (maptod != null) this.mapTimeOfDay.set(maptod);
+        PreparedStatement prepPlayers = DbHandler.getInstance().prepareStatement("select player_data_id from PLAYER_MATCHDATA where match_data_id=?");
+        prepPlayers.setInt(1, id);
+        ResultSet rsPlayers = prepPlayers.executeQuery();
+        while (rsPlayers.next()) {
+            int player_id = rsPlayers.getInt(1);
+            PlayerMatchRecord pmr = PlayerMatchRecord.getInstance(player_id, id);
+            playerRecords.add(pmr);
+            if (pmr.isEnemy()) {
+                playersEnemy.add(PlayerRuntime.getInstance(player_id));
             } else {
-                throw new Exception("Match with id " + id + " not found in DB");
+                playersTeam.add(PlayerRuntime.getInstance(player_id));
             }
-            rs.close();
-            this.id = id;
-            PreparedStatement prepPlayers = DbHandler.getInstance().prepareStatement("select player_data_id from PLAYER_MATCHDATA where match_data_id=?");
-            prepPlayers.setInt(1, id);
-            ResultSet rsPlayers = prepPlayers.executeQuery();
-            while (rsPlayers.next()) {
-                int player_id = rsPlayers.getInt(1);
-                PlayerMatchRecord pmr = PlayerMatchRecord.getInstance(player_id, id);
-                playerRecords.add(pmr);
-                if (pmr.isEnemy()) {
-                    playersEnemy.add(PlayerRuntime.getInstance(player_id));
-                } else {
-                    playersTeam.add(PlayerRuntime.getInstance(player_id));
-                }
-            }
-            rsPlayers.close();
-            int playerid = PlayerRuntime.getInstance(SettingsTabController.getPlayername()).getId();
-            personalRecord = new PersonalMatchRecord(playerid, id);
-            //TODO: check screenshot archive
-            matchesById.put(id, this);
-        } catch (Exception e) {
-            handleLoadError(e, null);
         }
+        rsPlayers.close();
+        int playerid = PlayerRuntime.getUserInstance().getId();
+        personalRecord = PersonalMatchRecord.getInstance(playerid, id);
+        //TODO: check screenshot archive
+        matchesById.put(id, this);
+        initChangeListeners();
     }
 
     public static MatchRuntime getInstanceById(int id) {
@@ -152,9 +139,6 @@ public class MatchRuntime {
             return getReferenceMatch(ScreenshotType.QP_4SUMMARY);
         }
         MatchRuntime ret = matchesById.get(id);
-        if (ret == null) {
-            ret = getInstanceFromDb(id);
-        }
         return ret;
     }
 
@@ -218,10 +202,6 @@ public class MatchRuntime {
         return matchScore + mapScore + playerScore + timeScore / 4;
     }
 
-    private static MatchRuntime getInstanceFromDb(int id) {
-        return new MatchRuntime(id);
-    }
-
     public static void buildMatchDataLine(GridPane grid, int row, CustomizableStatRuntime teamValue, CustomizableStatRuntime enemyValue) {
         Font fontData = Font.font("System", FontWeight.BOLD, 15);
         Label labelTitle = new Label(teamValue.getTemplate().getShortName());
@@ -249,6 +229,10 @@ public class MatchRuntime {
         grid.add(labelEnemy, 2, row);
     }
 
+    public static Preloadable getPreloaderInstance() {
+        return getReferenceMatch(ScreenshotType.QP_4SUMMARY);
+    }
+
     public boolean getTracingFinished() {
         return tracingFinished.get();
     }
@@ -267,7 +251,7 @@ public class MatchRuntime {
                     gameMode.set(TraceHelpers.guessValue(tracer.getGameMode(), TraceHelpers.ValueList.GAMEMODE.getItems()).replaceAll(".*: ", ""));
                     battleTime.set(tracer.getBattleTime());
                     PlayerRuntime player = PlayerRuntime.getInstance(SettingsTabController.getPlayername());
-                    personalRecord = new PersonalMatchRecord(player, tracer, this);
+                    personalRecord = PersonalMatchRecord.createFromTrace(player, tracer, this);
                     saveOrUpdateMatch();
                     screenshot.archiveFile(id);
                 }
@@ -289,6 +273,7 @@ public class MatchRuntime {
             mapAndPlayerFinished.addListener((observable, oldValue, newValue) -> {
                 if (newValue) {
                     try {
+                        PlayerRuntime pr = PlayerRuntime.createOrLoadFromTrace(pi);
                         boolean isVictory = matchResult.get().startsWith("VICTORY");
                         boolean isDefeat = matchResult.get().startsWith("DEFEAT");
                         boolean isDraw = matchResult.get().endsWith("TIE");
@@ -306,17 +291,10 @@ public class MatchRuntime {
                             isEnemy = p >= 12;
                         }
 
-                        PlayerRuntime pr = PlayerRuntime.getInstance(pi.getPilotName());
-                        pr.unitProperty().set(pi.getUnitTag());
-                        if (!pr.getPilotname().equals(SettingsTabController.getPlayername()) && !SessionRuntime.playersNew.contains(pr)) {
-                            //don't count players that were seen firsttime in this session as known
-                            SessionRuntime.playersKnown.add(pr);
-                        }
-
                         pr.setPlayerNumber(p);
                         PlayerMatchRecord prec = null;
                         try {
-                            prec = PlayerMatchRecord.createInstance(pr, pi, this, isEnemy);
+                            prec = PlayerMatchRecord.createFromTrace(pr, pi, this, isEnemy);
                         } catch (Exception e) {
                             Logger.error(e);
                             Logger.log("using dummy match record for " + pi.getPilotName());
@@ -405,12 +383,8 @@ public class MatchRuntime {
                 cleanPreviousMatchRecords(newId);
             }
             if (type != ScreenshotType.QP_3REWARDS) {
-                //load previously saved personal record
-                try {
-                    personalRecord = new PersonalMatchRecord(PlayerRuntime.getInstance(SettingsTabController.getPlayername()).getId(), newId);
-                } catch (Exception e) {
-                    //ok, it might not exist. leave as null
-                }
+                //load previously saved personal record (null if there isn't one)
+                personalRecord = PersonalMatchRecord.getInstance(PlayerRuntime.getUserInstance().getId(), newId);
             }
         } else {
             newId = createMatchEntry();
@@ -518,7 +492,7 @@ public class MatchRuntime {
             int bestScore = 15;//minimum requirement
             while (rs.next()) {
                 int id = rs.getInt(1);
-                MatchRuntime candidate = new MatchRuntime(id);
+                MatchRuntime candidate = matchesById.get(id);
                 if (candidate.getTimestamp() == timestamp) {
                     bestCandidate = candidate;
                     Logger.warning("tried to import duplicate screenshot, same timestamp " + sdf.format(new Date(timestamp)));
@@ -797,15 +771,66 @@ public class MatchRuntime {
         return null;
     }
 
-    public static abstract class MatchCalculatedValue {
-        String teamValue = "";
-        String enemyValue = "";
-        String totalValue = "";
+    @Override
+    public ObservableIntegerValue loadedCountProperty() {
+        return totalRecords;
+    }
 
-        public MatchCalculatedValue() {
-            calculate();
+    @Override
+    public ObservableIntegerValue totalCountProperty() {
+        if (totalRecords.get() == 0) {
+            int count = 0;
+            try {
+                PreparedStatement prep = DbHandler.getInstance().prepareStatement("select count(*) from match_data");
+                ResultSet rs = prep.executeQuery();
+                rs.next();
+                count = rs.getInt(1);
+                rs.close();
+                prep.close();
+            } catch (SQLException e) {
+                Logger.error(e);
+            }
+            return new SimpleIntegerProperty(count);
+        } else {
+            return totalRecords;
         }
+    }
 
-        public abstract void calculate();
+    @Override
+    public Task getLoaderTask() {
+        final int totalWork = totalCountProperty().get();
+        return new Task() {
+
+            @Override
+            protected Object call() throws Exception {
+                try {
+                    PreparedStatement prep = DbHandler.getInstance().prepareStatement("select matchtime,gamemode,map,matchResult,matchname,battletime,maptimeofday,id from MATCH_DATA");
+                    ResultSet rs = prep.executeQuery();
+                    while (rs.next()) {
+                        long _timestamp = rs.getTimestamp(1).getTime();
+                        String _gamemode = rs.getString(2);
+                        String _map = rs.getString(3);
+                        String _matchresult = rs.getString(4);
+                        String _matchname = rs.getString(5);
+                        String _battletime = rs.getString(6);
+                        String _maptod = rs.getString(7);
+                        int id = rs.getInt(8);
+                        new MatchRuntime(id, _timestamp, _gamemode, _map, _matchresult, _matchname, _battletime, _maptod);
+                        updateProgress(matchesById.size(), totalWork);
+                        updateMessage("(" + matchesById.size() + "/" + totalWork + ")");
+                    }
+                    rs.close();
+                } catch (Exception e) {
+                    Logger.alertPopup("loading all match records FAILED");
+                    Logger.error(e);
+                }
+                return null;
+            }
+        };
+    }
+
+    @Override
+    public String getPreloadCaption() {
+        return "Match data";
     }
 }

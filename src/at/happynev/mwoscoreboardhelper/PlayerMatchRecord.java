@@ -1,19 +1,30 @@
 package at.happynev.mwoscoreboardhelper;
 
+import at.happynev.mwoscoreboardhelper.preloader.Preloadable;
 import at.happynev.mwoscoreboardhelper.stat.StatType;
 import at.happynev.mwoscoreboardhelper.tracer.PlayerInfoTracer;
 import at.happynev.mwoscoreboardhelper.tracer.TraceHelpers;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.IntegerBinding;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.value.ObservableIntegerValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableMap;
+import javafx.concurrent.Task;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Created by Nev on 20.01.2017.
  */
-public class PlayerMatchRecord {
-    private final static Map<String, PlayerMatchRecord> allRecords = new HashMap<>();
+public class PlayerMatchRecord implements Preloadable {
+    private final static ObservableMap<String, PlayerMatchRecord> allRecords = FXCollections.observableHashMap();
+    private final static IntegerBinding totalRecords = Bindings.size(allRecords);
     private final int playerId;
     private final boolean isEnemy;
     private final boolean isWinner;
@@ -68,11 +79,11 @@ public class PlayerMatchRecord {
         int damage = 1000;
         int ping = 100;
         matchValues.putAll(MechRuntime.getReferenceMech().getDerivedValues());
-        matchValues.put(StatType.ASSISTS, "x" + assists);
-        matchValues.put(StatType.DAMAGE, "x" + damage);
-        matchValues.put(StatType.KILLS, "x" + kills);
-        matchValues.put(StatType.PING, "x" + ping);
-        matchValues.put(StatType.SCORE, "x" + matchScore);
+        matchValues.put(StatType.ASSISTS, "" + assists);
+        matchValues.put(StatType.DAMAGE, "" + damage);
+        matchValues.put(StatType.KILLS, "" + kills);
+        matchValues.put(StatType.PING, "" + ping);
+        matchValues.put(StatType.SCORE, "" + matchScore);
         matchValues.put(StatType.STATUS, status);
         this.isEnemy = isEnemy;
         this.isWinner = true;
@@ -92,7 +103,7 @@ public class PlayerMatchRecord {
         }
     }
 
-    public static PlayerMatchRecord createInstance(PlayerRuntime player, PlayerInfoTracer info, MatchRuntime match, boolean isEnemy) {
+    public static PlayerMatchRecord createFromTrace(PlayerRuntime player, PlayerInfoTracer info, MatchRuntime match, boolean isEnemy) {
         int playerId = player.getId();
         int matchId = match.getId();
         if (!info.getFinished()) {
@@ -116,51 +127,25 @@ public class PlayerMatchRecord {
         return new PlayerMatchRecord(playerId, matchId, mech, status, matchScore, kills, assists, damage, ping, isEnemy, timestamp, matchResult, gameMode, map);
     }
 
-    public static synchronized Collection<PlayerMatchRecord> getAllRecords() {
-        if (allRecords.isEmpty()) {
-            Logger.log("loading all matchrecords");
-            try {
-                PreparedStatement prep = DbHandler.getInstance().prepareStatement(
-                        "select pm.mech,pm.status,pm.score,pm.kills,pm.assists,pm.damage,pm.ping,pm.enemy," +
-                                "m.matchtime,m.matchresult,pm.player_data_id, pm.match_data_id, m.gamemode, m.map " +
-                                "from player_matchdata pm, match_data m where pm.match_data_id=m.id");
-                ResultSet rs = prep.executeQuery();
-                while (rs.next()) {
-                    String mech = rs.getString(1);
-                    String status = rs.getString(2);
-                    int matchScore = rs.getInt(3);
-                    int kills = rs.getInt(4);
-                    int assists = rs.getInt(5);
-                    int damage = rs.getInt(6);
-                    int ping = rs.getInt(7);
-                    boolean isEnemy = rs.getBoolean(8);
-                    long timestamp = rs.getTimestamp(9).getTime();
-                    String matchResult = rs.getString(10);
-                    int playerId = rs.getInt(11);
-                    int matchId = rs.getInt(12);
-                    String gameMode = rs.getString(13);
-                    String map = rs.getString(14);
-                    //saves itself to allRecords map
-                    new PlayerMatchRecord(playerId, matchId, mech, status, matchScore, kills, assists, damage, ping, isEnemy, timestamp, matchResult, gameMode, map);
-                }
-                rs.close();
-                prep.close();
-                Logger.log("loading all " + allRecords.size() + " matchrecords finished");
-            } catch (Exception e) {
-                Logger.alertPopup("loading all matchrecords FAILED");
-                Logger.error(e);
-            }
-        }
-        return allRecords.values();
+    public static ObservableMap<String, PlayerMatchRecord> getAllRecords() {
+        return allRecords;
     }
 
     public static PlayerMatchRecord getInstance(int playerId, int matchId) {
-        getAllRecords();
-        return allRecords.get(playerId + "_" + matchId);
+        String key = playerId + "_" + matchId;
+        if (allRecords.containsKey(key)) {
+            return allRecords.get(key);
+        } else {
+            throw new IllegalArgumentException("PlayerMatchRecord " + key + " doesn't exist");
+        }
     }
 
     public static PlayerMatchRecord getReferenceRecord(boolean isEnemy, int matchId) {
         return new PlayerMatchRecord(isEnemy, -1, matchId);
+    }
+
+    public static Preloadable getPreloaderInstance() {
+        return getReferenceRecord(false, -1);
     }
 
     @Override
@@ -209,11 +194,11 @@ public class PlayerMatchRecord {
     }
 
     public boolean mergePersonalStats() {
-        try {
-            PersonalMatchRecord pers = new PersonalMatchRecord(playerId, matchId);
+        PersonalMatchRecord pers = PersonalMatchRecord.getInstance(playerId, matchId);
+        if (pers != null) {
             matchValues.putAll(pers.getMatchValues());
             return true;
-        } catch (IllegalArgumentException | SQLException e) {
+        } else {
             return false;
         }
     }
@@ -278,5 +263,78 @@ public class PlayerMatchRecord {
 
     public boolean isLoser() {
         return isLoser;
+    }
+
+    @Override
+    public ObservableIntegerValue loadedCountProperty() {
+        return totalRecords;
+    }
+
+    @Override
+    public ObservableIntegerValue totalCountProperty() {
+        if (totalRecords.get() == 0) {
+            int count = 0;
+            try {
+                PreparedStatement prep = DbHandler.getInstance().prepareStatement("select count(*) from player_matchdata");
+                ResultSet rs = prep.executeQuery();
+                rs.next();
+                count = rs.getInt(1);
+                rs.close();
+                prep.close();
+            } catch (SQLException e) {
+                Logger.error(e);
+            }
+            return new SimpleIntegerProperty(count);
+        } else {
+            return totalRecords;
+        }
+    }
+
+    @Override
+    public Task getLoaderTask() {
+        final int totalWork = totalCountProperty().get();
+        return new Task() {
+            @Override
+            protected Object call() throws Exception {
+                try {
+                    PreparedStatement prep = DbHandler.getInstance().prepareStatement(
+                            "select pm.mech,pm.status,pm.score,pm.kills,pm.assists,pm.damage,pm.ping,pm.enemy," +
+                                    "m.matchtime,m.matchresult,pm.player_data_id, pm.match_data_id, m.gamemode, m.map " +
+                                    "from player_matchdata pm, match_data m where pm.match_data_id=m.id");
+                    ResultSet rs = prep.executeQuery();
+                    while (rs.next()) {
+                        String mech = rs.getString(1);
+                        String status = rs.getString(2);
+                        int matchScore = rs.getInt(3);
+                        int kills = rs.getInt(4);
+                        int assists = rs.getInt(5);
+                        int damage = rs.getInt(6);
+                        int ping = rs.getInt(7);
+                        boolean isEnemy = rs.getBoolean(8);
+                        long timestamp = rs.getTimestamp(9).getTime();
+                        String matchResult = rs.getString(10);
+                        int playerId = rs.getInt(11);
+                        int matchId = rs.getInt(12);
+                        String gameMode = rs.getString(13);
+                        String map = rs.getString(14);
+                        //saves itself to allRecords map
+                        new PlayerMatchRecord(playerId, matchId, mech, status, matchScore, kills, assists, damage, ping, isEnemy, timestamp, matchResult, gameMode, map);
+                        updateProgress(allRecords.size(), totalWork);
+                        updateMessage("(" + allRecords.size() + "/" + totalWork + ")");
+                    }
+                    rs.close();
+                    prep.close();
+                } catch (Exception e) {
+                    Logger.alertPopup("loading all matchrecords FAILED");
+                    Logger.error(e);
+                }
+                return null;
+            }
+        };
+    }
+
+    @Override
+    public String getPreloadCaption() {
+        return "Match data Records";
     }
 }

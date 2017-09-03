@@ -6,8 +6,6 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
@@ -18,8 +16,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import org.apache.commons.lang3.time.FastDateFormat;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -312,22 +308,7 @@ public class PlayerTabController {
     private void refreshData() {
         PlayerRuntime selection = tablePlayers.getSelectionModel().getSelectedItem();
         tablePlayers.getSelectionModel().clearSelection();
-        try {
-            PreparedStatement prepListPlayers = DbHandler.getInstance().prepareStatement("select distinct pilotname from player_data");
-            ResultSet rs = prepListPlayers.executeQuery();
-            ObservableList<PlayerRuntime> tmp = FXCollections.observableArrayList();
-            while (rs.next()) {
-                PlayerRuntime pr = PlayerRuntime.getInstance(rs.getString(1));
-                if (pr.getPilotname().toLowerCase().contains(textPlayerFilter.getText().toLowerCase())) {
-                    tmp.add(pr);
-                }
-            }
-            rs.close();
-            tablePlayers.getItems().clear();
-            tablePlayers.getItems().addAll(tmp);
-        } catch (Exception e) {
-            Logger.error(e);
-        }
+        tablePlayers.getItems().addAll(PlayerRuntime.getAllPlayers());
         tablePlayers.sort();
         if (selection != null && tablePlayers.getItems().contains(selection)) {
             selectPlayerFromList(selection);

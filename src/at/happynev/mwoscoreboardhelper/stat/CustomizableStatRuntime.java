@@ -1,7 +1,6 @@
 package at.happynev.mwoscoreboardhelper.stat;
 
 import at.happynev.mwoscoreboardhelper.PlayerMatchRecord;
-import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 
 import java.util.ArrayList;
@@ -31,7 +30,7 @@ public class CustomizableStatRuntime implements DisplayableStat {
 
     public String getValue() {
         if (value.isEmpty()) {
-            Collection<PlayerMatchRecord> records = PlayerMatchRecord.getAllRecords();
+            Collection<PlayerMatchRecord> records = PlayerMatchRecord.getAllRecords().values();
             StatCalculationWorkingSet currentWorkingSet = new StatCalculationWorkingSet(records, currentRecord);
             for (StatPipelineStep step : calculationSteps) {
                 currentWorkingSet = step.calculateStep(currentWorkingSet);

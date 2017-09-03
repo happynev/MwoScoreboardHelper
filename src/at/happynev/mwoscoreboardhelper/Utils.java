@@ -117,6 +117,12 @@ public class Utils {
         return ret.setScale(precision, BigDecimal.ROUND_HALF_UP).toPlainString();
     }
 
+    public static void reportMemoryUsage(String info) {
+        long total = Runtime.getRuntime().totalMemory() / (1024 * 1024);
+        long used = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / (1024 * 1024);
+        Logger.log("memory usage " + info + ": " + used + "mb of " + total + "mb");
+    }
+
     public static class NumericStringComparator implements Comparator<String> {
         @Override
         public int compare(String o1, String o2) {

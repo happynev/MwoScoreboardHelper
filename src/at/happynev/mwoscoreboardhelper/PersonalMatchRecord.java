@@ -1,8 +1,16 @@
 package at.happynev.mwoscoreboardhelper;
 
+import at.happynev.mwoscoreboardhelper.preloader.Preloadable;
 import at.happynev.mwoscoreboardhelper.stat.StatType;
 import at.happynev.mwoscoreboardhelper.tracer.RewardInfoTracer;
 import at.happynev.mwoscoreboardhelper.tracer.TraceHelpers;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.IntegerBinding;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.value.ObservableIntegerValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableMap;
+import javafx.concurrent.Task;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,55 +21,30 @@ import java.util.TreeMap;
 /**
  * Created by Nev on 20.01.2017.
  */
-public class PersonalMatchRecord{
+public class PersonalMatchRecord implements Preloadable {
+    private final static ObservableMap<String, PersonalMatchRecord> allRecords = FXCollections.observableHashMap();
+    private final static IntegerBinding totalRecords = Bindings.size(allRecords);
     private final int playerId;
-    private final long timestamp;
     private final Map<StatType, String> matchValues = new TreeMap<>();
     private int matchId;
 
-    public PersonalMatchRecord(int playerId, int matchId) throws IllegalArgumentException, SQLException {
+    private PersonalMatchRecord(int playerId, int matchId, String reward_cbills, String reward_xp, String solo_kills, String kmdds, String comps) {
         this.playerId = playerId;
         this.matchId = matchId;
-        PreparedStatement prep = DbHandler.getInstance().prepareStatement(
-                "select pm.reward_cbills,pm.reward_xp,pm.stat_solo,pm.stat_kmdd,pm.stat_comp,m.matchtime " +
-                        "from personal_matchdata pm, match_data m " +
-                        "where pm.player_data_id=? and pm.match_data_id=? and pm.match_data_id=m.id");
-        prep.setInt(1, playerId);
-        prep.setInt(2, matchId);
-        ResultSet rs = prep.executeQuery();
-        try {
-            if (rs.next()) {
-                matchValues.put(StatType.REWARD_CBILLS, rs.getString(1));
-                matchValues.put(StatType.REWARD_XP, rs.getString(2));
-                matchValues.put(StatType.SOLO_KILLS, rs.getString(3));
-                matchValues.put(StatType.KMDDS, rs.getString(4));
-                matchValues.put(StatType.COMPONENT_DESTROYED, rs.getString(5));
-                timestamp = rs.getTimestamp(6).getTime();
-            } else {
-                throw new IllegalArgumentException("Personal Record for " + playerId + "/" + matchId + " not found");
-            }
-        } finally {
-            rs.close();
+        matchValues.put(StatType.REWARD_CBILLS, reward_cbills);
+        matchValues.put(StatType.REWARD_XP, reward_xp);
+        matchValues.put(StatType.SOLO_KILLS, solo_kills);
+        matchValues.put(StatType.KMDDS, kmdds);
+        matchValues.put(StatType.COMPONENT_DESTROYED, comps);
+        if (playerId != -1 && matchId != -1) {
+            allRecords.put(playerId + "_" + matchId, this);
         }
     }
 
-    private PersonalMatchRecord(int playerId) {
-        this.playerId = playerId;
-        matchId = -1;
-        timestamp = 0;
-        matchValues.put(StatType.REWARD_CBILLS, "0");
-        matchValues.put(StatType.REWARD_XP, "0");
-        matchValues.put(StatType.SOLO_KILLS, "0");
-        matchValues.put(StatType.KMDDS, "0");
-        matchValues.put(StatType.COMPONENT_DESTROYED, "0");
-    }
-
-    public PersonalMatchRecord(PlayerRuntime player, RewardInfoTracer info, MatchRuntime match) throws IllegalArgumentException, SQLException {
-        playerId = player.getId();
+    public static PersonalMatchRecord createFromTrace(PlayerRuntime player, RewardInfoTracer info, MatchRuntime match) {
         if (!info.getFinished()) {
             throw new IllegalArgumentException("RewardInfoTracer is not ready");
-        }//select count(*),sum(reward_cbills),sum(reward_xp),sum(stat_solo),sum(stat_kmdd),sum(stat_comp) from personal_matchdata where has_rewards=true
-        timestamp = match.getTimestamp();
+        }
         if (info == null) {
             throw new IllegalArgumentException("no reward info tracer");
         } else {
@@ -78,25 +61,27 @@ public class PersonalMatchRecord{
                     tmpComp = info.getPerformanceValue(i);
                 }
             }
-            matchValues.put(StatType.REWARD_CBILLS, "" + info.getCbills());
-            matchValues.put(StatType.REWARD_XP, "" + info.getXp());
-            matchValues.put(StatType.SOLO_KILLS, "" + tmpSolo);
-            matchValues.put(StatType.KMDDS, "" + tmpKmdd);
-            matchValues.put(StatType.COMPONENT_DESTROYED, "" + tmpComp);
-            SessionRuntime.sessionPersonalRecords.add(this);
+            PersonalMatchRecord newPmr = new PersonalMatchRecord(player.getId(), match.getId(), "" + info.getCbills(), "" + info.getXp(), "" + tmpSolo, "" + tmpKmdd, "" + tmpComp);
+            SessionRuntime.sessionPersonalRecords.add(newPmr);
+            return newPmr;
         }
     }
 
+    public static PersonalMatchRecord getInstance(int playerId, int matchId) {
+        String key = playerId + "_" + matchId;
+        return allRecords.get(key);
+    }
+
     public static PersonalMatchRecord getReferenceRecord(int playerId) {
-        return new PersonalMatchRecord(playerId);
+        return new PersonalMatchRecord(playerId, -1, "50000", "1000", "1", "2", "3");
+    }
+
+    public static Preloadable getPreloaderInstance() {
+        return getReferenceRecord(-1);
     }
 
     public Map<StatType, String> getMatchValues() {
         return matchValues;
-    }
-
-    public long getTimestamp() {
-        return timestamp;
     }
 
     public int getRewardsCbills() {
@@ -137,6 +122,7 @@ public class PersonalMatchRecord{
         prep.setInt(6, getKmdds());
         prep.setInt(7, getComponentDestroyed());
         prep.executeUpdate();
+        allRecords.put(playerId + "_" + matchId, this);
     }
 
     private void updateRecord(String field, int value) {
@@ -162,5 +148,69 @@ public class PersonalMatchRecord{
 
     public int getPlayerId() {
         return playerId;
+    }
+
+    @Override
+    public ObservableIntegerValue loadedCountProperty() {
+        return totalRecords;
+    }
+
+    @Override
+    public ObservableIntegerValue totalCountProperty() {
+        if (totalRecords.get() == 0) {
+            int count = 0;
+            try {
+                PreparedStatement prep = DbHandler.getInstance().prepareStatement("select count(*) from personal_matchdata");
+                ResultSet rs = prep.executeQuery();
+                rs.next();
+                count = rs.getInt(1);
+                rs.close();
+                prep.close();
+            } catch (SQLException e) {
+                Logger.error(e);
+            }
+            return new SimpleIntegerProperty(count);
+        } else {
+            return totalRecords;
+        }
+    }
+
+    @Override
+    public Task getLoaderTask() {
+        final int totalWork = totalCountProperty().get();
+        return new Task() {
+
+            @Override
+            protected Object call() throws Exception {
+                try {
+                    PreparedStatement prep = DbHandler.getInstance().prepareStatement(
+                            "select reward_cbills,reward_xp,stat_solo,stat_kmdd,stat_comp,player_data_id,match_data_id from personal_matchdata");
+                    ResultSet rs = prep.executeQuery();
+                    while (rs.next()) {
+                        String reward_cbills = rs.getString(1);
+                        String reward_xp = rs.getString(2);
+                        String solo_kills = rs.getString(3);
+                        String kmdds = rs.getString(4);
+                        String comps = rs.getString(5);
+                        int player_id = rs.getInt(6);
+                        int match_id = rs.getInt(7);
+                        new PersonalMatchRecord(player_id, match_id, reward_cbills, reward_xp, solo_kills, kmdds, comps);
+                        updateProgress(allRecords.size(), totalWork);
+                        updateMessage("(" + allRecords.size() + "/" + totalWork + ")");
+                    }
+                    rs.close();
+                    prep.close();
+                } catch (Exception e) {
+                    Logger.alertPopup("loading all personalrecords FAILED");
+                    Logger.error(e);
+                }
+                return null;
+            }
+        };
+    }
+
+    @Override
+    public String getPreloadCaption() {
+        return "Personal data records";
     }
 }

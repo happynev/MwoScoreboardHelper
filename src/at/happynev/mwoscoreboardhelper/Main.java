@@ -1,6 +1,8 @@
 package at.happynev.mwoscoreboardhelper;
 
+import at.happynev.mwoscoreboardhelper.preloader.DataPreloader;
 import javafx.application.Application;
+import javafx.beans.binding.BooleanExpression;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -29,7 +31,7 @@ public class Main extends Application {
     }
 
     public static String getVersion() {
-        return "0.41 High Roller";
+        return "0.5 Dragon";
     }
 
     public static void main(String[] args) {
@@ -45,25 +47,41 @@ public class Main extends Application {
         Logger.log("db server: " + dbserver.getURL());
         DbHandler.getInstance();//pre-init
         URL loc = this.getClass().getResource("ScoreboardHelper.fxml");
-        try {
-            Parent root = FXMLLoader.load(loc);
-            Scene scene = new Scene(root);
-            primaryStage.setTitle("ScoreboardHelper");
-            primaryStage.setScene(scene);
-            SettingsTabController.restoreWindowPos(primaryStage);
-        } catch (Exception e) {
-            Logger.error(e);
-            Logger.alertPopup("error loading GUI. exiting:");
-            shutdown();
-        }
-
+        primaryStage.setTitle("ScoreboardHelper loading...");
+        Utils.reportMemoryUsage("before preload");
+        primaryStage.setScene(DataPreloader.getScene(primaryStage));
+        final long start = System.currentTimeMillis();
+        BooleanExpression preloadFinished = DataPreloader.startPreloading();
+        preloadFinished.addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                try {
+                    final long end = System.currentTimeMillis();
+                    Logger.log("total preload time: " + (end - start) + "ms");
+                    primaryStage.close();
+                    Utils.reportMemoryUsage("after preload");
+                    Parent root = FXMLLoader.load(loc);
+                    Scene scene = new Scene(root);
+                    primaryStage.setTitle("ScoreboardHelper");
+                    primaryStage.setScene(scene);
+                    SettingsTabController.restoreWindowPos(primaryStage);
+                    primaryStage.show();
+                    Utils.reportMemoryUsage("after building gui");
+                } catch (Exception e) {
+                    Logger.error(e);
+                    Logger.alertPopup("error loading GUI. exiting:");
+                    shutdown();
+                }
+            }
+        });
         primaryStage.setOnCloseRequest(
                 event -> {
                     WatcherTabController.getInstance().stopWatching();
-                    if (dbserver != null) {
-                        SettingsTabController.saveWindowPos(primaryStage);
-                        shutdown();
+                    if (preloadFinished.getValue()) {
+                        if (dbserver != null) {
+                            SettingsTabController.saveWindowPos(primaryStage);
+                        }
                     }
+                    shutdown();
                 }
 
         );
