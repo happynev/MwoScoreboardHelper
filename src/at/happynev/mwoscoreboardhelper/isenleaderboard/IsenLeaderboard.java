@@ -11,10 +11,16 @@ import org.apache.http.impl.client.HttpClients;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URLEncoder;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class IsenLeaderboard {
+    private static final Map<String, IsenLeaderboardResult> cachedResults = new ConcurrentHashMap<>();
+    private static final Set<String> cachedResultFails = new HashSet<>();
     private static IsenLeaderboard instance;
     private final CloseableHttpClient httpClient;
     private final int COL_SEASON = 0;
@@ -83,6 +89,24 @@ public class IsenLeaderboard {
     }
 
     public IsenLeaderboardResult getLeaderboardData(String playerName) {
+        synchronized (playerName) {
+            if (cachedResults.containsKey(playerName)) {
+                return cachedResults.get(playerName);
+            } else if (cachedResultFails.contains(playerName)) {
+                return null;
+            }
+            IsenLeaderboardResult ret = retrieveData(playerName);
+            //Logger.log("parsing took:" + (end - start) + "ms");
+            if (ret == null) {
+                cachedResultFails.add(playerName);
+            } else {
+                cachedResults.put(playerName, ret);
+            }
+            return ret;
+        }
+    }
+
+    private IsenLeaderboardResult retrieveData(String playerName) {
         IsenLeaderboardResult ret = new IsenLeaderboardResult();
         String html = getWebsiteData(playerName);
         long start = System.currentTimeMillis();
@@ -152,7 +176,6 @@ public class IsenLeaderboard {
             ret.addSeason(season, seasonData);
         }
         long end = System.currentTimeMillis();
-        //Logger.log("parsing took:" + (end - start) + "ms");
         return ret;
     }
 }
