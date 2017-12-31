@@ -17,6 +17,7 @@ import javafx.scene.paint.Color;
 import org.apache.commons.lang3.time.FastDateFormat;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -66,6 +67,8 @@ public class PlayerTabController {
     TextField textPlayerFilter;
     @FXML
     Button buttonClearPlayerFilter;
+    @FXML
+    Label labelNumPlayers;
 
     FastDateFormat fdfSeen = FastDateFormat.getInstance("yyyy-MM-dd HH:mm");
 
@@ -121,6 +124,7 @@ public class PlayerTabController {
             selectPlayerFromList(listPossibleDuplicates.getSelectionModel().getSelectedItem());
             listPossibleDuplicates.getSelectionModel().select(old);
         });
+        labelNumPlayers.textProperty().bind(Bindings.concat(Bindings.size(tablePlayers.getItems())));
         panePlayername.backgroundProperty().bind(backBinding);
         buttonClearPlayerFilter.disableProperty().bind(textPlayerFilter.textProperty().isEmpty());
         buttonClearPlayerFilter.setOnAction(event1 -> textPlayerFilter.setText(""));
@@ -303,7 +307,12 @@ public class PlayerTabController {
     private void refreshData() {
         PlayerRuntime selection = tablePlayers.getSelectionModel().getSelectedItem();
         tablePlayers.getSelectionModel().clearSelection();
-        tablePlayers.getItems().addAll(PlayerRuntime.getAllPlayers());
+        tablePlayers.getItems().clear();
+        //tablePlayers.getItems().addAll(PlayerRuntime.getAllPlayers());
+        Collection<PlayerRuntime> unfiltered = PlayerRuntime.getAllPlayers();
+        unfiltered.stream().filter(playerRuntime -> {
+            return textPlayerFilter.getText().isEmpty() || playerRuntime.getPilotname().toLowerCase().contains(textPlayerFilter.getText().toLowerCase());
+        }).forEach(playerRuntime -> tablePlayers.getItems().add(playerRuntime));
         tablePlayers.sort();
         if (selection != null && tablePlayers.getItems().contains(selection)) {
             selectPlayerFromList(selection);

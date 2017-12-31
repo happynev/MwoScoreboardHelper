@@ -26,7 +26,15 @@
                   <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
                </rowConstraints>
                <children>
-                  <Label maxWidth="1.7976931348623157E308" text="Known Players" HBox.hgrow="ALWAYS" />
+                  <HBox spacing="5.0">
+                     <children>
+                        <Label fx:id="labelNumPlayers" text="0" />
+                        <Label maxWidth="1.7976931348623157E308" text="Known Players" HBox.hgrow="ALWAYS" />
+                     </children>
+                     <padding>
+                        <Insets left="5.0" />
+                     </padding>
+                  </HBox>
                   <Button fx:id="buttonRefreshData" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Refresh Data" GridPane.columnIndex="1" />
                   <Button fx:id="buttonJumpToSelf" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Select yourself" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                </children>
