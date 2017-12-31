@@ -4,11 +4,9 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.paint.Color;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.math.BigDecimal;
+import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -121,6 +119,31 @@ public class Utils {
         long total = Runtime.getRuntime().totalMemory() / (1024 * 1024);
         long used = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / (1024 * 1024);
         Logger.log("memory usage " + info + ": " + used + "mb of " + total + "mb");
+    }
+
+    public static long streamCopy(InputStream input, OutputStream output, int bufferSize) throws IOException {
+        byte[] buffer = new byte[bufferSize];
+        long count = 0;
+        int n = 0;
+        while (-1 != (n = input.read(buffer))) {
+            output.write(buffer, 0, n);
+            count += n;
+        }
+        return count;
+    }
+
+    public static byte[] httpGet(URL url) {
+        try {
+            InputStream is = url.openStream();
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            streamCopy(is, bos, 8096);
+            bos.close();
+            is.close();
+            return bos.toByteArray();
+        } catch (IOException e) {
+            Logger.error(e);
+        }
+        return null;
     }
 
     public static class NumericStringComparator implements Comparator<String> {

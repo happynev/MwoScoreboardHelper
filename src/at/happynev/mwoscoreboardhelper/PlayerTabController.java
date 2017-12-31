@@ -1,5 +1,7 @@
 package at.happynev.mwoscoreboardhelper;
 
+import at.happynev.mwoscoreboardhelper.isenleaderboard.IsenLeaderboard;
+import at.happynev.mwoscoreboardhelper.isenleaderboard.IsenLeaderboardResult;
 import at.happynev.mwoscoreboardhelper.stat.StatType;
 import at.happynev.mwoscoreboardhelper.tracer.TraceHelpers;
 import javafx.beans.binding.Bindings;
@@ -69,6 +71,10 @@ public class PlayerTabController {
     Button buttonClearPlayerFilter;
     @FXML
     Label labelNumPlayers;
+    @FXML
+    Label labelLeaderboardInfo;
+    @FXML
+    Button buttonUpdateLeaderboardInfo;
 
     FastDateFormat fdfSeen = FastDateFormat.getInstance("yyyy-MM-dd HH:mm");
 
@@ -131,21 +137,27 @@ public class PlayerTabController {
         textPlayerFilter.textProperty().addListener((observable, oldValue, newValue) -> refreshData());
         labelUnit.textFillProperty().bind(pickerFront.valueProperty());
         labelPilotname.textFillProperty().bind(pickerFront.valueProperty());
-        listPossibleDuplicates.setCellFactory(param -> {
-            return new ListCell<PlayerRuntime>() {
-                @Override
-                protected void updateItem(PlayerRuntime item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (item != null) {
-                        this.setGraphic(new Label(item.getFaction() + " " + item.getPilotname() + "(" + item.getMatchRecords().size() + " Matches)"));
-                    } else {
-                        this.setGraphic(null);
-                    }
+        listPossibleDuplicates.setCellFactory(param -> new ListCell<PlayerRuntime>() {
+            @Override
+            protected void updateItem(PlayerRuntime item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item != null) {
+                    this.setGraphic(new Label(item.getFaction() + " " + item.getPilotname() + "(" + item.getMatchRecords().size() + " Matches)"));
+                } else {
+                    this.setGraphic(null);
                 }
-            };
+            }
         });
         buttonJumpToMatch.setDisable(true);//TODO after match tab is implemented
         buttonJumpToSelf.setOnAction(event -> selectSelf());
+        buttonUpdateLeaderboardInfo.setOnAction(event -> {
+            IsenLeaderboardResult result = IsenLeaderboard.getInstance().getLeaderboardData(tablePlayers.getSelectionModel().getSelectedItem().getPilotname());
+            if (result != null) {
+                labelLeaderboardInfo.setText("Leaderboard rank: " + result.getOverallData().getRank());
+            } else {
+                labelLeaderboardInfo.setText("Player not found. most likely an OCR error");
+            }
+        });
         //mech stat columns
         buildMechTable();
         buildMatchTable();

@@ -1,4 +1,4 @@
-package at.happynev.mwoscoreboardhelper.api;
+package at.happynev.mwoscoreboardhelper.smurfyapi;
 
 import java.math.BigDecimal;
 

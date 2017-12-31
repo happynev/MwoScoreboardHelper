@@ -1,7 +1,7 @@
 package at.happynev.mwoscoreboardhelper;
 
-import at.happynev.mwoscoreboardhelper.api.ApiCaller;
-import at.happynev.mwoscoreboardhelper.api.Mech;
+import at.happynev.mwoscoreboardhelper.smurfyapi.ApiCaller;
+import at.happynev.mwoscoreboardhelper.smurfyapi.Mech;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
