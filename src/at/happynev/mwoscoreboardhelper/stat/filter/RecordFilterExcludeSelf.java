@@ -14,7 +14,7 @@ import java.util.Collection;
 public class RecordFilterExcludeSelf extends RecordFilterByPlayer {
 
     public RecordFilterExcludeSelf() {
-        super("" + PlayerRuntime.getInstance(SettingsTabController.getPlayername()).getId());
+        super("" + SettingsTabController.getSelfPlayerInstance().getId());
     }
 
     @Override
@@ -24,6 +24,6 @@ public class RecordFilterExcludeSelf extends RecordFilterByPlayer {
 
     @Override
     public StatExplanationStep getStepDescription() {
-        return new StatExplanationStep(GuiUtils.DEFAULT_FRONT_COLOR, "remove " + SettingsTabController.getPlayername() + "'s records");
+        return new StatExplanationStep(GuiUtils.DEFAULT_FRONT_COLOR, "remove " + SettingsTabController.getSelfPlayerInstance().getPilotname() + "'s records");
     }
 }

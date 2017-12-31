@@ -91,7 +91,7 @@ public class PlayerRuntime implements Preloadable {
     }
 
     public static PlayerRuntime getUserInstance() {
-        return getInstance(SettingsTabController.getPlayername());
+        return SettingsTabController.getSelfPlayerInstance();
     }
 
     public static PlayerRuntime getReferencePlayer() {
@@ -115,7 +115,7 @@ public class PlayerRuntime implements Preloadable {
         return playersByName.keySet();
     }
 
-    public static PlayerRuntime createOrLoadFromTrace(PlayerInfoTracer pi) throws Exception {
+    public static PlayerRuntime createOrLoadFromTrace(PlayerInfoTracer pi) {
         boolean firstTime = false;
         boolean known = false;
         PlayerRuntime ret = getInstance(pi.getPilotName());
@@ -312,7 +312,7 @@ public class PlayerRuntime implements Preloadable {
         notes.addListener((observable, oldValue, newValue) -> updatePlayerData("notes", newValue));
         icon.addListener((observable, oldValue, newValue) -> updatePlayerData("icon", newValue));
         shortnote.addListener((observable, oldValue, newValue) -> updatePlayerData("shortnote", newValue));
-        if (pilotname.get().equals(SettingsTabController.getPlayername())) {
+        if (pilotname.get().equals(SettingsTabController.getSelfPlayerInstance().getPilotname())) {
             guicolor_back.bindBidirectional(SettingsTabController.getInstance().playerBackColorProperty());
             guicolor_front.bindBidirectional(SettingsTabController.getInstance().playerFrontColorProperty());
         } else {
@@ -369,7 +369,7 @@ public class PlayerRuntime implements Preloadable {
         return new Task() {
 
             @Override
-            protected Object call() throws Exception {
+            protected Object call() {
                 try {
                     PreparedStatement prep = DbHandler.getInstance().prepareStatement("select id,pilotname,unit,guicolor_back,guicolor_front,notes,icon,shortnote from player_data");
                     ResultSet rs = prep.executeQuery();

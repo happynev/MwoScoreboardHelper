@@ -124,13 +124,13 @@ public class WatcherTabController {
         int interval = (int) Double.parseDouble(newValue);
         if (watcher != null) watcher.stop();
         if (toggleAutowatch.isSelected()) {
-            if (!SettingsTabController.getScreenshotDirectory().isDirectory() || SettingsTabController.getPlayername().isEmpty()) {
-                Logger.alertPopup("Make sure to set Playername and Screenshot directory on the Settings tab");
-                toggleAutowatch.setSelected(false);
-            } else {
+            if (SettingsTabController.isSafeToStart()) {
                 watcher = new Timeline(new KeyFrame(Duration.millis(interval), ev -> watcherLoop()));
                 watcher.setCycleCount(Animation.INDEFINITE);
                 watcher.play();
+            } else {
+                Logger.alertPopup("Make sure to set Playername and Screenshot directory on the Settings tab and import Smurfy's Data on the Mechs Tab");
+                toggleAutowatch.setSelected(false);
             }
         }
     }
@@ -214,7 +214,7 @@ public class WatcherTabController {
             results.tracingFinishedProperty().addListener((observable, oldValue, newValue) -> {
                 //all players traced. ok to proceed with next screenshot
                 if (newValue) {
-                    buildPlayerGui(PlayerRuntime.getInstance(SettingsTabController.getPlayername()), panePersonal, results, StatTable.WATCHER_PERSONAL);
+                    buildPlayerGui(SettingsTabController.getSelfPlayerInstance(), panePersonal, results, StatTable.WATCHER_PERSONAL);
                     for (PlayerRuntime p : results.getPlayersTeam()) {
                         buildPlayerGui(p, paneMyTeam, results, StatTable.WATCHER_TEAM);
                     }

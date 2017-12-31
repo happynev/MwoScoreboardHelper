@@ -60,7 +60,7 @@ public class ScreenshotFileHandler {
         String fileName = "";
         File archivedMatch = new File(SettingsTabController.getPostProcessedDirectory(), "match-" + matchId);
         if (!screenshot.getName().contains(ScreenshotType.QP_1PREPARATION.toString()) && !screenshot.getName().contains(ScreenshotType.QP_4SUMMARY.toString())) {
-            fileName = SettingsTabController.getPlayername() + "-match-" + type + "." + screenshot.getName();
+            fileName = SettingsTabController.getSelfPlayerInstance().getPilotname() + "-match-" + type + "." + screenshot.getName();
         } else {
             fileName = screenshot.getName();
         }

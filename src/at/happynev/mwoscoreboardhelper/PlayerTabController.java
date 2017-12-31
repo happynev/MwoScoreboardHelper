@@ -331,6 +331,6 @@ public class PlayerTabController {
 
     public void selectSelf() {
         buttonClearPlayerFilter.fire();
-        selectPlayerFromList(PlayerRuntime.getInstance(SettingsTabController.getPlayername()));
+        selectPlayerFromList(SettingsTabController.getSelfPlayerInstance());
     }
 }

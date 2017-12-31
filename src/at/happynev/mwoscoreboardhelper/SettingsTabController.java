@@ -162,8 +162,13 @@ public class SettingsTabController {
         return d.getAbsoluteFile();
     }
 
-    public static String getPlayername() {
-        return loadSetting("playerName", "");
+    public static PlayerRuntime getSelfPlayerInstance() {
+        String name = loadSetting("playerName", "");
+        PlayerRuntime ret = PlayerRuntime.getInstance(name);
+        if (ret == null) {
+            ret = PlayerRuntime.getReferencePlayer();
+        }
+        return ret;
     }
 
     public static boolean isDbWriteEnabled() {
@@ -215,6 +220,13 @@ public class SettingsTabController {
         saveSetting("sceneMaximized", "" + primaryStage.isMaximized());
     }
 
+    public static boolean isSafeToStart() {
+        boolean playerNameOk = !loadSetting("playerName", "").isEmpty();
+        boolean screenshotDirOk = getScreenshotDirectory().isDirectory();
+        boolean mechDataImported = MechRuntime.getKnownMechs().size() > 0;
+        return playerNameOk && screenshotDirOk;
+    }
+
     public TextField getTextPlayerName() {
         return textPlayerName;
     }
@@ -246,7 +258,7 @@ public class SettingsTabController {
     @FXML
     private void initialize() {
         //load values
-        textPlayerName.setText(getPlayername());
+        textPlayerName.setText(loadSetting("playerName", PlayerRuntime.getReferencePlayer().getPilotname()));
         textScreenshotDirectory.setText(getScreenshotDirectory().toString());
         textPostProcessingDirectory.setText(getPostProcessedDirectory().toString());
         textErrorDirectory.setText(getErrorDirectory().toString());
@@ -303,11 +315,11 @@ public class SettingsTabController {
         togglePersistentDatabase.selectedProperty().bindBidirectional(DbHandler.getInstance().writeEnabledProperty());
         playerFrontColor.addListener((observable, oldValue, newValue) -> {
             saveSetting("playerColorFront", Utils.getWebColor(newValue));
-            PlayerRuntime.getInstance(getPlayername()).guicolor_frontProperty().set(newValue);
+            SettingsTabController.getSelfPlayerInstance().guicolor_frontProperty().set(newValue);
         });
         playerBackColor.addListener((observable, oldValue, newValue) -> {
             saveSetting("playerColorBack", Utils.getWebColor(newValue));
-            PlayerRuntime.getInstance(getPlayername()).guicolor_backProperty().set(newValue);
+            SettingsTabController.getSelfPlayerInstance().guicolor_backProperty().set(newValue);
         });
         //build dynamic part
         GridPane grid = new GridPane();

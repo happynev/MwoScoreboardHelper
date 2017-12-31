@@ -250,7 +250,7 @@ public class MatchRuntime implements Preloadable {
                     map.set(TraceHelpers.guessValue(tracer.getMap(), TraceHelpers.ValueList.MAP.getItems()));
                     gameMode.set(TraceHelpers.guessValue(tracer.getGameMode(), TraceHelpers.ValueList.GAMEMODE.getItems()).replaceAll(".*: ", ""));
                     battleTime.set(tracer.getBattleTime());
-                    PlayerRuntime player = PlayerRuntime.getInstance(SettingsTabController.getPlayername());
+                    PlayerRuntime player = SettingsTabController.getSelfPlayerInstance();
                     personalRecord = PersonalMatchRecord.createFromTrace(player, tracer, this);
                     saveOrUpdateMatch();
                     screenshot.archiveFile(id);
@@ -302,7 +302,7 @@ public class MatchRuntime implements Preloadable {
                         }
                         pr.getMatchRecords().add(prec);
                         playerRecords.add(prec);
-                        if (type == ScreenshotType.QP_4SUMMARY && pr.getPilotname().equals(SettingsTabController.getPlayername())) {
+                        if (type == ScreenshotType.QP_4SUMMARY && pr.getPilotname().equals(SettingsTabController.getSelfPlayerInstance().getPilotname())) {
                             SessionRuntime.sessionMatchRecords.add(prec);
                             SessionRuntime.addBattleTime(this.getBattleTime());
                         }
@@ -400,7 +400,7 @@ public class MatchRuntime implements Preloadable {
             //save initial map/game data
             saveInitialMatchData();
             if (personalRecord == null) { //dont overwrite
-                personalRecord = PersonalMatchRecord.getReferenceRecord(PlayerRuntime.getInstance(SettingsTabController.getPlayername()).getId());
+                personalRecord = PersonalMatchRecord.getReferenceRecord(SettingsTabController.getSelfPlayerInstance().getId());
             }
             savePersonalMatchRecord();
             //remember seen players
@@ -411,7 +411,7 @@ public class MatchRuntime implements Preloadable {
             saveCompleteMatchData();
         } else if (type == ScreenshotType.QP_4SUMMARY) {
             if (personalRecord == null) { //dont overwrite
-                personalRecord = PersonalMatchRecord.getReferenceRecord(PlayerRuntime.getInstance(SettingsTabController.getPlayername()).getId());
+                personalRecord = PersonalMatchRecord.getReferenceRecord(SettingsTabController.getSelfPlayerInstance().getId());
             }
             savePlayerMatchRecords();
             //save player match records
@@ -803,7 +803,7 @@ public class MatchRuntime implements Preloadable {
         return new Task() {
 
             @Override
-            protected Object call() throws Exception {
+            protected Object call() {
                 try {
                     PreparedStatement prep = DbHandler.getInstance().prepareStatement("select matchtime,gamemode,map,matchResult,matchname,battletime,maptimeofday,id from MATCH_DATA");
                     ResultSet rs = prep.executeQuery();

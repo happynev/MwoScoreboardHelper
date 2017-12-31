@@ -129,7 +129,7 @@ public class SqlTabController {
 
     private void exportData(File outputfile, String query, List<String> columns, List<List<String>> lines) {
         try (FileOutputStream fos = new FileOutputStream(outputfile, false); BufferedOutputStream bos = new BufferedOutputStream(fos)) {
-            String intro = "#MwoScoreboardHelper CSV export by " + SettingsTabController.getPlayername() + " on " + new Date() + "\r\n";
+            String intro = "#MwoScoreboardHelper CSV export by " + SettingsTabController.getSelfPlayerInstance().getPilotname()+ " on " + new Date() + "\r\n";
             String cleanedquery = "#" + query.replaceAll("\r?\n", " ") + "\r\n";
             bos.write(intro.getBytes(StandardCharsets.UTF_8));
             bos.write(cleanedquery.getBytes(StandardCharsets.UTF_8));

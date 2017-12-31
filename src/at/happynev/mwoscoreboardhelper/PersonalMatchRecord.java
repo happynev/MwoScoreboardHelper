@@ -30,6 +30,10 @@ public class PersonalMatchRecord implements Preloadable {
 
     private PersonalMatchRecord(int playerId, int matchId, String reward_cbills, String reward_xp, String solo_kills, String kmdds, String comps) {
         this.playerId = playerId;
+        if (playerId == -1) {
+            //no playerrecord exists? cannot do much now.
+            return;
+        }
         this.matchId = matchId;
         matchValues.put(StatType.REWARD_CBILLS, reward_cbills);
         matchValues.put(StatType.REWARD_XP, reward_xp);
@@ -85,26 +89,30 @@ public class PersonalMatchRecord implements Preloadable {
     }
 
     public int getRewardsCbills() {
-        return Integer.parseInt(matchValues.get(StatType.REWARD_CBILLS));
+        return Integer.parseInt(matchValues.getOrDefault(StatType.REWARD_CBILLS, "0"));
     }
 
     public int getRewardsXp() {
-        return Integer.parseInt(matchValues.get(StatType.REWARD_XP));
+        return Integer.parseInt(matchValues.getOrDefault(StatType.REWARD_XP, "0"));
     }
 
     public int getSoloKills() {
-        return Integer.parseInt(matchValues.get(StatType.SOLO_KILLS));
+        return Integer.parseInt(matchValues.getOrDefault(StatType.SOLO_KILLS, "0"));
     }
 
     public int getKmdds() {
-        return Integer.parseInt(matchValues.get(StatType.KMDDS));
+        return Integer.parseInt(matchValues.getOrDefault(StatType.KMDDS, "0"));
     }
 
     public int getComponentDestroyed() {
-        return Integer.parseInt(matchValues.get(StatType.COMPONENT_DESTROYED));
+        return Integer.parseInt(matchValues.getOrDefault(StatType.COMPONENT_DESTROYED, "0"));
     }
 
     public void saveData(int matchId) throws SQLException {
+        if (playerId == -1) {
+            //not much we can do.
+            return;
+        }
         int oldId = matchId;
         this.matchId = matchId;
         PreparedStatement prepDel = DbHandler.getInstance().prepareStatement("delete personal_matchdata where player_data_id=? and match_data_id in (?,?)");
@@ -137,7 +145,7 @@ public class PersonalMatchRecord implements Preloadable {
         }
     }
 
-    public void delete() throws SQLException {
+    public void delete() {
         //PreparedStatement prep = DbHandler.getInstance().prepareStatement("delete from player_matchdata where player_data_id=? and match_data_id=?");
         //cascaded from match or player
     }
@@ -181,7 +189,7 @@ public class PersonalMatchRecord implements Preloadable {
         return new Task() {
 
             @Override
-            protected Object call() throws Exception {
+            protected Object call() {
                 try {
                     PreparedStatement prep = DbHandler.getInstance().prepareStatement(
                             "select reward_cbills,reward_xp,stat_solo,stat_kmdd,stat_comp,player_data_id,match_data_id from personal_matchdata");

@@ -66,6 +66,9 @@ public class DataPreloader {
                 long end = System.currentTimeMillis();
                 int count = item.totalCountProperty().get();
                 long duration = end - start;
+                if (count == 0) {
+                    count = 1;
+                }
                 BigDecimal perItem = new BigDecimal(duration).divide(new BigDecimal(count), 3, BigDecimal.ROUND_HALF_UP).movePointRight(3);
                 Logger.log("loading " + item.getPreloadCaption() + " took " + duration + "ms or " + perItem.toPlainString() + "ns avg per item");
                 preloadItemsFinished.set(preloadItemsFinished.getValue() + 1);
