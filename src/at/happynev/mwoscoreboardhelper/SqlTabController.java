@@ -58,6 +58,10 @@ public class SqlTabController {
             }
             buttonExecuteQuery.setOnAction(event -> executeQuery());
         });
+        textSql.setText("SELECT match.id AS match, match.gamemode, match.map ,match.matchresult, player.player_data_id AS player, player.enemy, player.mech, player.status, player.score, player.damage, player.kills, player.assists, player.ping \n" +
+                "FROM match_data match, player_matchdata player \n" +
+                "WHERE match.id=player.match_data_id AND match.matchresult IS NOT NULL\n" +
+                "ORDER BY match.id, player.enemy");
         try {
             PreparedStatement prep = DbHandler.getInstance().prepareStatement("select TABLE_NAME from INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA='PUBLIC' order by id");
             ResultSet rs = prep.executeQuery();
@@ -83,7 +87,7 @@ public class SqlTabController {
                     List<String> columnHeader = new ArrayList<>();
                     paneResult.getChildren().clear();
                     for (int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
-                        String colname = rs.getMetaData().getColumnName(i + 1);
+                        String colname = rs.getMetaData().getColumnLabel(i + 1);
                         columnHeader.add(colname);
                         TableColumn<List<String>, String> col = new TableColumn<>(colname);
 
@@ -129,7 +133,7 @@ public class SqlTabController {
 
     private void exportData(File outputfile, String query, List<String> columns, List<List<String>> lines) {
         try (FileOutputStream fos = new FileOutputStream(outputfile, false); BufferedOutputStream bos = new BufferedOutputStream(fos)) {
-            String intro = "#MwoScoreboardHelper CSV export by " + SettingsTabController.getSelfPlayerInstance().getPilotname()+ " on " + new Date() + "\r\n";
+            String intro = "#MwoScoreboardHelper CSV export by " + SettingsTabController.getSelfPlayerInstance().getPilotname() + " on " + new Date() + "\r\n";
             String cleanedquery = "#" + query.replaceAll("\r?\n", " ") + "\r\n";
             bos.write(intro.getBytes(StandardCharsets.UTF_8));
             bos.write(cleanedquery.getBytes(StandardCharsets.UTF_8));
@@ -149,7 +153,7 @@ public class SqlTabController {
                 sb.append(delimiter);
             }
             if (f == null) f = "";
-            f = f.replaceAll("\\r?\\n?", "\\\\n");
+            f = f.replaceAll("\\r?\\n", "\\\\n");
             if (f.contains(delimiter)) {
                 f = "\"" + f.replaceAll("\"", "'") + "\"";
             }
