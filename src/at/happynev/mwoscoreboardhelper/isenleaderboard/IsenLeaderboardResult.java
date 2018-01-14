@@ -12,6 +12,9 @@ public class IsenLeaderboardResult {
     public IsenSeasonData getOverallData() {
         return overallData;
     }
+    public Map<String, IsenSeasonData> getSeasonData() {
+        return seasonData;
+    }
 
     public void addSeason(String season, IsenSeasonData data) {
         season = season.replaceAll("\\s*:.*", "");

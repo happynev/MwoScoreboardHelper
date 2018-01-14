@@ -270,6 +270,7 @@ public class PlayerTabController {
         panePlayerstats.getChildren().clear();
         tablePlayerMatches.getItems().clear();
         tableMechs.getItems().clear();
+        labelLeaderboardInfo.textProperty().setValue("");
         if (newPlayer != null) {
             labelUnit.textProperty().bindBidirectional(newPlayer.unitProperty());
             labelPilotname.textProperty().bindBidirectional(newPlayer.pilotnameProperty());

@@ -1,8 +1,7 @@
 package at.happynev.mwoscoreboardhelper.stat;
 
 import at.happynev.mwoscoreboardhelper.stat.aggregator.StatAggregatorType;
-import at.happynev.mwoscoreboardhelper.stat.calculator.AggregatedStatCalculatorType;
-import at.happynev.mwoscoreboardhelper.stat.calculator.MatchStatCalculatorType;
+import at.happynev.mwoscoreboardhelper.stat.calculator.*;
 import at.happynev.mwoscoreboardhelper.stat.filter.RecordFilterType;
 import at.happynev.mwoscoreboardhelper.stat.formatter.StatResultFormatterType;
 
@@ -224,6 +223,26 @@ public class StatBuilder {
                 .addCalculationStep(RecordFilterType.TEAM.getInstance())
                 .addCalculationStep(RecordFilterType.MECHCLASS.getInstance("Assault"))
                 .addCalculationStep(StatAggregatorType.COUNT.getInstance(StatType.MECH_CLASS))
+                .build());
+        defaultStats.add(StatBuilder.newStat("Rank", "Overall Rank according to the Jarl's list")
+                .addCalculationStep(RecordFilterType.PLAYER.getInstance())
+                .addCalculationStep(new StatCalculatorLeaderboardRank())
+                .build());
+        defaultStats.add(StatBuilder.newStat("Adj.Score", "Previous season's Adjusted Score according to the Jarl's list")
+                .addCalculationStep(RecordFilterType.PLAYER.getInstance())
+                .addCalculationStep(new StatCalculatorLeaderboardScore())
+                .build());
+        defaultStats.add(StatBuilder.newStat("Class Prob%", "Mech Class probability according to the Jarl's list")
+                .addCalculationStep(RecordFilterType.PLAYER.getInstance())
+                .addCalculationStep(new StatCalculatorLeaderboardMechClass())
+                .build());
+        defaultStats.add(StatBuilder.newStat("Rel.Score", "MatchScore relative to previous season's Adjusted Score according to the Jarl's list")
+                .addCalculationStep(RecordFilterType.MATCH.getInstance())
+                .addCalculationStep(RecordFilterType.PLAYER.getInstance())
+                .addCalculationStep(new StatCalculatorLeaderboardScore())
+                .addCalculationStep(MatchStatCalculatorType.RAWVALUE.getInstance(StatType.SCORE))
+                .addCalculationStep(AggregatedStatCalculatorType.RELATIVE.getInstance())
+                .addCalculationStep(StatResultFormatterType.PERCENT.getInstance())
                 .build());
 
         defaultPlayerTabMechStats = new ArrayList<>();

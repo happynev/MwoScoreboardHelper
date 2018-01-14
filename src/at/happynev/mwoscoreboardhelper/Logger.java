@@ -56,7 +56,23 @@ public class Logger {
     }
 
     public static void log(String s) {
+        log(s, false);
+    }
+
+    public static void log(String s, boolean includeStack) {
         logger.info(getSource() + s);
+        if (includeStack) {
+            boolean sawLogger = false;
+            for (StackTraceElement stackline : Thread.currentThread().getStackTrace()) {
+                if (!sawLogger) {
+                    if (stackline.getClassName().contains("Logger")) {
+                        sawLogger = true;
+                    }
+                } else if (!stackline.getClassName().contains("Logger")) {
+                    logger.info("\t\t "+stackline.getClassName() + "." + stackline.getMethodName() + ":" + stackline.getLineNumber());
+                }
+            }
+        }
     }
 
     public static void alertPopup(String info) {

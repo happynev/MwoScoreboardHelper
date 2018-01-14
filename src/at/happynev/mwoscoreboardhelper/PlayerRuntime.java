@@ -1,5 +1,6 @@
 package at.happynev.mwoscoreboardhelper;
 
+import at.happynev.mwoscoreboardhelper.isenleaderboard.IsenLeaderboard;
 import at.happynev.mwoscoreboardhelper.preloader.Preloadable;
 import at.happynev.mwoscoreboardhelper.tracer.PlayerInfoTracer;
 import javafx.beans.binding.Bindings;
@@ -115,7 +116,15 @@ public class PlayerRuntime implements Preloadable {
         return playersByName.keySet();
     }
 
-    public static PlayerRuntime createOrLoadFromTrace(PlayerInfoTracer pi) {
+    public static PlayerRuntime createOrLoadFromTrace(final PlayerInfoTracer pi) {
+        //init leaderboard data in extra thread
+        new Thread() {
+            @Override
+            public void run() {
+                super.run();
+                IsenLeaderboard.getInstance().getLeaderboardData(pi.getPilotName());
+            }
+        }.start();
         boolean firstTime = false;
         boolean known = false;
         PlayerRuntime ret = getInstance(pi.getPilotName());
@@ -139,6 +148,10 @@ public class PlayerRuntime implements Preloadable {
 
     public static Preloadable getPreloaderInstance() {
         return getReferencePlayer();
+    }
+
+    public static Collection<PlayerRuntime> getAllPlayers() {
+        return playersById.values();
     }
 
     public int mergeInto(PlayerRuntime orig) {
@@ -415,9 +428,5 @@ public class PlayerRuntime implements Preloadable {
     @Override
     public int hashCode() {
         return pilotname.getValue().hashCode();
-    }
-
-    public static Collection<PlayerRuntime> getAllPlayers() {
-        return playersById.values();
     }
 }

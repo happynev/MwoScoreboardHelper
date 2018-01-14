@@ -57,6 +57,7 @@ public class IsenLeaderboard {
     private String getWebsiteData(String playerName) {
         String url = null;
         try {
+            //Logger.log("start load ISEN Leaderboard data for " + playerName);
             url = "https://leaderboard.isengrim.org/search.php?u=" + URLEncoder.encode(playerName, "UTF-8");
             long start = System.currentTimeMillis();
             HttpGet request = new HttpGet(url);

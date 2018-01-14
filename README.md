@@ -60,6 +60,10 @@ yes you can! just make sure the images are located in the configured screenshot 
 TODO...
 ## Technical stuff
 
+## Thanks
+* Smurfy for providing an API for useful 'Mech data. [(Smurfy's Mechlab)](http://mwo.smurfy-net.de/)
+* Scurro, Tarogato and Chimmy for providing leaderboard data [(The Jarl's List)](https://leaderboard.isengrim.org/)
+
 ### What Libraries are used?
 * GUI: JavaFX2 (included in Java8)
 * OCR Tracing: Tesseract [(github)](https://github.com/tesseract-ocr/tesseract) and Tess4J[(sourceforge)](http://tess4j.sourceforge.net/)
