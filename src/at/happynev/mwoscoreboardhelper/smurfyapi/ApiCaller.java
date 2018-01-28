@@ -16,7 +16,7 @@ import java.util.List;
  * Created by Nev on 22.01.2017.
  */
 public class ApiCaller {
-    private static final String FULL_MECH_URL = "http://mwo.smurfy-net.de/smurfyapi/data/mechs.json";
+    private static final String FULL_MECH_URL = "http://mwo.smurfy-net.de/api/data/mechs.json";
 
     public static List<Mech> getAllMechs() {
         List<Mech> ret = new ArrayList<>();
