@@ -2,12 +2,22 @@ package at.happynev.mwoscoreboardhelper.isenleaderboard;
 
 import at.happynev.mwoscoreboardhelper.Logger;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 public class IsenLeaderboardResult {
+    private Date lastEditDate;
     private IsenSeasonData overallData;
     private Map<String, IsenSeasonData> seasonData = new HashMap<>();
+
+    public Date getLastEditDate() {
+        return lastEditDate;
+    }
+
+    public void setLastEditDate(Date lastEditDate) {
+        this.lastEditDate = lastEditDate;
+    }
 
     public IsenSeasonData getOverallData() {
         return overallData;
