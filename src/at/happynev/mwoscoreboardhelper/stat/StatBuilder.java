@@ -82,6 +82,14 @@ public class StatBuilder {
             CustomizableStatTemplate statTemplate = tmpStat.build();
             defaultStats.add(statTemplate);
         }
+        defaultStats.add(StatBuilder.newStat("Rank", "Overall Rank according to the Jarl's list")
+                .addCalculationStep(RecordFilterType.PLAYER.getInstance())
+                .addCalculationStep(new StatCalculatorLeaderboardRank())
+                .build());
+        defaultStats.add(StatBuilder.newStat("Adj.Score", "Previous season's Adjusted Score according to the Jarl's list")
+                .addCalculationStep(RecordFilterType.PLAYER.getInstance())
+                .addCalculationStep(new StatCalculatorLeaderboardScore())
+                .build());
         for (StatType stat : Arrays.asList(StatType.ASSISTS, StatType.KILLS, StatType.DAMAGE, StatType.SCORE, StatType.PING, StatType.SOLO_KILLS, StatType.KMDDS, StatType.COMPONENT_DESTROYED, StatType.REWARD_CBILLS, StatType.REWARD_XP))
             defaultStats.add(StatBuilder.newStat("~" + stat.toString(), stat.getDescription() + " average for this player")
                     .addCalculationStep(RecordFilterType.PLAYER.getInstance())
@@ -138,6 +146,14 @@ public class StatBuilder {
                 .addCalculationStep(AggregatedStatCalculatorType.RELATIVE.getInstance())
                 .addCalculationStep(StatResultFormatterType.PERCENT.getInstance())
                 .build());
+        defaultStats.add(StatBuilder.newStat("Rel.Score", "MatchScore relative to previous season's Adjusted Score according to the Jarl's list")
+                .addCalculationStep(RecordFilterType.MATCH.getInstance())
+                .addCalculationStep(RecordFilterType.PLAYER.getInstance())
+                .addCalculationStep(new StatCalculatorLeaderboardScore())
+                .addCalculationStep(MatchStatCalculatorType.RAWVALUE.getInstance(StatType.SCORE))
+                .addCalculationStep(AggregatedStatCalculatorType.RELATIVE.getInstance())
+                .addCalculationStep(StatResultFormatterType.PERCENT.getInstance())
+                .build());
         defaultStats.add(StatBuilder.newStat("S/D", "Score to Damage Ratio for this player")
                 .addCalculationStep(RecordFilterType.PLAYER.getInstance())
                 .addCalculationStep(RecordFilterType.MATCH.getInstance())
@@ -185,6 +201,10 @@ public class StatBuilder {
                 .addCalculationStep(RecordFilterType.PLAYER.getInstance())
                 .addCalculationStep(StatAggregatorType.TOPLISTMECH.getInstance(StatType.SCORE))
                 .build());
+        defaultStats.add(StatBuilder.newStat("Class Prob%", "Mech Class probability according to the Jarl's list")
+                .addCalculationStep(RecordFilterType.PLAYER.getInstance())
+                .addCalculationStep(new StatCalculatorLeaderboardMechClass())
+                .build());
         defaultStats.add(StatBuilder.newStat("Total Score", "Total Score per team")
                 .addCalculationStep(RecordFilterType.MATCH.getInstance())
                 .addCalculationStep(RecordFilterType.TEAM.getInstance())
@@ -224,27 +244,6 @@ public class StatBuilder {
                 .addCalculationStep(RecordFilterType.MECHCLASS.getInstance("Assault"))
                 .addCalculationStep(StatAggregatorType.COUNT.getInstance(StatType.MECH_CLASS))
                 .build());
-        defaultStats.add(StatBuilder.newStat("Rank", "Overall Rank according to the Jarl's list")
-                .addCalculationStep(RecordFilterType.PLAYER.getInstance())
-                .addCalculationStep(new StatCalculatorLeaderboardRank())
-                .build());
-        defaultStats.add(StatBuilder.newStat("Adj.Score", "Previous season's Adjusted Score according to the Jarl's list")
-                .addCalculationStep(RecordFilterType.PLAYER.getInstance())
-                .addCalculationStep(new StatCalculatorLeaderboardScore())
-                .build());
-        defaultStats.add(StatBuilder.newStat("Class Prob%", "Mech Class probability according to the Jarl's list")
-                .addCalculationStep(RecordFilterType.PLAYER.getInstance())
-                .addCalculationStep(new StatCalculatorLeaderboardMechClass())
-                .build());
-        defaultStats.add(StatBuilder.newStat("Rel.Score", "MatchScore relative to previous season's Adjusted Score according to the Jarl's list")
-                .addCalculationStep(RecordFilterType.MATCH.getInstance())
-                .addCalculationStep(RecordFilterType.PLAYER.getInstance())
-                .addCalculationStep(new StatCalculatorLeaderboardScore())
-                .addCalculationStep(MatchStatCalculatorType.RAWVALUE.getInstance(StatType.SCORE))
-                .addCalculationStep(AggregatedStatCalculatorType.RELATIVE.getInstance())
-                .addCalculationStep(StatResultFormatterType.PERCENT.getInstance())
-                .build());
-
         defaultPlayerTabMechStats = new ArrayList<>();
         defaultPlayerTabMechStats.add(StatBuilder.newStat("#", "Number of records collected with this mech")
                 .addCalculationStep(RecordFilterType.PLAYER.getInstance())
