@@ -1,5 +1,7 @@
 package at.happynev.mwoscoreboardhelper.tracer;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,31 +26,31 @@ public enum ScreenshotType {
     public static ScreenshotType identifyType(BufferedImage screenshot) {
         lastCheck.clear();
         //try prep first, most time critical
-        TraceableImage checkType = new TraceableImage(Offsets.getSubImage(screenshot, Offsets.getInstance(QP_1PREPARATION, screenshot).getElementLocation(ScreenGameElement.TYPEIDENTIFIER)), OcrConfig.DEFAULT);
+        TraceableImage checkType = new TraceableImage(new ImageModifier(Offsets.getSubImage(screenshot, Offsets.getInstance(QP_1PREPARATION, screenshot).getElementLocation(ScreenGameElement.TYPEIDENTIFIER))).upscale().getImage(), OcrConfig.DEFAULT);
         lastCheck.add(checkType);
         checkType.performTrace();
         String ident = checkType.getValue();
-        if ("Your Team".equals(ident)) {
+        if (StringUtils.getLevenshteinDistance(ident, "Your Team") < 4) {
             return QP_1PREPARATION;
         } else {
-            TraceableImage checkType2 = new TraceableImage(Offsets.getSubImage(screenshot, Offsets.getInstance(QP_4SUMMARY, screenshot).getElementLocation(ScreenGameElement.TYPEIDENTIFIER)), OcrConfig.DEFAULT);
+            TraceableImage checkType2 = new TraceableImage(new ImageModifier(Offsets.getSubImage(screenshot, Offsets.getInstance(QP_4SUMMARY, screenshot).getElementLocation(ScreenGameElement.TYPEIDENTIFIER))).upscale().extractWhiteOnBlack().getImage(), OcrConfig.DEFAULT);
             lastCheck.add(checkType2);
             checkType2.performTrace();
             String ident2 = checkType2.getValue();
-            if ("Exit Match".equals(ident2)) {
+            if (StringUtils.getLevenshteinDistance(ident2, "Exit Match") < 4) {
                 //TODO check QP vs FP
-                TraceableImage checkType3 = new TraceableImage(Offsets.getSubImage(screenshot, Offsets.getInstance(QP_4SUMMARY, screenshot).getElementLocation(ScreenGameElement.WINNINGTEAM)), OcrConfig.DEFAULT);
+                TraceableImage checkType3 = new TraceableImage(new ImageModifier(Offsets.getSubImage(screenshot, Offsets.getInstance(QP_4SUMMARY, screenshot).getElementLocation(ScreenGameElement.WINNINGTEAM))).upscale().getImage(), OcrConfig.DEFAULT);
                 lastCheck.add(checkType3);
                 checkType3.performTrace();
                 String ident3 = checkType3.getValue();
                 if (ident3.contains("Your")) {
                     return QP_4SUMMARY;
                 } else {
-                    TraceableImage checkType4 = new TraceableImage(Offsets.getSubImage(screenshot, Offsets.getInstance(QP_3REWARDS, screenshot).getElementLocation(ScreenGameElement.TYPEIDENTIFIER)), OcrConfig.DEFAULT);
+                    TraceableImage checkType4 = new TraceableImage(new ImageModifier(Offsets.getSubImage(screenshot, Offsets.getInstance(QP_3REWARDS, screenshot).getElementLocation(ScreenGameElement.TYPEIDENTIFIER))).upscale().extractWhiteOnBlack().getImage(), OcrConfig.DEFAULT);
                     lastCheck.add(checkType4);
                     checkType4.performTrace();
                     String ident4 = checkType4.getValue();
-                    if (ident4.contains("XP EARNED")) {
+                    if (StringUtils.getLevenshteinDistance(ident4, "XP EARNED") < 3) {
                         return QP_3REWARDS;
                     }
                 }

@@ -4,7 +4,7 @@ import at.happynev.mwoscoreboardhelper.stat.CustomizableStatTemplate;
 import at.happynev.mwoscoreboardhelper.stat.StatBuilder;
 import at.happynev.mwoscoreboardhelper.stat.StatTable;
 import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
-import at.happynev.mwoscoreboardhelper.tracer.TraceHelpers;
+import at.happynev.mwoscoreboardhelper.tracer.ValueHelpers;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
@@ -507,7 +507,7 @@ public class SettingsTabController {
             while (rs.next()) {
                 String status = rs.getString(1);
                 if (status != null && !status.isEmpty()) {
-                    String fixedStatus = TraceHelpers.guessValue(status.replaceAll(".*DEAD.*", "DEAD").replaceAll(".*ALIVE.*", "ALIVE"), Arrays.asList("DEAD", "ALIVE"));
+                    String fixedStatus = ValueHelpers.guessValue(status.replaceAll(".*DEAD.*", "DEAD").replaceAll(".*ALIVE.*", "ALIVE"), Arrays.asList("DEAD", "ALIVE"));
                     if (!status.equals(fixedStatus)) {
                         prepFix.clearParameters();
                         prepFix.setString(1, fixedStatus);

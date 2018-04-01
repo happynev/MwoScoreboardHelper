@@ -20,22 +20,22 @@ public class PlayerInfoTracer extends AsyncTracer {
     private final TraceableImage ping;
 
     public PlayerInfoTracer(BufferedImage screenshot, int player, Offsets off) {
-        pilotName = new TraceableImage(TraceHelpers.extractWhite(Offsets.getSubImage(screenshot, off.getPlayerElementLocation(ScreenPlayerElement.PILOTNAME, player))), OcrConfig.DEFAULT);
-        unitTag = new TraceableImage(TraceHelpers.extractWhite(Offsets.getSubImage(screenshot, off.getPlayerElementLocation(ScreenPlayerElement.UNIT, player))), OcrConfig.UNIT);
-        ping = new TraceableImage(TraceHelpers.extractWhite(Offsets.getSubImage(screenshot, off.getPlayerElementLocation(ScreenPlayerElement.PING, player))), OcrConfig.NUMERIC);
+        pilotName = new TraceableImage(new ImageModifier(Offsets.getSubImage(screenshot, off.getPlayerElementLocation(ScreenPlayerElement.PILOTNAME, player))).upscale().extractWhiteOnBlack().invert().getImage(), OcrConfig.DEFAULT);
+        unitTag = new TraceableImage(new ImageModifier(Offsets.getSubImage(screenshot, off.getPlayerElementLocation(ScreenPlayerElement.UNIT, player))).upscale().extractWhiteOnBlack().invert().getImage(), OcrConfig.UNIT);
+        ping = new TraceableImage(new ImageModifier(Offsets.getSubImage(screenshot, off.getPlayerElementLocation(ScreenPlayerElement.PING, player))).extractWhiteOnBlack().getImage(), OcrConfig.NUMERIC);
         BufferedImage mechImg = Offsets.getSubImage(screenshot, off.getPlayerElementLocation(ScreenPlayerElement.MECH, player));
         if (mechImg != null) {
             //enemy team in preparation screen
-            mech = new TraceableImage(mechImg, OcrConfig.MECHS);//s -> s.replaceAll(".*?(READY|NOT READY|Disconnected|CONNECTING)?.*", "$1").replaceAll("^\\s*$", "DEAD")
+            mech = new TraceableImage(new ImageModifier(mechImg).invert().upscale().getImage(), OcrConfig.MECHS);//s -> s.replaceAll(".*?(READY|NOT READY|Disconnected|CONNECTING)?.*", "$1").replaceAll("^\\s*$", "DEAD")
         } else {
             mech = null;
         }
         if (off.getType() == ScreenshotType.QP_4SUMMARY) {
-            matchScore = new TraceableImage(TraceHelpers.extractWhite(Offsets.getSubImage(screenshot, off.getPlayerElementLocation(ScreenPlayerElement.MATCHSCORE, player))), OcrConfig.NUMERIC);
-            kills = new TraceableImage(TraceHelpers.extractWhite(Offsets.getSubImage(screenshot, off.getPlayerElementLocation(ScreenPlayerElement.KILLS, player))), OcrConfig.NUMERIC);
-            assists = new TraceableImage(TraceHelpers.extractWhite(Offsets.getSubImage(screenshot, off.getPlayerElementLocation(ScreenPlayerElement.ASSISTS, player))), OcrConfig.NUMERIC);
-            damage = new TraceableImage(TraceHelpers.extractWhite(Offsets.getSubImage(screenshot, off.getPlayerElementLocation(ScreenPlayerElement.DAMAGE, player))), OcrConfig.NUMERIC);
-            status = new TraceableImage(TraceHelpers.extractWhite(Offsets.getSubImage(screenshot, off.getPlayerElementLocation(ScreenPlayerElement.STATUS, player))), OcrConfig.STATUS);
+            matchScore = new TraceableImage(new ImageModifier(Offsets.getSubImage(screenshot, off.getPlayerElementLocation(ScreenPlayerElement.MATCHSCORE, player))).extractWhiteOnBlack().getImage(), OcrConfig.NUMERIC);
+            kills = new TraceableImage(new ImageModifier(Offsets.getSubImage(screenshot, off.getPlayerElementLocation(ScreenPlayerElement.KILLS, player))).extractWhiteOnBlack().getImage(), OcrConfig.NUMERIC);
+            assists = new TraceableImage(new ImageModifier(Offsets.getSubImage(screenshot, off.getPlayerElementLocation(ScreenPlayerElement.ASSISTS, player))).extractWhiteOnBlack().getImage(), OcrConfig.NUMERIC);
+            damage = new TraceableImage(new ImageModifier(Offsets.getSubImage(screenshot, off.getPlayerElementLocation(ScreenPlayerElement.DAMAGE, player))).extractWhiteOnBlack().getImage(), OcrConfig.NUMERIC);
+            status = new TraceableImage(new ImageModifier(Offsets.getSubImage(screenshot, off.getPlayerElementLocation(ScreenPlayerElement.STATUS, player))).extractWhiteOnBlack().getImage(), OcrConfig.STATUS);
         } else {
             matchScore = null;
             kills = null;

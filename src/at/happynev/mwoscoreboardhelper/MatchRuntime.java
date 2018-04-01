@@ -176,7 +176,7 @@ public class MatchRuntime implements Preloadable {
             if (newMatch.getPlayersTeam().contains(pr)) {
                 playerScore++;
             } else {
-                String bestMatch = TraceHelpers.guessValue(pr.getPilotname(), newTeam);
+                String bestMatch = ValueHelpers.guessValue(pr.getPilotname(), newTeam);
                 //player matching is not 100%, try fuzzy
                 int diff = StringUtils.getLevenshteinDistance(bestMatch, pr.getPilotname());
                 if (diff > 0 && diff < 3) {
@@ -189,7 +189,7 @@ public class MatchRuntime implements Preloadable {
             if (newMatch.getPlayersEnemy().contains(pr)) {
                 playerScore++;
             } else {
-                String bestMatch = TraceHelpers.guessValue(pr.getPilotname(), newEnemy);
+                String bestMatch = ValueHelpers.guessValue(pr.getPilotname(), newEnemy);
                 //player matching is not 100%, try fuzzy
                 int diff = StringUtils.getLevenshteinDistance(bestMatch, pr.getPilotname());
                 if (diff > 0 && diff < 3) {
@@ -247,8 +247,8 @@ public class MatchRuntime implements Preloadable {
         tracer.finishedProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 if (newValue) {
-                    map.set(TraceHelpers.guessValue(tracer.getMap(), TraceHelpers.ValueList.MAP.getItems()));
-                    gameMode.set(TraceHelpers.guessValue(tracer.getGameMode(), TraceHelpers.ValueList.GAMEMODE.getItems()).replaceAll(".*: ", ""));
+                    map.set(ValueHelpers.guessValue(tracer.getMap(), ValueHelpers.ValueList.MAP.getItems()));
+                    gameMode.set(ValueHelpers.guessValue(tracer.getGameMode(), ValueHelpers.ValueList.GAMEMODE.getItems()).replaceAll(".*: ", ""));
                     battleTime.set(tracer.getBattleTime());
                     PlayerRuntime player = SettingsTabController.getSelfPlayerInstance();
                     personalRecord = PersonalMatchRecord.createFromTrace(player, tracer, this);
@@ -323,8 +323,8 @@ public class MatchRuntime implements Preloadable {
             try {
                 if (newValue) {
                     Logger.log("Match info trace finished");
-                    map.set(TraceHelpers.guessValue(tracer.getMap(), TraceHelpers.ValueList.MAP.getItems()));
-                    gameMode.set(TraceHelpers.guessValue(tracer.getGameMode(), TraceHelpers.ValueList.GAMEMODE.getItems()).replaceAll(".*: ", ""));
+                    map.set(ValueHelpers.guessValue(tracer.getMap(), ValueHelpers.ValueList.MAP.getItems()));
+                    gameMode.set(ValueHelpers.guessValue(tracer.getGameMode(), ValueHelpers.ValueList.GAMEMODE.getItems()).replaceAll(".*: ", ""));
                     battleTime.set(tracer.getBattleTime());
                     server.set(tracer.getServer());
                     if (type == ScreenshotType.QP_4SUMMARY) {

@@ -4,7 +4,7 @@ import at.happynev.mwoscoreboardhelper.DbHandler;
 import at.happynev.mwoscoreboardhelper.Logger;
 import at.happynev.mwoscoreboardhelper.MechRuntime;
 import at.happynev.mwoscoreboardhelper.Utils;
-import at.happynev.mwoscoreboardhelper.tracer.TraceHelpers;
+import at.happynev.mwoscoreboardhelper.tracer.ValueHelpers;
 import org.h2.tools.Server;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -61,7 +61,7 @@ public class SomeTests {
 
     @Test
     public void testGameModeDetection() {
-        Assert.assertEquals("DOMINATION", TraceHelpers.guessValue("D0M INATI0N", TraceHelpers.ValueList.GAMEMODE.getItems()));
-        Assert.assertEquals("SKIRMISH", TraceHelpers.guessValue(" SKIRMISH", TraceHelpers.ValueList.GAMEMODE.getItems()));
+        Assert.assertEquals("DOMINATION", ValueHelpers.guessValue("D0M INATI0N", ValueHelpers.ValueList.GAMEMODE.getItems()));
+        Assert.assertEquals("SKIRMISH", ValueHelpers.guessValue(" SKIRMISH", ValueHelpers.ValueList.GAMEMODE.getItems()));
     }
 }

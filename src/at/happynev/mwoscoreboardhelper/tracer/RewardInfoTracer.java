@@ -19,17 +19,17 @@ public class RewardInfoTracer extends AsyncTracer {
     private final TraceableImage[] performanceValues;
 
     public RewardInfoTracer(BufferedImage screenshot, Offsets off) {
-        gameMode = new TraceableImage(TraceHelpers.extractYellow(Offsets.getSubImage(screenshot, off.getElementLocation(ScreenGameElement.GAMEMODE))), OcrConfig.DEFAULT);
-        map = new TraceableImage(TraceHelpers.extractWhite(Offsets.getSubImage(screenshot, off.getElementLocation(ScreenGameElement.MAP))), OcrConfig.DEFAULT);
-        battleTime = new TraceableImage(TraceHelpers.extractYellow(Offsets.getSubImage(screenshot, off.getElementLocation(ScreenGameElement.BATTLETIME))), OcrConfig.TIME);
-        matchResult = new TraceableImage(TraceHelpers.extractWhite(Offsets.getSubImage(screenshot, off.getElementLocation(ScreenGameElement.MATCHRESULT))), OcrConfig.MATCHRESULT);
-        xp = new TraceableImage(TraceHelpers.extractYellow(Offsets.getSubImage(screenshot, off.getRewardLocation(ScreenRewardElement.XP))), OcrConfig.LARGENUMERIC);
-        cbills = new TraceableImage(TraceHelpers.extractYellow(Offsets.getSubImage(screenshot, off.getRewardLocation(ScreenRewardElement.CBILLS))), OcrConfig.LARGENUMERIC);
+        gameMode = new TraceableImage(new ImageModifier(Offsets.getSubImage(screenshot, off.getElementLocation(ScreenGameElement.GAMEMODE))).extractYellow().getImage(), OcrConfig.DEFAULT);
+        map = new TraceableImage(new ImageModifier(Offsets.getSubImage(screenshot, off.getElementLocation(ScreenGameElement.MAP))).extractWhiteOnBlack().getImage(), OcrConfig.DEFAULT);
+        battleTime = new TraceableImage(new ImageModifier(Offsets.getSubImage(screenshot, off.getElementLocation(ScreenGameElement.BATTLETIME))).extractYellow().getImage(), OcrConfig.TIME);
+        matchResult = new TraceableImage(new ImageModifier(Offsets.getSubImage(screenshot, off.getElementLocation(ScreenGameElement.MATCHRESULT))).extractWhiteOnBlack().getImage(), OcrConfig.MATCHRESULT);
+        xp = new TraceableImage(new ImageModifier(Offsets.getSubImage(screenshot, off.getRewardLocation(ScreenRewardElement.XP))).extractYellow().getImage(), OcrConfig.LARGENUMERIC);
+        cbills = new TraceableImage(new ImageModifier(Offsets.getSubImage(screenshot, off.getRewardLocation(ScreenRewardElement.CBILLS))).extractYellow().getImage(), OcrConfig.LARGENUMERIC);
         performanceNames = new TraceableImage[9];
         performanceValues = new TraceableImage[9];
         for (int i = 0; i < performanceNames.length; i++) {
-            performanceNames[i] = new TraceableImage(TraceHelpers.extractWhite(Offsets.getSubImage(screenshot, off.getPerformanceName(i))), OcrConfig.DEFAULT);
-            performanceValues[i] = new TraceableImage(TraceHelpers.extractWhite(Offsets.getSubImage(screenshot, off.getPerformanceValue(i))), OcrConfig.NUMERIC);
+            performanceNames[i] = new TraceableImage(new ImageModifier(Offsets.getSubImage(screenshot, off.getPerformanceName(i))).upscale().extractWhiteOnBlack().invert().getImage(), OcrConfig.DEFAULT);
+            performanceValues[i] = new TraceableImage(new ImageModifier(Offsets.getSubImage(screenshot, off.getPerformanceValue(i))).upscale().extractWhiteOnBlack().invert().getImage(), OcrConfig.NUMERIC);
         }
         List<TraceableImage> fields = new ArrayList<>();
         fields.addAll(Arrays.asList(map, gameMode, battleTime, matchResult, xp, cbills));

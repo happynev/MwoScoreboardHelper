@@ -3,7 +3,7 @@ package at.happynev.mwoscoreboardhelper;
 import at.happynev.mwoscoreboardhelper.preloader.Preloadable;
 import at.happynev.mwoscoreboardhelper.stat.StatType;
 import at.happynev.mwoscoreboardhelper.tracer.PlayerInfoTracer;
-import at.happynev.mwoscoreboardhelper.tracer.TraceHelpers;
+import at.happynev.mwoscoreboardhelper.tracer.ValueHelpers;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.IntegerBinding;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -110,7 +110,7 @@ public class PlayerMatchRecord implements Preloadable {
             throw new IllegalArgumentException("PlayerInfoTracer is not ready");
         }
         String mech = MechRuntime.findMatchingMech(info.getMech());
-        String tmpst = TraceHelpers.guessValue(info.getStatus().replaceAll(".*DEAD.*", "DEAD").replaceAll(".*ALIVE.*", "ALIVE"), Arrays.asList("DEAD", "ALIVE"));
+        String tmpst = ValueHelpers.guessValue(info.getStatus().replaceAll(".*DEAD.*", "DEAD").replaceAll(".*ALIVE.*", "ALIVE"), Arrays.asList("DEAD", "ALIVE"));
         String status = "DEAD";
         if (tmpst.matches("DEAD|ALIVE")) {
             status = tmpst;
@@ -251,7 +251,7 @@ public class PlayerMatchRecord implements Preloadable {
         return Integer.parseInt(matchValues.get(StatType.PING));
     }
 
-    public void delete() throws SQLException {
+    public void delete() {
         allRecords.remove(playerId + "_" + matchId);
         //PreparedStatement prep = DbHandler.getInstance().prepareStatement("delete from player_matchdata where player_data_id=? and match_data_id=?");
         //cascaded from match or player
@@ -303,7 +303,7 @@ public class PlayerMatchRecord implements Preloadable {
         final int totalWork = totalCountProperty().get();
         return new Task() {
             @Override
-            protected Object call() throws Exception {
+            protected Object call() {
                 try {
                     PreparedStatement prep = DbHandler.getInstance().prepareStatement(
                             "select pm.mech,pm.status,pm.score,pm.kills,pm.assists,pm.damage,pm.ping,pm.enemy," +

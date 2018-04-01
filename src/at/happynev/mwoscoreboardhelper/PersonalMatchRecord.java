@@ -3,7 +3,7 @@ package at.happynev.mwoscoreboardhelper;
 import at.happynev.mwoscoreboardhelper.preloader.Preloadable;
 import at.happynev.mwoscoreboardhelper.stat.StatType;
 import at.happynev.mwoscoreboardhelper.tracer.RewardInfoTracer;
-import at.happynev.mwoscoreboardhelper.tracer.TraceHelpers;
+import at.happynev.mwoscoreboardhelper.tracer.ValueHelpers;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.IntegerBinding;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -56,7 +56,7 @@ public class PersonalMatchRecord implements Preloadable {
             int tmpKmdd = 0;
             int tmpComp = 0;
             for (int i = 0; i < 9; i++) {
-                String valuename = TraceHelpers.guessValue(info.getPerformanceName(i), TraceHelpers.ValueList.MATCHPERFORMANCE.getItems());
+                String valuename = ValueHelpers.guessValue(info.getPerformanceName(i), ValueHelpers.ValueList.MATCHPERFORMANCE.getItems());
                 if (valuename.equals("SOLO KILL")) {
                     tmpSolo = info.getPerformanceValue(i);
                 } else if (valuename.equals("KILL MOST DAMAGE DEALT")) {

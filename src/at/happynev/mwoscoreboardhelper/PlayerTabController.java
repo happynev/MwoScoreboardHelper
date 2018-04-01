@@ -3,7 +3,7 @@ package at.happynev.mwoscoreboardhelper;
 import at.happynev.mwoscoreboardhelper.isenleaderboard.IsenLeaderboard;
 import at.happynev.mwoscoreboardhelper.isenleaderboard.IsenLeaderboardResult;
 import at.happynev.mwoscoreboardhelper.stat.StatType;
-import at.happynev.mwoscoreboardhelper.tracer.TraceHelpers;
+import at.happynev.mwoscoreboardhelper.tracer.ValueHelpers;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.ObjectBinding;
@@ -298,8 +298,8 @@ public class PlayerTabController {
 
     private List<PlayerRuntime> findDuplicates(PlayerRuntime orig) {
         List<PlayerRuntime> ret = new ArrayList<>();
-        List<String> possibleNames = TraceHelpers.findSimilarLookingStrings(orig.getPilotname(), PlayerRuntime.getAllPlayerNames());//visual
-        possibleNames.addAll(TraceHelpers.findSimilarStrings(orig.getPilotname(), PlayerRuntime.getAllPlayerNames(), 3));//levenshtein
+        List<String> possibleNames = ValueHelpers.findSimilarLookingStrings(orig.getPilotname(), PlayerRuntime.getAllPlayerNames());//visual
+        possibleNames.addAll(ValueHelpers.findSimilarStrings(orig.getPilotname(), PlayerRuntime.getAllPlayerNames(), 3));//levenshtein
         for (String name : possibleNames) {
             if (!name.equals(orig.getPilotname())) {
                 PlayerRuntime pr = PlayerRuntime.getInstance(name);

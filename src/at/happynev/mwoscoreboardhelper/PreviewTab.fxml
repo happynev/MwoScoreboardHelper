@@ -16,7 +16,7 @@
          <children>
             <Button fx:id="buttonLoadScreenshot" mnemonicParsing="false" text="Open Screenshot" />
             <ImageView fx:id="imagePreview" fitHeight="480.0" fitWidth="960.0" pickOnBounds="true" preserveRatio="true" />
-            <Button fx:id="buttonPerformTrace" mnemonicParsing="false" text="OCR Trace" />
+            <Button fx:id="buttonPerformTrace" mnemonicParsing="false" text="OCR Trace (without valuelists or character lists)" />
          </children>
       </VBox>
       <ScrollPane hbarPolicy="NEVER" pannable="true" prefViewportHeight="530.0" vbarPolicy="ALWAYS" VBox.vgrow="ALWAYS">

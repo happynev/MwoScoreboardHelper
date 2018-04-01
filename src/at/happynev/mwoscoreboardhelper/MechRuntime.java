@@ -1,7 +1,7 @@
 package at.happynev.mwoscoreboardhelper;
 
 import at.happynev.mwoscoreboardhelper.stat.StatType;
-import at.happynev.mwoscoreboardhelper.tracer.TraceHelpers;
+import at.happynev.mwoscoreboardhelper.tracer.ValueHelpers;
 import org.apache.commons.lang3.StringUtils;
 
 import java.sql.PreparedStatement;
@@ -114,9 +114,9 @@ public class MechRuntime {
         if (mech.isEmpty()) return "";
         Set<String> specialvariants = new HashSet<>(getKnownShortNames());
         specialvariants.removeIf(s -> !s.matches(".*\\([^)]+\\)$"));
-        String specialguess = TraceHelpers.guessValue(mech, specialvariants);
+        String specialguess = ValueHelpers.guessValue(mech, specialvariants);
         String noPostfixMech = mech.replaceAll("\\(?[SIRPL]\\)", "").replaceAll("\\s*", ""); //(S)pecial, (S)team, (I)nvasion, (R)esistance, (P)hoenix mechs not in smurfy data, some (L)oyalty
-        String normalguess = TraceHelpers.guessValue(noPostfixMech, getKnownShortNames());
+        String normalguess = ValueHelpers.guessValue(noPostfixMech, getKnownShortNames());
         String guess = "";
         int distSpecial = StringUtils.getLevenshteinDistance(specialguess, mech);
         int distNormal = StringUtils.getLevenshteinDistance(normalguess, noPostfixMech);
