@@ -8,6 +8,6 @@ import at.happynev.mwoscoreboardhelper.SettingsTabController;
  */
 public class RecordFilterBySelf extends RecordFilterByPlayer {
     public RecordFilterBySelf() {
-        super("" + SettingsTabController.getSelfPlayerInstance());
+        super("" + SettingsTabController.getSelfPlayerInstance().getId());
     }
 }
