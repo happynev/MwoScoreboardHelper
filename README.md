@@ -67,6 +67,12 @@ yes you can! just make sure the images are located in the configured screenshot 
  TODO...
 ## Technical stuff
  i forgot what i wanted to put here?
+
+## Contact me
+if you have a problem or an idea how to improve this little program please tell me!
+ * either open an issue here on GitHub
+ * or send me a PM on the MWO forums (username: happynev)
+
 ## Thanks
 * Smurfy for providing an API for useful 'Mech data. [(Smurfy's Mechlab)](http://mwo.smurfy-net.de/)
 * Scurro, Tarogato and Chimmy for providing leaderboard data [(The Jarl's List)](https://leaderboard.isengrim.org/)
