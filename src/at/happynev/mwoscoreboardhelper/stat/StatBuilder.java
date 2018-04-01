@@ -1,7 +1,9 @@
 package at.happynev.mwoscoreboardhelper.stat;
 
 import at.happynev.mwoscoreboardhelper.stat.aggregator.StatAggregatorType;
-import at.happynev.mwoscoreboardhelper.stat.calculator.*;
+import at.happynev.mwoscoreboardhelper.stat.calculator.AggregatedStatCalculatorType;
+import at.happynev.mwoscoreboardhelper.stat.calculator.MatchStatCalculatorType;
+import at.happynev.mwoscoreboardhelper.stat.calculator.StatCalculatorLeaderboardMechClass;
 import at.happynev.mwoscoreboardhelper.stat.filter.RecordFilterType;
 import at.happynev.mwoscoreboardhelper.stat.formatter.StatResultFormatterType;
 
@@ -82,14 +84,6 @@ public class StatBuilder {
             CustomizableStatTemplate statTemplate = tmpStat.build();
             defaultStats.add(statTemplate);
         }
-        defaultStats.add(StatBuilder.newStat("Rank", "Overall Rank according to the Jarl's list")
-                .addCalculationStep(RecordFilterType.PLAYER.getInstance())
-                .addCalculationStep(new StatCalculatorLeaderboardRank())
-                .build());
-        defaultStats.add(StatBuilder.newStat("Adj.Score", "Previous season's Adjusted Score according to the Jarl's list")
-                .addCalculationStep(RecordFilterType.PLAYER.getInstance())
-                .addCalculationStep(new StatCalculatorLeaderboardScore())
-                .build());
         for (StatType stat : Arrays.asList(StatType.ASSISTS, StatType.KILLS, StatType.DAMAGE, StatType.SCORE, StatType.PING, StatType.SOLO_KILLS, StatType.KMDDS, StatType.COMPONENT_DESTROYED, StatType.REWARD_CBILLS, StatType.REWARD_XP))
             defaultStats.add(StatBuilder.newStat("~" + stat.toString(), stat.getDescription() + " average for this player")
                     .addCalculationStep(RecordFilterType.PLAYER.getInstance())
@@ -149,7 +143,7 @@ public class StatBuilder {
         defaultStats.add(StatBuilder.newStat("Rel.Score", "MatchScore relative to previous season's Adjusted Score according to the Jarl's list")
                 .addCalculationStep(RecordFilterType.MATCH.getInstance())
                 .addCalculationStep(RecordFilterType.PLAYER.getInstance())
-                .addCalculationStep(new StatCalculatorLeaderboardScore())
+                .addCalculationStep(MatchStatCalculatorType.RAWVALUE.getInstance(StatType.ISEN_ADJSCORE))
                 .addCalculationStep(MatchStatCalculatorType.RAWVALUE.getInstance(StatType.SCORE))
                 .addCalculationStep(AggregatedStatCalculatorType.RELATIVE.getInstance())
                 .addCalculationStep(StatResultFormatterType.PERCENT.getInstance())
@@ -201,7 +195,7 @@ public class StatBuilder {
                 .addCalculationStep(RecordFilterType.PLAYER.getInstance())
                 .addCalculationStep(StatAggregatorType.TOPLISTMECH.getInstance(StatType.SCORE))
                 .build());
-        defaultStats.add(StatBuilder.newStat("Class Prob%", "Mech Class probability according to the Jarl's list")
+        defaultStats.add(StatBuilder.newStat("Class Prob%", "Mech Class probability according to the Jarl's list (is it? not sure")
                 .addCalculationStep(RecordFilterType.PLAYER.getInstance())
                 .addCalculationStep(new StatCalculatorLeaderboardMechClass())
                 .build());
@@ -243,6 +237,26 @@ public class StatBuilder {
                 .addCalculationStep(RecordFilterType.TEAM.getInstance())
                 .addCalculationStep(RecordFilterType.MECHCLASS.getInstance("Assault"))
                 .addCalculationStep(StatAggregatorType.COUNT.getInstance(StatType.MECH_CLASS))
+                .build());
+        defaultStats.add(StatBuilder.newStat("JLRank Avg", "Average Rank per team")
+                .addCalculationStep(RecordFilterType.MATCH.getInstance())
+                .addCalculationStep(RecordFilterType.TEAM.getInstance())
+                .addCalculationStep(StatAggregatorType.AVERAGE.getInstance(StatType.ISEN_RANK))
+                .build());
+        defaultStats.add(StatBuilder.newStat("JLRank Median", "Median Rank per team")
+                .addCalculationStep(RecordFilterType.MATCH.getInstance())
+                .addCalculationStep(RecordFilterType.TEAM.getInstance())
+                .addCalculationStep(StatAggregatorType.MEDIAN.getInstance(StatType.ISEN_RANK))
+                .build());
+        defaultStats.add(StatBuilder.newStat("JLAdj Avg", "Average Adj.Score per team")
+                .addCalculationStep(RecordFilterType.MATCH.getInstance())
+                .addCalculationStep(RecordFilterType.TEAM.getInstance())
+                .addCalculationStep(StatAggregatorType.MEDIAN.getInstance(StatType.ISEN_ADJSCORE))
+                .build());
+        defaultStats.add(StatBuilder.newStat("JLWLR Avg", "Average Win/Loss Ratio per team")
+                .addCalculationStep(RecordFilterType.MATCH.getInstance())
+                .addCalculationStep(RecordFilterType.TEAM.getInstance())
+                .addCalculationStep(StatAggregatorType.AVERAGE.getInstance(StatType.ISEN_WLRATIO))
                 .build());
         defaultPlayerTabMechStats = new ArrayList<>();
         defaultPlayerTabMechStats.add(StatBuilder.newStat("#", "Number of records collected with this mech")

@@ -1,7 +1,5 @@
 package at.happynev.mwoscoreboardhelper.isenleaderboard;
 
-import at.happynev.mwoscoreboardhelper.Logger;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +20,7 @@ public class IsenLeaderboardResult {
     public IsenSeasonData getOverallData() {
         return overallData;
     }
+
     public Map<String, IsenSeasonData> getSeasonData() {
         return seasonData;
     }
@@ -34,5 +33,10 @@ public class IsenLeaderboardResult {
         } else {
             seasonData.put(season, data);
         }
+    }
+
+    public IsenSeasonData getConfiguredSeasonData() {
+        //TODO: check overall/last/last x
+        return overallData;
     }
 }

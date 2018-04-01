@@ -7,6 +7,7 @@ import at.happynev.mwoscoreboardhelper.stat.StatType;
  */
 public enum StatAggregatorType {
     AVERAGE,
+    MEDIAN,
     COUNT,
     SUM,
     TOPLISTMECH,
@@ -16,6 +17,8 @@ public enum StatAggregatorType {
         switch (this) {
             case AVERAGE:
                 return new StatAggregatorAverage(statType);
+            case MEDIAN:
+                return new StatAggregatorMedian(statType);
             case COUNT:
                 return new StatAggregatorCountValid(statType);
             case SUM:

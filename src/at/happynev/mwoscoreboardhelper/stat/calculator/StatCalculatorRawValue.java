@@ -31,7 +31,7 @@ public class StatCalculatorRawValue extends StatCalculator {
 
     @Override
     public StatExplanationStep getStepDescription() {
-        return new StatExplanationStep(Color.TOMATO, statType.getDescription() + " from screenshot");
+        return new StatExplanationStep(Color.TOMATO, "Unmodified " + statType.getDescription());
     }
 
     @Override

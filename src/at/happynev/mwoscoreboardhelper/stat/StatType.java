@@ -29,10 +29,44 @@ public enum StatType {
     LOSSES,
     MATCHES,
     GAMEMODE,
-    MAP;
+    MAP,
+    ISEN_RANK,
+    ISEN_PERCENTILE,
+    ISEN_GAMESPLAYED,
+    ISEN_WLRATIO,
+    ISEN_SURVIVALRATE,
+    ISEN_KDRATIO,
+    ISEN_AVGSCORE,
+    ISEN_ADJSCORE;
 
-    private static final Collection<StatType> prepTeamVisible = Arrays.asList(MECH_VARIANT, MECH_TONS, MECH_FACTION, MECH_CHASSIS, MECH_CLASS, PING, GAMEMODE, MAP);
-    private static final Collection<StatType> prepEnemyVisible = Arrays.asList(PING, GAMEMODE, MAP);
+    private static final Collection<StatType> prepTeamVisible = Arrays.asList(
+            MECH_VARIANT,
+            MECH_TONS,
+            MECH_FACTION,
+            MECH_CHASSIS,
+            MECH_CLASS,
+            PING,
+            GAMEMODE,
+            MAP,
+            ISEN_RANK,
+            ISEN_PERCENTILE,
+            ISEN_GAMESPLAYED,
+            ISEN_WLRATIO,
+            ISEN_SURVIVALRATE,
+            ISEN_KDRATIO,
+            ISEN_AVGSCORE,
+            ISEN_ADJSCORE);
+    private static final Collection<StatType> prepEnemyVisible = Arrays.asList(PING,
+            GAMEMODE,
+            MAP,
+            ISEN_RANK,
+            ISEN_PERCENTILE,
+            ISEN_GAMESPLAYED,
+            ISEN_WLRATIO,
+            ISEN_SURVIVALRATE,
+            ISEN_KDRATIO,
+            ISEN_AVGSCORE,
+            ISEN_ADJSCORE);
     private static final Collection<StatType> personal = Arrays.asList(KMDDS, SOLO_KILLS, COMPONENT_DESTROYED, REWARD_CBILLS, REWARD_XP);
 
     public boolean canDisplay(ScreenshotType type, StatTable table) {
@@ -108,6 +142,22 @@ public enum StatType {
                 return "Mode";
             case MAP:
                 return "Map";
+            case ISEN_RANK:
+                return "JLRank";
+            case ISEN_PERCENTILE:
+                return "JL%";
+            case ISEN_GAMESPLAYED:
+                return "JL#";
+            case ISEN_WLRATIO:
+                return "JLWLR";
+            case ISEN_SURVIVALRATE:
+                return "JLSrv";
+            case ISEN_KDRATIO:
+                return "JLKDR";
+            case ISEN_AVGSCORE:
+                return "JLAvg";
+            case ISEN_ADJSCORE:
+                return "JLAdj";
         }
         return "undefined";
     }
@@ -156,6 +206,22 @@ public enum StatType {
                 return "Game Mode";
             case MAP:
                 return "Map";
+            case ISEN_RANK:
+                return "Rank on the Jarl's List";
+            case ISEN_PERCENTILE:
+                return "Percentile on the Jarl's List";
+            case ISEN_GAMESPLAYED:
+                return "Games played on the Jarl's List";
+            case ISEN_WLRATIO:
+                return "Win/Loss ratio on the Jarl's List";
+            case ISEN_SURVIVALRATE:
+                return "Survive rate on the Jarl's List";
+            case ISEN_KDRATIO:
+                return "Kill/Death ratio on the Jarl's List";
+            case ISEN_AVGSCORE:
+                return "Average Score on the Jarl's List";
+            case ISEN_ADJSCORE:
+                return "Adjusted Score on the Jarl's List";
         }
         return "undefined";
     }

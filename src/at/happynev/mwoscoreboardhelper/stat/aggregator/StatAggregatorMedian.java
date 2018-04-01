@@ -2,6 +2,7 @@ package at.happynev.mwoscoreboardhelper.stat.aggregator;
 
 import at.happynev.mwoscoreboardhelper.GuiUtils;
 import at.happynev.mwoscoreboardhelper.PlayerMatchRecord;
+import at.happynev.mwoscoreboardhelper.Utils;
 import at.happynev.mwoscoreboardhelper.stat.StatExplanationStep;
 import at.happynev.mwoscoreboardhelper.stat.StatTable;
 import at.happynev.mwoscoreboardhelper.stat.StatType;
@@ -9,16 +10,15 @@ import at.happynev.mwoscoreboardhelper.stat.calculator.StatCalculatorHelpers;
 import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
-/**
- * Created by Nev on 06.08.2017.
- */
-public class StatAggregatorAverage extends StatAggregator {
+public class StatAggregatorMedian extends StatAggregator {
 
     private final StatType statType;
 
-    public StatAggregatorAverage(StatType statType) {
+    public StatAggregatorMedian(StatType statType) {
         this.statType = statType;
     }
 
@@ -36,21 +36,20 @@ public class StatAggregatorAverage extends StatAggregator {
                 allow999999 = false;//hack to prevent "retired" rank from affecting average
                 break;
         }
-        BigDecimal sum = BigDecimal.ZERO;
-        int valid = 0;
+        int sum = 0;
+        List<BigDecimal> validRanks = new ArrayList<>();
         for (PlayerMatchRecord pmr : allRecords) {
             if (StatCalculatorHelpers.isValidRecord(pmr, statType)) {
                 BigDecimal value = new BigDecimal(pmr.getMatchValues().getOrDefault(statType, "0"));
                 if (allow999999 || value.intValue() != 999999) {
-                    sum = sum.add(value);
-                    valid++;
+                    validRanks.add(value);
                 }
             }
         }
-        if (valid == 0) {
+        if (validRanks.isEmpty()) {
             return "0";
         }
-        BigDecimal ret = sum.divide(new BigDecimal(valid), 5, BigDecimal.ROUND_HALF_UP);
+        BigDecimal ret = Utils.getMedianValue(validRanks.toArray(new BigDecimal[]{}));
         int precision = 2;
         if (ret.abs().doubleValue() > 100 || ret.signum() == 0) {
             precision = 0;

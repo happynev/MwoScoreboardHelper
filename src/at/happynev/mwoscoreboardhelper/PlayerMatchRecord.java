@@ -1,5 +1,8 @@
 package at.happynev.mwoscoreboardhelper;
 
+import at.happynev.mwoscoreboardhelper.isenleaderboard.IsenLeaderboard;
+import at.happynev.mwoscoreboardhelper.isenleaderboard.IsenLeaderboardResult;
+import at.happynev.mwoscoreboardhelper.isenleaderboard.IsenSeasonData;
 import at.happynev.mwoscoreboardhelper.preloader.Preloadable;
 import at.happynev.mwoscoreboardhelper.stat.StatType;
 import at.happynev.mwoscoreboardhelper.tracer.PlayerInfoTracer;
@@ -33,7 +36,7 @@ public class PlayerMatchRecord implements Preloadable {
     private final Map<StatType, String> matchValues = new TreeMap<>();
     private int matchId;
 
-    private PlayerMatchRecord(int playerId, int matchId, String mech, String status, int matchScore, int kills, int assists, int damage, int ping, boolean isEnemy, long timestamp, String matchResult, String gameMode, String map) {
+    private PlayerMatchRecord(int playerId, int matchId, String mech, String status, int matchScore, int kills, int assists, int damage, int ping, boolean isEnemy, long timestamp, String matchResult, String gameMode, String map, Map<StatType, String> extraStats) {
         this.playerId = playerId;
         this.matchId = matchId;
         this.timestamp = timestamp;
@@ -47,6 +50,9 @@ public class PlayerMatchRecord implements Preloadable {
         matchValues.put(StatType.GAMEMODE, gameMode);
         matchValues.put(StatType.MAP, map);
         matchValues.put(StatType.STATUS, status);
+        if (extraStats != null) {
+            matchValues.putAll(extraStats);
+        }
 
         if ("DEFEAT".equals(matchResult)) {
             isWinner = isEnemy;
@@ -124,7 +130,20 @@ public class PlayerMatchRecord implements Preloadable {
         String matchResult = match.getMatchResult();
         String gameMode = match.getGameMode();
         String map = match.getMap();
-        return new PlayerMatchRecord(playerId, matchId, mech, status, matchScore, kills, assists, damage, ping, isEnemy, timestamp, matchResult, gameMode, map);
+        Map<StatType, String> extraStats = new TreeMap<>();
+        IsenLeaderboardResult leaderboardData = IsenLeaderboard.getInstance().getLeaderboardData(player.getPilotname());
+        if (leaderboardData != null) {
+            IsenSeasonData configuredSeason = leaderboardData.getConfiguredSeasonData();
+            extraStats.put(StatType.ISEN_ADJSCORE, configuredSeason.getAdjScore().toPlainString());
+            extraStats.put(StatType.ISEN_AVGSCORE, configuredSeason.getAvgScore().toPlainString());
+            extraStats.put(StatType.ISEN_GAMESPLAYED, "" + configuredSeason.getGamesPlayed());
+            extraStats.put(StatType.ISEN_KDRATIO, configuredSeason.getKdratio().toPlainString());
+            extraStats.put(StatType.ISEN_PERCENTILE, "" + configuredSeason.getPercentile());
+            extraStats.put(StatType.ISEN_RANK, "" + configuredSeason.getRank());
+            extraStats.put(StatType.ISEN_SURVIVALRATE, "" + configuredSeason.getSurviveRate());
+            extraStats.put(StatType.ISEN_WLRATIO, configuredSeason.getWinloss().toPlainString());
+        }
+        return new PlayerMatchRecord(playerId, matchId, mech, status, matchScore, kills, assists, damage, ping, isEnemy, timestamp, matchResult, gameMode, map, extraStats);
     }
 
     public static ObservableMap<String, PlayerMatchRecord> getAllRecords() {
@@ -326,7 +345,7 @@ public class PlayerMatchRecord implements Preloadable {
                         String gameMode = rs.getString(13);
                         String map = rs.getString(14);
                         //saves itself to allRecords map
-                        new PlayerMatchRecord(playerId, matchId, mech, status, matchScore, kills, assists, damage, ping, isEnemy, timestamp, matchResult, gameMode, map);
+                        new PlayerMatchRecord(playerId, matchId, mech, status, matchScore, kills, assists, damage, ping, isEnemy, timestamp, matchResult, gameMode, map, null);
                         updateProgress(allRecords.size(), totalWork);
                         updateMessage("(" + allRecords.size() + "/" + totalWork + ")");
                     }

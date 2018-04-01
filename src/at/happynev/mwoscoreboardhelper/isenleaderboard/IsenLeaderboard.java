@@ -21,9 +21,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class IsenLeaderboard {
-    private static final boolean enabled = true;
     private static final Map<String, IsenLeaderboardResult> cachedResults = new ConcurrentHashMap<>();
     private static final Set<String> cachedResultFails = new HashSet<>();
+    private static boolean enabled = true;
     private static IsenLeaderboard instance;
     private final CloseableHttpClient httpClient;
     private final int COL_SEASON = 0;
@@ -44,6 +44,7 @@ public class IsenLeaderboard {
     private final Pattern field = Pattern.compile("<td[^>]+>([^<]*)<[^>]+>", Pattern.DOTALL);
     private final Pattern editDate = Pattern.compile("Database last edited: (20\\d\\d-\\d\\d-\\d\\d)", Pattern.DOTALL);
     private final FastDateFormat fdfDate = FastDateFormat.getInstance("yyyy-MM-dd");
+
     private IsenLeaderboard() {
         RequestConfig cfg = RequestConfig.custom().setConnectTimeout(10000).build();
         //TODO: proxy settings
@@ -66,6 +67,10 @@ public class IsenLeaderboard {
 
     private String getWebsiteData(String playerName) {
         String url = null;
+        if (!enabled) {
+            //safety if it failed before, don't try again
+            return null;
+        }
         try {
             //Logger.log("start load ISEN Leaderboard data for " + playerName);
             url = "https://leaderboard.isengrim.org/search.php?u=" + URLEncoder.encode(playerName, "UTF-8");
@@ -95,6 +100,7 @@ public class IsenLeaderboard {
             response.close();
         } catch (Exception e) {
             Logger.error(e);
+            enabled = false;
         }
         return null;
     }

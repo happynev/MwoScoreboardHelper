@@ -219,7 +219,9 @@ public class PlayerRuntime implements Preloadable {
         }
     }
 
-    public PlayerMatchRecord getMatchRecord(MatchRuntime match) {
+    @Deprecated
+    //not used
+    private PlayerMatchRecord getMatchRecord(MatchRuntime match) {
         for (PlayerMatchRecord pmr : getMatchRecords()) {
             if (pmr.getMatchId() == match.getId()) {
                 return pmr;

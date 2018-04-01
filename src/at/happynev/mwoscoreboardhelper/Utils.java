@@ -40,10 +40,10 @@ public class Utils {
                 //safety padding
                 if (values[i] == null) values[i] = BigDecimal.ZERO;
             }
-            Arrays.sort(values, (o1, o2) -> o1.compareTo(o2));
+            Arrays.sort(values, Comparator.naturalOrder());
             if (values.length % 2 == 0) {
-                BigDecimal mid1 = values[values.length / 2];
-                BigDecimal mid2 = values[(values.length / 2) + 1];
+                BigDecimal mid1 = values[(values.length / 2) - 1];
+                BigDecimal mid2 = values[values.length / 2];
                 ret = mid1.add(mid2).divide(BigDecimal.valueOf(2));
             } else {
                 int mid = (values.length + 1) / 2;

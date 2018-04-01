@@ -27,22 +27,19 @@ public class StatCalculatorLeaderboardMechClass extends StatCalculator {
         if (data == null) {
             return "?";
         }
-        TreeSet<String> sortedSet = new TreeSet<>();
-        sortedSet.addAll(data.getSeasonData().keySet());
-        String lastSeason = sortedSet.last();
-        IsenSeasonData lastSeasonData = data.getSeasonData().get(lastSeason);
+        IsenSeasonData leaderboardData = data.getConfiguredSeasonData();
         Map<String, Integer> classValues = new HashMap<>(4);
-        if (lastSeasonData.getLight() > 0) {
-            classValues.put("Light", lastSeasonData.getLight());
+        if (leaderboardData.getLight() > 0) {
+            classValues.put("Light", leaderboardData.getLight());
         }
-        if (lastSeasonData.getMedium() > 0) {
-            classValues.put("Medium", lastSeasonData.getMedium());
+        if (leaderboardData.getMedium() > 0) {
+            classValues.put("Medium", leaderboardData.getMedium());
         }
-        if (lastSeasonData.getHeavy() > 0) {
-            classValues.put("Heavy", lastSeasonData.getHeavy());
+        if (leaderboardData.getHeavy() > 0) {
+            classValues.put("Heavy", leaderboardData.getHeavy());
         }
-        if (lastSeasonData.getAssault() > 0) {
-            classValues.put("Assault", lastSeasonData.getAssault());
+        if (leaderboardData.getAssault() > 0) {
+            classValues.put("Assault", leaderboardData.getAssault());
         }
         Map<String, Integer> sortedValues = new TreeMap<>((o1, o2) -> -classValues.get(o1).compareTo(classValues.get(o2)));
         sortedValues.putAll(classValues);

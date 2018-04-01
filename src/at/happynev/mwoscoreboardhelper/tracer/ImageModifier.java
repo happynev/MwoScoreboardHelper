@@ -180,7 +180,7 @@ public class ImageModifier {
 
     public ImageModifier extractWhiteOnBlack() {
         //self = extractSpecificColor(self, new int[]{80, 80, 80}, new int[]{255, 255, 255});
-        self = threshold(self, new int[]{128, 128, 128});
+        self = threshold(self, new int[]{135, 135, 135});
         return this;
     }
 
