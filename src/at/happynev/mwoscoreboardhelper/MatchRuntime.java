@@ -461,12 +461,21 @@ public class MatchRuntime implements Preloadable {
             PreparedStatement prep = DbHandler.getInstance().prepareStatement("delete from player_matchdata where match_data_id=?");
             prep.setInt(1, oldMatchId);
             int del = prep.executeUpdate();
-            Logger.log("cleaned " + del + " old player records");
-            List<PlayerRuntime> players = new ArrayList<>(playersTeam);
+            Logger.log("cleaned " + del + " old player records from DB");
+            MatchRuntime oldRuntime = MatchRuntime.getInstanceById(oldMatchId);
+            for (PlayerMatchRecord pmr : oldRuntime.playerRecords) {
+                pmr.delete();
+            }
+            Set<PlayerRuntime> players = new HashSet<>(playersTeam);
             players.addAll(playersEnemy);
+            players.addAll(oldRuntime.playersTeam);
+            players.addAll(oldRuntime.playersEnemy);
             for (PlayerRuntime pr : players) {
                 pr.removeMatchRecord(oldMatchId);
             }
+            oldRuntime.playerRecords.clear();
+            oldRuntime.playersTeam.clear();
+            oldRuntime.playersEnemy.clear();
         } catch (SQLException e) {
             Logger.error(e);
         }
