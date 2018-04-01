@@ -141,7 +141,7 @@ public class WatcherTabController {
 
     private File getNextScreenshot() {
         File f = null;
-        for (File ls : SettingsTabController.getScreenshotDirectory().listFiles((dir, name) -> name.endsWith(".jpeg") || name.endsWith(".jpg") || name.endsWith(".png"))) {
+        for (File ls : SettingsTabController.getScreenshotDirectory().listFiles((dir, name) -> name.toLowerCase().endsWith(".jpeg") || name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".png"))) {
             if (!alreadyProcessed.contains(ls.getName())) {
                 return ls;
             }
