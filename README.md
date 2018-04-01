@@ -12,9 +12,9 @@ this allows it to provide the following infos:
   * show statistics per team like total damage dealt, median match score etc
   * session stats like total cbills earned, your K/D ratio for today, etc
 * Outside of matches:
-  * View list of players you met
-  * View usage statistics per mech  
- like "what is the most used clan mech?" -->duh, KDK-3 with 4.8% of all encountered clan mechs. btw: it deals 409 damage on average)
+  * View list of players you met and their match record
+  * ~~View usage statistics per mech~~
+ ~~like "what is the most used clan mech?" -->duh, KDK-3 with 4.8% of all encountered clan mechs. btw: it deals 409 damage on average)~~
 ### What system do i need?
 * Windows only (sorry, no other native OCR libs included)
 * CPU: Faster=better, duh. More CPU Cores will directly multiply the speed of the trace
@@ -33,6 +33,7 @@ this allows it to provide the following infos:
 * Usually you'll want to have it running alongside MWO on a second screen (as mentioned above you can also run it on another computer that has direct access to your screenshot directory)
 * Before the match starts, on the match preparation screen, take a screenshot (F12 in steam, or whatever you prefer)
  * it will show you the stats of players you've encountered before
+ * it will look up the players on the Jarl's List leaderboard and shows the rank
 * At the end of the match, take a screenshot of the Rewards screen.
   * it will record your earnings, Solo Kills, KMDDs, Component Destructions (for future analysis...)
   * customize the fields you want to see on the "settings" tab
@@ -45,6 +46,10 @@ this allows it to provide the following infos:
 ### Which gamemodes are supported?
 * Currently only QP is supported (Solo and Group)
 * Faction Play looks like it works, but it will seriously mess up your stats. don't try it.
+  * However, you CAN use it on the drop screen to check the players and their known stats
+### Which Image types are supported?
+ * png
+ * jpeg
 ### Which Resolutions are supported?
 In theory, any 16:9 or 16:10 resolution should work. However on lower resolutions the accuracy of the OCR tracing suffers a lot.  
 Examples:
@@ -53,13 +58,15 @@ Examples:
 * 1920x1200: not tested... certainly better than 1920x1080
 * 2560x1600: works fine (haven't had any complaints)
 * 3860x2160: works great (from own experience)
+### Anything else to watch out for?
+ * Using image enhancing programs (like SweetFX or somesuch) can change the color scale of the text and seriously impair the OCR quality -  don't do it
 ### I already have an extensive screenshot collection, can i import it?
-yes you can! just make sure the images are located in the configured screenshot directory. it may take a while to trace&import them all, but when it's done it's done.
+yes you can! just make sure the images are located in the configured screenshot directory. it may take a while to trace&import them all, but when it's done it's done (you can close it if you need to. it will resume next time you start it).
 
 ## Feature list current and planned
-TODO...
+ TODO...
 ## Technical stuff
-
+ i forgot what i wanted to put here?
 ## Thanks
 * Smurfy for providing an API for useful 'Mech data. [(Smurfy's Mechlab)](http://mwo.smurfy-net.de/)
 * Scurro, Tarogato and Chimmy for providing leaderboard data [(The Jarl's List)](https://leaderboard.isengrim.org/)
@@ -69,4 +76,4 @@ TODO...
 * OCR Tracing: Tesseract [(github)](https://github.com/tesseract-ocr/tesseract) and Tess4J[(sourceforge)](http://tess4j.sourceforge.net/)
 * Database: H2DB [(website)](http://www.h2database.com/html/main.html)
 * Json: Google GSON [(github)](https://github.com/google/gson)
-* Some Apache Commons dependencies
+* Some Apache Commons dependencies [apache.org](https://commons.apache.org/)
