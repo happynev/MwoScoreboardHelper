@@ -1,5 +1,9 @@
 package at.happynev.mwoscoreboardhelper;
 
+import at.happynev.mwoscoreboardhelper.stat.StatBuilder;
+import at.happynev.mwoscoreboardhelper.stat.StatType;
+import at.happynev.mwoscoreboardhelper.stat.aggregator.StatAggregatorType;
+import at.happynev.mwoscoreboardhelper.stat.filter.RecordFilterType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
@@ -79,12 +83,22 @@ public abstract class SessionRuntime {
         if (totalMatches > 0) {
             matchPerHour = new BigDecimal(totalMatches).divide(hourFactor, 1, BigDecimal.ROUND_HALF_UP);
         }
+        String rawValue = StatBuilder.newStat("player total avg score", "player total avg score")
+                .addCalculationStep(RecordFilterType.SELF.getInstance())
+                .addCalculationStep(StatAggregatorType.AVERAGE.getInstance(StatType.SCORE)).build()
+                .getRuntimeInstance(PlayerMatchRecord.getReferenceRecord(true, 1)).getValue();
+
+        double historicAverage = 0;
+        if (rawValue != null && rawValue.matches("[\\d.-]+")) {
+            historicAverage = Double.parseDouble(rawValue);
+        }
         buildSessionDataLine(grid, row++, "New Players", "" + playersNew.size());
         buildSessionDataLine(grid, row++, "Known Players", "" + playersKnown.size());
         buildSessionDataLine(grid, row++, "Matches played", "" + totalMatches);
         buildSessionDataLine(grid, row++, "Win/Loss", "" + winloss.toPlainString());
         buildSessionDataLine(grid, row++, "Kills/Deaths", "" + killdeath.toPlainString());
         buildSessionDataLine(grid, row++, "Avg. Score", "" + avgscore);
+        buildSessionDataLine(grid, row++, "Relative Score", "" + Utils.getPercentage(avgscore, historicAverage));
         buildSessionDataLine(grid, row++, "Comp. Destructions", "" + compDestruction);
         buildSessionDataLine(grid, row++, "Kills", "" + kills);
         buildSessionDataLine(grid, row++, "KMDDs", "" + kmdds);
