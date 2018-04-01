@@ -46,7 +46,7 @@ public class Utils {
                 BigDecimal mid2 = values[values.length / 2];
                 ret = mid1.add(mid2).divide(BigDecimal.valueOf(2));
             } else {
-                int mid = (values.length + 1) / 2;
+                int mid = (values.length - 1) / 2;
                 ret = values[mid];
             }
         }
