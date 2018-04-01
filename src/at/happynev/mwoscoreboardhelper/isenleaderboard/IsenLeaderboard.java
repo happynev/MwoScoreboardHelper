@@ -1,6 +1,7 @@
 package at.happynev.mwoscoreboardhelper.isenleaderboard;
 
 import at.happynev.mwoscoreboardhelper.Logger;
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.http.Header;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -11,6 +12,7 @@ import org.apache.http.impl.client.HttpClients;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URLEncoder;
+import java.text.ParseException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -19,6 +21,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class IsenLeaderboard {
+    private static final boolean enabled = true;
     private static final Map<String, IsenLeaderboardResult> cachedResults = new ConcurrentHashMap<>();
     private static final Set<String> cachedResultFails = new HashSet<>();
     private static IsenLeaderboard instance;
@@ -37,7 +40,10 @@ public class IsenLeaderboard {
     private final int COL_MEDIUM = 11;
     private final int COL_HEAVY = 12;
     private final int COL_ASSAULT = 13;
-
+    private final Pattern row = Pattern.compile("(?:<tr>)?(?:\\s*<td[^>]+>([^<]*)<[^>]+>)(?:\\s*<td[^>]+>[^<]*<[^>]+>){13}\\s*</tr>", Pattern.DOTALL);
+    private final Pattern field = Pattern.compile("<td[^>]+>([^<]*)<[^>]+>", Pattern.DOTALL);
+    private final Pattern editDate = Pattern.compile("Database last edited: (20\\d\\d-\\d\\d-\\d\\d)", Pattern.DOTALL);
+    private final FastDateFormat fdfDate = FastDateFormat.getInstance("yyyy-MM-dd");
     private IsenLeaderboard() {
         RequestConfig cfg = RequestConfig.custom().setConnectTimeout(10000).build();
         //TODO: proxy settings
@@ -45,6 +51,10 @@ public class IsenLeaderboard {
                 .disableCookieManagement()
                 .setDefaultRequestConfig(cfg)
                 .build();
+    }
+
+    public static boolean isEnabled() {
+        return enabled;
     }
 
     public static IsenLeaderboard getInstance() {
@@ -111,9 +121,15 @@ public class IsenLeaderboard {
         IsenLeaderboardResult ret = new IsenLeaderboardResult();
         String html = getWebsiteData(playerName);
         long start = System.currentTimeMillis();
-        Pattern row = Pattern.compile("(?:<tr>)?(?:\\s*<td[^>]+>([^<]*)<[^>]+>)(?:\\s*<td[^>]+>[^<]*<[^>]+>){13}\\s*</tr>", Pattern.DOTALL);
-        Pattern field = Pattern.compile("<td[^>]+>([^<]*)<[^>]+>", Pattern.DOTALL);
         //int startOffset = html.indexOf("<tr class=\"overallrow\">");
+        Matcher editDateMatcher = editDate.matcher(html);
+        if (editDateMatcher.find()) {
+            try {
+                ret.setLastEditDate(fdfDate.parse(editDateMatcher.group(1)));
+            } catch (ParseException e) {
+                Logger.warning("failed to parse date from leaderboard: " + editDateMatcher.group(1));
+            }
+        }
         Matcher rowMatcher = row.matcher(html);
         while (rowMatcher.find()) {
             String tableRow = rowMatcher.group();
