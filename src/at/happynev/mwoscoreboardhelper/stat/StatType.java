@@ -14,6 +14,14 @@ public enum StatType {
     STATUS,
     KILLS,
     ASSISTS,
+    ISEN_RANK,
+    ISEN_PERCENTILE,
+    ISEN_GAMESPLAYED,
+    ISEN_WLRATIO,
+    ISEN_SURVIVALRATE,
+    ISEN_KDRATIO,
+    ISEN_AVGSCORE,
+    ISEN_ADJSCORE,
     MECH_VARIANT,
     MECH_TONS,
     MECH_FACTION,
@@ -29,15 +37,7 @@ public enum StatType {
     LOSSES,
     MATCHES,
     GAMEMODE,
-    MAP,
-    ISEN_RANK,
-    ISEN_PERCENTILE,
-    ISEN_GAMESPLAYED,
-    ISEN_WLRATIO,
-    ISEN_SURVIVALRATE,
-    ISEN_KDRATIO,
-    ISEN_AVGSCORE,
-    ISEN_ADJSCORE;
+    MAP;
 
     private static final Collection<StatType> prepTeamVisible = Arrays.asList(
             MECH_VARIANT,
