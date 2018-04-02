@@ -9,6 +9,7 @@ import at.happynev.mwoscoreboardhelper.tracer.ScreenshotType;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -17,21 +18,26 @@ import java.util.List;
 public class StatCalculatorRanking extends StatCalculator {
 
     private final StatType statType;
+    private final boolean ascending;
 
-    public StatCalculatorRanking(StatType statType) {
+    public StatCalculatorRanking(StatType statType, boolean ascending) {
         this.statType = statType;
+        this.ascending = ascending;
     }
 
     @Override
     public String calculateCurrentValue(Collection<PlayerMatchRecord> records, PlayerMatchRecord currentRecord, List<String> previousValues) {
         Collection<PlayerMatchRecord> validRecords = StatCalculatorHelpers.filterValidRecords(records, statType);
-        if (validRecords.size() != records.size()) {
-            //some records are invalid, ranking makes no sense
-            return "?";
-        }
         List<PlayerMatchRecord> sorted = new ArrayList<>(validRecords);
         StatCalculatorHelpers.sortByStat(sorted, statType);
+        if (ascending) {
+            Collections.reverse(sorted);
+        }
         int currentRank = sorted.indexOf(currentRecord);
+        if (currentRank == -1) {
+            //not found
+            return "?";
+        }
         int rank = sorted.size() - currentRank;
         return rank + " of " + sorted.size();
     }
