@@ -115,7 +115,7 @@ public class MechRuntime {
         Set<String> specialvariants = new HashSet<>(getKnownShortNames());
         specialvariants.removeIf(s -> !s.matches(".*\\([^)]+\\)$"));
         String specialguess = ValueHelpers.guessValue(mech, specialvariants);
-        String noPostfixMech = mech.replaceAll("\\(?[SIRPL]\\)", "").replaceAll("\\s*", ""); //(S)pecial, (S)team, (I)nvasion, (R)esistance, (P)hoenix mechs not in smurfy data, some (L)oyalty
+        String noPostfixMech = mech.replaceAll("\\(?[SIRPLG]\\)", "").replaceAll("\\s*", ""); //(S)pecial, (S)team, (I)nvasion, (R)esistance, (P)hoenix mechs not in smurfy data, some (L)oyalty. and stupid (G)old mechs
         String normalguess = ValueHelpers.guessValue(noPostfixMech, getKnownShortNames());
         String guess = "";
         int distSpecial = StringUtils.getLevenshteinDistance(specialguess, mech);

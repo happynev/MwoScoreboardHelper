@@ -26,10 +26,12 @@ public class PersonalMatchRecord implements Preloadable {
     private final static IntegerBinding totalRecords = Bindings.size(allRecords);
     private final int playerId;
     private final Map<StatType, String> matchValues = new TreeMap<>();
+    private String id;
     private int matchId;
 
     private PersonalMatchRecord(int playerId, int matchId, String reward_cbills, String reward_xp, String solo_kills, String kmdds, String comps) {
         this.playerId = playerId;
+        this.id = playerId + "_" + matchId;
         if (playerId == -1) {
             //no playerrecord exists? cannot do much now.
             return;
@@ -41,7 +43,7 @@ public class PersonalMatchRecord implements Preloadable {
         matchValues.put(StatType.KMDDS, kmdds);
         matchValues.put(StatType.COMPONENT_DESTROYED, comps);
         if (playerId != -1 && matchId != -1) {
-            allRecords.put(playerId + "_" + matchId, this);
+            allRecords.put(id, this);
         }
     }
 
@@ -115,6 +117,9 @@ public class PersonalMatchRecord implements Preloadable {
         }
         int oldId = matchId;
         this.matchId = matchId;
+        allRecords.remove(id);//delete preliminary record
+        id = playerId + "_" + matchId;
+        allRecords.put(id, this);//update with new id
         PreparedStatement prepDel = DbHandler.getInstance().prepareStatement("delete personal_matchdata where player_data_id=? and match_data_id in (?,?)");
         prepDel.setInt(1, playerId);
         prepDel.setInt(2, matchId);
@@ -130,7 +135,6 @@ public class PersonalMatchRecord implements Preloadable {
         prep.setInt(6, getKmdds());
         prep.setInt(7, getComponentDestroyed());
         prep.executeUpdate();
-        allRecords.put(playerId + "_" + matchId, this);
     }
 
     private void updateRecord(String field, int value) {
@@ -146,6 +150,7 @@ public class PersonalMatchRecord implements Preloadable {
     }
 
     public void delete() {
+        allRecords.remove(id);
         //PreparedStatement prep = DbHandler.getInstance().prepareStatement("delete from player_matchdata where player_data_id=? and match_data_id=?");
         //cascaded from match or player
     }

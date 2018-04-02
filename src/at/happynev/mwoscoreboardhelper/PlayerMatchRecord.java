@@ -34,6 +34,7 @@ public class PlayerMatchRecord implements Preloadable {
     private final boolean isLoser;
     private final long timestamp;
     private final Map<StatType, String> matchValues = new TreeMap<>();
+    private String id;
     private int matchId;
 
     private PlayerMatchRecord(int playerId, int matchId, String mech, String status, int matchScore, int kills, int assists, int damage, int ping, boolean isEnemy, long timestamp, String matchResult, String gameMode, String map, Map<StatType, String> extraStats) {
@@ -72,12 +73,14 @@ public class PlayerMatchRecord implements Preloadable {
         }
         matchValues.put(StatType.MATCHES, "1");
         mergePersonalStats();
-        allRecords.put(playerId + "_" + matchId, this);
+        this.id = playerId + "_" + matchId;
+        allRecords.put(this.id, this);
     }
 
     private PlayerMatchRecord(boolean isEnemy, int playerId, int matchId) {
         this.playerId = playerId;
         this.matchId = matchId;
+        this.id = playerId + "_" + matchId;
         String status = "UNKNOWN";
         int matchScore = 1000;
         int kills = 10;
@@ -196,6 +199,9 @@ public class PlayerMatchRecord implements Preloadable {
     public void saveData(int matchId) throws IllegalArgumentException, SQLException {
         //matchId provided externally because it may have changed because of duplicate match detection
         this.matchId = matchId;
+        allRecords.remove(id);//delete preliminary record
+        id = playerId + "_" + matchId;
+        allRecords.put(id, this);//update with new id
         try {
             PreparedStatement prep = DbHandler.getInstance().prepareStatement("insert into player_matchdata(player_data_id,match_data_id,mech,status,score,kills,assists,damage,ping,enemy) values(?,?,?,?,?,?,?,?,?,?)");
             prep.setInt(1, playerId);
@@ -270,8 +276,8 @@ public class PlayerMatchRecord implements Preloadable {
         return Integer.parseInt(matchValues.get(StatType.PING));
     }
 
-    public void delete() {
-        allRecords.remove(playerId + "_" + matchId);
+    public PlayerMatchRecord delete() {
+        return allRecords.remove(id);
         //PreparedStatement prep = DbHandler.getInstance().prepareStatement("delete from player_matchdata where player_data_id=? and match_data_id=?");
         //cascaded from match or player
     }

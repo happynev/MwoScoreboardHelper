@@ -464,11 +464,14 @@ public class MatchRuntime implements Preloadable {
             Logger.log("cleaned " + del + " old player records from DB");
             MatchRuntime oldRuntime = MatchRuntime.getInstanceById(oldMatchId);
             for (PlayerMatchRecord pmr : oldRuntime.playerRecords) {
-                pmr.delete();
+                PlayerMatchRecord x = pmr.delete();
+                if (x == null) {
+                    Logger.warning("delete pmr failed? for " + pmr.getPlayerId() + "_" + pmr.getMatchId());
+                } else {
+                    Logger.log("deleted pmr for " + pmr.getPlayerId() + "_" + pmr.getMatchId() + " " + PlayerRuntime.getInstance(pmr.getPlayerId()).getPilotname());
+                }
             }
-            Set<PlayerRuntime> players = new HashSet<>(playersTeam);
-            players.addAll(playersEnemy);
-            players.addAll(oldRuntime.playersTeam);
+            Set<PlayerRuntime> players = new HashSet<>(oldRuntime.playersTeam);
             players.addAll(oldRuntime.playersEnemy);
             for (PlayerRuntime pr : players) {
                 pr.removeMatchRecord(oldMatchId);
@@ -560,7 +563,7 @@ public class MatchRuntime implements Preloadable {
             prep.setInt(1, id);
             prep.executeUpdate();
             for (PlayerMatchRecord pmr : playerRecords) {
-                pmr.delete();//does nothing for now, cascaded from match delete
+                pmr.delete();//clears memory. db entry delete is cascaded
             }
             personalRecord.delete();//does nothing for now, cascaded from match delete
         } catch (Exception e) {
