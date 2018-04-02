@@ -31,7 +31,7 @@ public class Main extends Application {
     }
 
     public static String getVersion() {
-        return "0.5 Dragon";
+        return "0.65 Thunderbolt";
     }
 
     public static void main(String[] args) {
