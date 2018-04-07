@@ -1,6 +1,7 @@
 package at.happynev.mwoscoreboardhelper;
 
 import at.happynev.mwoscoreboardhelper.isenleaderboard.IsenLeaderboard;
+import at.happynev.mwoscoreboardhelper.isenleaderboard.IsenLeaderboardResult;
 import at.happynev.mwoscoreboardhelper.preloader.Preloadable;
 import at.happynev.mwoscoreboardhelper.tracer.PlayerInfoTracer;
 import javafx.beans.binding.Bindings;
@@ -117,20 +118,17 @@ public class PlayerRuntime implements Preloadable {
     }
 
     public static PlayerRuntime createOrLoadFromTrace(final PlayerInfoTracer pi) {
-        //init leaderboard data in extra thread
-        new Thread() {
-            @Override
-            public void run() {
-                super.run();
-                IsenLeaderboard.getInstance().getLeaderboardData(pi.getPilotName());
-            }
-        }.start();
+        String pilotName = pi.getPilotName();
+        IsenLeaderboardResult leaderboard = IsenLeaderboard.getInstance().getLeaderboardData(pilotName);
+        if (leaderboard != null) {
+            pilotName = leaderboard.getPlayerName(); //go with name from leaderboard, better validation
+        }
         boolean firstTime = false;
         boolean known = false;
-        PlayerRuntime ret = getInstance(pi.getPilotName());
+        PlayerRuntime ret = getInstance(pilotName);
         if (ret == null) {
             firstTime = true;
-            ret = getInstance(pi.getPilotName(), pi.getUnitTag());
+            ret = getInstance(pilotName, pi.getUnitTag());
         } else {
             known = true;
             if (!ret.getUnit().equals(pi.getUnitTag())) {

@@ -1,6 +1,8 @@
 package at.happynev.mwoscoreboardhelper.isenleaderboard;
 
 import at.happynev.mwoscoreboardhelper.Logger;
+import at.happynev.mwoscoreboardhelper.tracer.ValueHelpers;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.http.Header;
 import org.apache.http.client.config.RequestConfig;
@@ -13,7 +15,6 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URLEncoder;
 import java.text.ParseException;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,7 +23,7 @@ import java.util.regex.Pattern;
 
 public class IsenLeaderboard {
     private static final Map<String, IsenLeaderboardResult> cachedResults = new ConcurrentHashMap<>();
-    private static final Set<String> cachedResultFails = new HashSet<>();
+    private static final Set<String> cachedResultFails = ConcurrentHashMap.newKeySet();
     private static boolean enabled = true;
     private static IsenLeaderboard instance;
     private final CloseableHttpClient httpClient;
@@ -110,12 +111,13 @@ public class IsenLeaderboard {
             if (cachedResults.containsKey(playerName)) {
                 return cachedResults.get(playerName);
             } else if (cachedResultFails.contains(playerName)) {
-                return null;
+                return getReevaluatedResult(playerName);
             }
             IsenLeaderboardResult ret = retrieveData(playerName);
             //Logger.log("parsing took:" + (end - start) + "ms");
             if (ret == null) {
                 cachedResultFails.add(playerName);
+                return getReevaluatedResult(playerName);
             } else {
                 cachedResults.put(playerName, ret);
             }
@@ -123,8 +125,18 @@ public class IsenLeaderboard {
         }
     }
 
+    private IsenLeaderboardResult getReevaluatedResult(String playerNameNotFound) {
+        String bestMatch = ValueHelpers.guessValue(playerNameNotFound, cachedResults.keySet());
+        int diff = StringUtils.getLevenshteinDistance(bestMatch, playerNameNotFound);
+        if (diff > 0 && diff < 3) {
+            Logger.log("Substituting possible ocr fail " + playerNameNotFound + " for known player " + bestMatch);
+            return cachedResults.get(bestMatch);
+        }
+        return null;
+    }
+
     private IsenLeaderboardResult retrieveData(String playerName) {
-        IsenLeaderboardResult ret = new IsenLeaderboardResult();
+        IsenLeaderboardResult ret = new IsenLeaderboardResult(playerName);
         String html = getWebsiteData(playerName);
         long start = System.currentTimeMillis();
         //int startOffset = html.indexOf("<tr class=\"overallrow\">");
