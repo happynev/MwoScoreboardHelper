@@ -380,9 +380,7 @@ public class MatchRuntime implements Preloadable {
             WatcherTabController.getInstance().labelStatusInfo.setText("Assigned to previously saved Match: " + oldRuntime.toString());
             //delete incomplete/outdated records, possibly from prep screenshot
             //only if better records are available
-            if (type == ScreenshotType.QP_4SUMMARY) {
-                cleanPreviousMatchRecords(newId);
-            }
+            cleanPreviousMatchRecords(newId);
             if (type != ScreenshotType.QP_3REWARDS) {
                 //load previously saved personal record (null if there isn't one)
                 personalRecord = PersonalMatchRecord.getInstance(PlayerRuntime.getUserInstance().getId(), newId);
