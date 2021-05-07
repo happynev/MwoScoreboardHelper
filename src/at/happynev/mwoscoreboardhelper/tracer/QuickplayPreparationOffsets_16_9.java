@@ -25,7 +25,7 @@ public class QuickplayPreparationOffsets_16_9 extends Offsets {
     private final static double LANCE_LINE_GAP = 9.3;
 
     private final static int MAP_OFFSET_X = 2326;
-    private final static int MAP_OFFSET_Y = 1193;
+    private final static int MAP_OFFSET_Y = 1206;
     private final static int MAP_WIDTH = 465;
     private final static int MAP_HEIGHT = 50;
 

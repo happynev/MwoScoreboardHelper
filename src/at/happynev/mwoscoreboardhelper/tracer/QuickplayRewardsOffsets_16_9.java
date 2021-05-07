@@ -9,7 +9,7 @@ public class QuickplayRewardsOffsets_16_9 extends Offsets {
     private final static int WIDTH = 3840;
     private final static int HEIGHT = 2160;
 
-    private final static int MAP_OFFSET_X = 1650;
+    private final static int MAP_OFFSET_X = 1290;
     private final static int MAP_OFFSET_Y = 49;
     private final static int MAP_WIDTH = 550;
     private final static int MAP_HEIGHT = 45;

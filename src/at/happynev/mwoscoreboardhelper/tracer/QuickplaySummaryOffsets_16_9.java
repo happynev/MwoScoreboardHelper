@@ -10,13 +10,14 @@ public class QuickplaySummaryOffsets_16_9 extends Offsets {
     private final static int HEIGHT = 2160;
 
     private final static int FIRST_PLAYERLINE_OFFSET = 360;
-    private final static int FIRST_PLAYERFIELD_OFFSET = 1301;
+    private final static int FIRST_PLAYERFIELD_OFFSET = 1214;
     private final static int PLAYER_LINE_HEIGHT = 45;
     private final static int PLAYER_UNIT_WIDTH = 146;
     private final static int PLAYER_PILOTNAME_WIDTH = 488;
     private final static int PLAYER_MECH_WIDTH = 281;
     private final static int PLAYER_STATUS_WIDTH = 240;
-    private final static int PLAYER_MATCHSCORE_WIDTH = 210;
+    private final static int PLAYER_MATCHSCORE_WIDTH = 180;
+    private final static int PLAYER_CAPTIME_WIDTH = 220;
     private final static int PLAYER_KILLS_WIDTH = 136;
     private final static int PLAYER_ASSISTS_WIDTH = 149;
     private final static int PLAYER_DAMAGE_WIDTH = 120;
@@ -26,7 +27,7 @@ public class QuickplaySummaryOffsets_16_9 extends Offsets {
     private final static int PLAYER_MECH_OFFSET = PLAYER_PILOTNAME_OFFSET + PLAYER_PILOTNAME_WIDTH;
     private final static int PLAYER_STATUS_OFFSET = PLAYER_MECH_OFFSET + PLAYER_MECH_WIDTH;
     private final static int PLAYER_MATCHSCORE_OFFSET = PLAYER_STATUS_OFFSET + PLAYER_STATUS_WIDTH;
-    private final static int PLAYER_KILLS_OFFSET = PLAYER_MATCHSCORE_OFFSET + PLAYER_MATCHSCORE_WIDTH;
+    private final static int PLAYER_KILLS_OFFSET = PLAYER_MATCHSCORE_OFFSET + PLAYER_MATCHSCORE_WIDTH+PLAYER_CAPTIME_WIDTH;
     private final static int PLAYER_ASSISTS_OFFSET = PLAYER_KILLS_OFFSET + PLAYER_KILLS_WIDTH;
     private final static int PLAYER_DAMAGE_OFFSET = PLAYER_ASSISTS_OFFSET + PLAYER_ASSISTS_WIDTH;
     private final static int PLAYER_PING_OFFSET = PLAYER_DAMAGE_OFFSET + PLAYER_DAMAGE_WIDTH;
@@ -35,7 +36,7 @@ public class QuickplaySummaryOffsets_16_9 extends Offsets {
     private final static double LANCE_LINE_GAP = 20;
     private final static double TEAM_LINE_GAP = 33;
 
-    private final static int MAP_OFFSET_X = 1650;
+    private final static int MAP_OFFSET_X = 1290;
     private final static int MAP_OFFSET_Y = 49;
     private final static int MAP_WIDTH = 550;
     private final static int MAP_HEIGHT = 45;
@@ -55,7 +56,7 @@ public class QuickplaySummaryOffsets_16_9 extends Offsets {
     private final static int IDENT_WIDTH = 170;
     private final static int IDENT_HEIGHT = 45;
 
-    private static final int TEAM_OFFSETX = 610;
+    private static final int TEAM_OFFSETX = 530;
     private static final int TEAM_OFFSET_WINNER = 708;
     private static final int TEAM_OFFSET_LOSER = 1381;
     private static final int TEAM_RESULT_WIDTH = 268;
