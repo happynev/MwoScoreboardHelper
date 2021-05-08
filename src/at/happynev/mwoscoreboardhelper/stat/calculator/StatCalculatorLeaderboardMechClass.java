@@ -28,6 +28,9 @@ public class StatCalculatorLeaderboardMechClass extends StatCalculator {
             return "?";
         }
         IsenSeasonData leaderboardData = data.getConfiguredSeasonData();
+        if (leaderboardData == null) {
+            return "?";
+        }
         Map<String, Integer> classValues = new HashMap<>(4);
         if (leaderboardData.getLight() > 0) {
             classValues.put("Light", leaderboardData.getLight());

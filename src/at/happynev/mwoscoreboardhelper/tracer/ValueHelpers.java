@@ -95,7 +95,10 @@ public class ValueHelpers {
         public List<String> getItems() {
             switch (this) {
                 case MAP:
-                    return Arrays.asList("", "ALPINE PEAKS", "CANYON NETWORK", "CAUSTIC VALLEY", "CRIMSON STRAIT", "FOREST COLONY", "FROZEN CITY", "GRIM PLEXUS", "HPG MANIFOLD", "POLAR HIGHLANDS", "RIVER CITY", "TERRA THERMA", "THE MINING COLLECTIVE", "TOURMALINE DESERT", "VIRIDIAN BOG", "RUBELLITE OASIS", "SOLARIS CITY");
+                    return Arrays.asList("", "ALPINE PEAKS", "CANYON NETWORK", "CAUSTIC VALLEY", "CRIMSON STRAIT", "FOREST COLONY", "FROZEN CITY",
+                            "GRIM PLEXUS", "HPG MANIFOLD", "POLAR HIGHLANDS", "RIVER CITY", "TERRA THERMA", "THE MINING COLLECTIVE", "TOURMALINE DESERT",
+                            "VIRIDIAN BOG", "RUBELLITE OASIS", "SOLARIS CITY", "SOLARIS CITY","FROZEN CITY NIGHT (CLASSIC)","FOREST COLONY SNOW (CLASSIC)",
+                            "HIBERNAL RIFT");
                 case GAMEMODE:
                     List<String> ret = Arrays.asList("", "SKIRMISH", "DOMINATION", "ASSAULT", "CONQUEST", "INCURSION", "INVASION", "SIEGE", "ESCORT");
                     List<String> gameModeRet = new ArrayList<>(ret.size());

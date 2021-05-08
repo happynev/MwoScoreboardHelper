@@ -8,7 +8,7 @@ public class IsenLeaderboardResult {
     private final String playerName;
     private Date lastEditDate;
     private IsenSeasonData overallData;
-    private Map<String, IsenSeasonData> seasonData = new HashMap<>();
+    private final Map<String, IsenSeasonData> seasonData = new HashMap<>();
 
     public IsenLeaderboardResult(String playerName) {
         this.playerName = playerName;
@@ -35,7 +35,7 @@ public class IsenLeaderboardResult {
     }
 
     public void addSeason(String season, IsenSeasonData data) {
-        season = season.replaceAll("\\s*:.*", "");
+        season = season.replaceAll("\\s*:.*", "").replaceAll("\\([^)]*\\)","");
         //Logger.log("add season " + season);
         if (season.equalsIgnoreCase("Overall")) {
             overallData = data;

@@ -41,7 +41,7 @@ public class IsenLeaderboard {
     private final int COL_MEDIUM = 11;
     private final int COL_HEAVY = 12;
     private final int COL_ASSAULT = 13;
-    private final Pattern row = Pattern.compile("(?:<tr>)?(?:\\s*<td[^>]+>([^<]*)<[^>]+>)(?:\\s*<td[^>]+>[^<]*<[^>]+>){13}\\s*</tr>", Pattern.DOTALL);
+    private final Pattern row = Pattern.compile("(?:<tr[^>]+>)?(?:\\s*<td[^>]+>([^<]*)<[^>]+>)(?:\\s*<td[^>]+>[^<]*<[^>]+>){13}\\s*</tr>", Pattern.DOTALL);
     private final Pattern field = Pattern.compile("<td[^>]+>([^<]*)<[^>]+>", Pattern.DOTALL);
     private final Pattern editDate = Pattern.compile("Database last edited: (20\\d\\d-\\d\\d-\\d\\d)", Pattern.DOTALL);
     private final FastDateFormat fdfDate = FastDateFormat.getInstance("yyyy-MM-dd");
@@ -115,7 +115,7 @@ public class IsenLeaderboard {
             }
             IsenLeaderboardResult ret = retrieveData(playerName);
             //Logger.log("parsing took:" + (end - start) + "ms");
-            if (ret == null) {
+            if (ret == null || ret.getConfiguredSeasonData() == null) {
                 cachedResultFails.add(playerName);
                 return getReevaluatedResult(playerName);
             } else {
@@ -148,6 +148,7 @@ public class IsenLeaderboard {
                 Logger.warning("failed to parse date from leaderboard: " + editDateMatcher.group(1));
             }
         }
+        html = html.replaceAll("<span[^>]+>.*?</span>", "");
         Matcher rowMatcher = row.matcher(html);
         while (rowMatcher.find()) {
             String tableRow = rowMatcher.group();
