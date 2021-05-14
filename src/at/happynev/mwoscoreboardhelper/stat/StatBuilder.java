@@ -84,11 +84,12 @@ public class StatBuilder {
             CustomizableStatTemplate statTemplate = tmpStat.build();
             defaultStats.add(statTemplate);
         }
-        for (StatType stat : Arrays.asList(StatType.ASSISTS, StatType.KILLS, StatType.DAMAGE, StatType.SCORE, StatType.PING, StatType.SOLO_KILLS, StatType.KMDDS, StatType.COMPONENT_DESTROYED, StatType.REWARD_CBILLS, StatType.REWARD_XP))
+        for (StatType stat : Arrays.asList(StatType.ASSISTS, StatType.KILLS, StatType.DAMAGE, StatType.SCORE, StatType.PING, StatType.SOLO_KILLS, StatType.KMDDS, StatType.COMPONENT_DESTROYED, StatType.REWARD_CBILLS, StatType.REWARD_XP)) {
             defaultStats.add(StatBuilder.newStat("~" + stat.toString(), stat.getDescription() + " average for this player")
                     .addCalculationStep(RecordFilterType.PLAYER.getInstance())
                     .addCalculationStep(StatAggregatorType.AVERAGE.getInstance(stat))
                     .build());
+        }
         defaultStats.add(StatBuilder.newStat("~CB/MGC", "Average C-Bill rewards for this gamemode on this map with this weightclass")
                 .addCalculationStep(RecordFilterType.PLAYER.getInstance())
                 .addCalculationStep(RecordFilterType.GAMEMODE.getInstance())
@@ -271,16 +272,17 @@ public class StatBuilder {
                 .build());
         defaultPlayerTabMechStats = new ArrayList<>();
         defaultPlayerTabMechStats.add(StatBuilder.newStat("#", "Number of records collected with this mech")
-                .addCalculationStep(RecordFilterType.PLAYER.getInstance())
-                .addCalculationStep(RecordFilterType.MECHVARIANT.getInstance())
                 .addCalculationStep(StatAggregatorType.COUNT.getInstance(StatType.MATCHES))
                 .build());
-        for (StatType stat : Arrays.asList(StatType.ASSISTS, StatType.KILLS, StatType.DAMAGE, StatType.SCORE, StatType.SOLO_KILLS))
+        for (StatType stat : Arrays.asList(StatType.ASSISTS, StatType.KILLS, StatType.DAMAGE, StatType.SCORE))
             defaultPlayerTabMechStats.add(StatBuilder.newStat("~" + stat.toString(), stat.getDescription() + " average in this mech")
-                    .addCalculationStep(RecordFilterType.PLAYER.getInstance())
-                    .addCalculationStep(RecordFilterType.MECHVARIANT.getInstance())
                     .addCalculationStep(StatAggregatorType.AVERAGE.getInstance(stat))
                     .build());
+        defaultPlayerTabMechStats.add(StatBuilder.newStat("W/L", "Win/Loss Ratio in this mech")
+                .addCalculationStep(StatAggregatorType.COUNT.getInstance(StatType.LOSSES))
+                .addCalculationStep(StatAggregatorType.COUNT.getInstance(StatType.WINS))
+                .addCalculationStep(AggregatedStatCalculatorType.RATIO.getInstance())
+                .build());
     }
 
     public static List<CustomizableStatTemplate> getDefaultPlayerTabMechStats() {

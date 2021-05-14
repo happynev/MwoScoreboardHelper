@@ -114,20 +114,14 @@
       </VBox>
       <VBox spacing="20.0" HBox.hgrow="ALWAYS">
          <children>
-            <VBox fx:id="panePlayerstats" VBox.vgrow="NEVER" />
-            <VBox VBox.vgrow="SOMETIMES">
-               <children>
-                  <Label text="Observed Mechs" VBox.vgrow="NEVER" />
-                  <TableView fx:id="tableMechs" VBox.vgrow="SOMETIMES" />
-               </children>
-            </VBox>
+            <VBox fx:id="panePlayerstats" VBox.vgrow="SOMETIMES" />
             <VBox VBox.vgrow="SOMETIMES">
                <children>
                   <Label text="Observed Matches" VBox.vgrow="NEVER" />
                   <HBox>
                      <children>
                         <TableView fx:id="tablePlayerMatches" HBox.hgrow="ALWAYS" VBox.vgrow="SOMETIMES" />
-                        <Button fx:id="buttonJumpToMatch" mnemonicParsing="false" text="Jump To" HBox.hgrow="NEVER" />
+                        <!--Button fx:id="buttonJumpToMatch" mnemonicParsing="false" text="Jump To" HBox.hgrow="NEVER" /-->
                      </children>
                   </HBox>
                </children>

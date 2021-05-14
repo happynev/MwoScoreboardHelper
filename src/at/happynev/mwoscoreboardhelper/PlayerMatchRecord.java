@@ -167,9 +167,9 @@ public class PlayerMatchRecord implements Preloadable {
     }
 
     //for player tab/mechlist
-    public static PlayerMatchRecord getReferenceRecord(int playerId, String mechVariant) {
+    public static PlayerMatchRecord getReferenceRecord(int playerId) {
         PlayerMatchRecord pmr = new PlayerMatchRecord(false, playerId, -1);
-        MechRuntime mr = MechRuntime.getMechByShortName(mechVariant);
+        MechRuntime mr = MechRuntime.getReferenceMech();
         pmr.getMatchValues().putAll(mr.getDerivedValues());
         return pmr;
     }

@@ -2,25 +2,25 @@ package at.happynev.mwoscoreboardhelper;
 
 import at.happynev.mwoscoreboardhelper.isenleaderboard.IsenLeaderboard;
 import at.happynev.mwoscoreboardhelper.isenleaderboard.IsenLeaderboardResult;
+import at.happynev.mwoscoreboardhelper.stat.CustomizableStatRuntime;
+import at.happynev.mwoscoreboardhelper.stat.CustomizableStatTemplate;
+import at.happynev.mwoscoreboardhelper.stat.StatBuilder;
 import at.happynev.mwoscoreboardhelper.stat.StatType;
 import at.happynev.mwoscoreboardhelper.tracer.ValueHelpers;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.ObjectBinding;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import org.apache.commons.lang3.time.FastDateFormat;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by Nev on 15.01.2017.
@@ -54,8 +54,6 @@ public class PlayerTabController {
     @FXML
     ChoiceBox<String> choiceIcon;
     @FXML
-    TableView<String> tableMechs;
-    @FXML
     Pane panePlayername;
     @FXML
     Button buttonJumpToDuplicate;
@@ -75,6 +73,7 @@ public class PlayerTabController {
     Label labelLeaderboardInfo;
     @FXML
     Button buttonUpdateLeaderboardInfo;
+    MechdataAggregation selectedAggregation = MechdataAggregation.VARIANT;
 
     FastDateFormat fdfSeen = FastDateFormat.getInstance("yyyy-MM-dd HH:mm");
 
@@ -109,12 +108,43 @@ public class PlayerTabController {
         return last;
     }
 
+    private enum MechdataAggregation {
+        FACTION,
+        CLASS,
+        CHASSIS,
+        VARIANT,
+        TONNAGE,
+        MAP,
+        GAMEMODE;
+
+        @Override
+        public String toString() {
+            switch (this) {
+                case FACTION:
+                    return "Faction";
+                case CLASS:
+                    return "Class";
+                case CHASSIS:
+                    return "Chassis";
+                case VARIANT:
+                    return "Variant";
+                case TONNAGE:
+                    return "Tonnage";
+                case MAP:
+                    return "Map";
+                case GAMEMODE:
+                    return "Gamemode";
+                default:
+                    return "xxx";
+            }
+        }
+    }
+
     @FXML
     private void initialize() {
         //tablePlayerMatches.setItems(FXCollections.observableArrayList());
         //tableMechs.setItems(FXCollections.observableArrayList());
         tablePlayerMatches.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        tableMechs.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         buttonRefreshData.setOnAction(event -> refreshData());
         buildPlayerTable();
         BooleanBinding duplicateSelected = listPossibleDuplicates.getSelectionModel().selectedItemProperty().isNotNull();
@@ -148,7 +178,6 @@ public class PlayerTabController {
                 }
             }
         });
-        buttonJumpToMatch.setDisable(true);//TODO after match tab is implemented
         buttonJumpToSelf.setOnAction(event -> selectSelf());
         buttonUpdateLeaderboardInfo.setOnAction(event -> {
             IsenLeaderboardResult result = IsenLeaderboard.getInstance().getLeaderboardData(tablePlayers.getSelectionModel().getSelectedItem().getPilotname());
@@ -165,25 +194,7 @@ public class PlayerTabController {
     }
 
     private void buildMechTable() {
-        /*
-        RecordFilterType.PLAYER.getInstance()
-        TableColumn<CustomizableStatRuntime, String> colMech = new TableColumn<>("Mech");
-        colMech.setCellValueFactory(param -> {
-            String value = param.getValue().getMech().getShortName();
-            return new ReadOnlyStringWrapper("test");
-        });
-        tableMechs.getColumns().add(colMech);
-        for (CustomizableStatTemplate stat : StatBuilder.getDefaultPlayerTabMechStats()) {
-            TableColumn<CustomizableStatRuntime, String> col = new TableColumn<>();
-            col.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().getValue()));
-            Label columnHeader = new Label(stat.toString());
-            columnHeader.setTooltip(new Tooltip(stat.getDescription()));
-            col.setGraphic(columnHeader);
-            GuiUtils.getColumnConstraint(columnHeader);
-            col.setPrefWidth(GuiUtils.getColumnConstraint(columnHeader).getPrefWidth());
-            col.setComparator(Utils.getNumberComparator());
-            tableMechs.getColumns().add(col);
-        }*/
+
     }
 
     private void buildMatchTable() {
@@ -211,9 +222,9 @@ public class PlayerTabController {
             String value = match.getMatchResult();
             return new SimpleStringProperty(value);
         });
-        tablePlayerMatches.getColumns().addAll(colTime, colMap, colGameMode, colMatchResult);
+        tablePlayerMatches.getColumns().add(colTime);
         for (StatType stat : StatType.values()) {
-            if (stat == StatType.MECH_TONS) {
+            if (stat == StatType.MECH_TONS || stat.getDescription().toLowerCase().contains("jarl")) {
                 continue;
             }
             TableColumn<PlayerMatchRecord, String> col = new TableColumn<>();
@@ -267,10 +278,9 @@ public class PlayerTabController {
         pickerBack.valueProperty().set(Color.BLACK);
         pickerFront.valueProperty().set(Color.WHITE);
         listPossibleDuplicates.getItems().clear();
-        panePlayerstats.getChildren().clear();
         tablePlayerMatches.getItems().clear();
-        tableMechs.getItems().clear();
         labelLeaderboardInfo.textProperty().setValue("");
+        panePlayerstats.getChildren().clear();
         if (newPlayer != null) {
             labelUnit.textProperty().bindBidirectional(newPlayer.unitProperty());
             labelPilotname.textProperty().bindBidirectional(newPlayer.pilotnameProperty());
@@ -280,20 +290,111 @@ public class PlayerTabController {
             pickerFront.valueProperty().bindBidirectional(newPlayer.guicolor_frontProperty());
             listPossibleDuplicates.getItems().addAll(findDuplicates(newPlayer));
             labelSeenInfo.setText("Seen " + newPlayer.getMatchRecords().size() + " times between " + fdfSeen.format(findFirstSeen(newPlayer)) + " and " + fdfSeen.format(findLastSeen(newPlayer)));
-            panePlayerstats.getChildren().add(new Label("Overall Stats:"));
-           /* for (PlayerStat stat : PlayerStat.values()) {
-                Label statdesc = new Label(stat.getDescription() + ":");
-                statdesc.setBackground(new Background(new BackgroundFill(DisplayableStat.COLOR_PLAYERDATA, null, null)));
-                Label statvalue = new Label(newPlayer.getCalculatedValues().get(stat));
-                HBox hbox = new HBox(statdesc, statvalue);
-                hbox.setSpacing(10);
-                panePlayerstats.getChildren().add(hbox);
-            }*/
             tablePlayerMatches.getItems().addAll(newPlayer.getMatchRecords());
             tablePlayerMatches.sort();
-            //tableMechs.getItems().addAll(newPlayer.getMechStats().values());
-            tableMechs.sort();
+            buildMechTable(newPlayer);
         }
+    }
+
+    private static class AggregateMatchData {
+        private final Map<String, String> stats = new HashMap<>();
+        private final String listKey;
+
+        public AggregateMatchData(String listKey, PlayerRuntime pr, MechdataAggregation agg) {
+            this.listKey = listKey;
+            PlayerMatchRecord refRecord = PlayerMatchRecord.getReferenceRecord(pr.getId());
+            List<PlayerMatchRecord> matches = new ArrayList<>();
+            if (agg == MechdataAggregation.VARIANT) {
+                matches.addAll(pr.getMatchRecords().parallelStream().filter(pmr -> pmr.getMech().getShortName().equals(listKey)).collect(Collectors.toList()));
+            } else if (agg == MechdataAggregation.CHASSIS) {
+                matches.addAll(pr.getMatchRecords().parallelStream().filter(pmr -> pmr.getMech().getChassis().equals(listKey)).collect(Collectors.toList()));
+            } else if (agg == MechdataAggregation.CLASS) {
+                matches.addAll(pr.getMatchRecords().parallelStream().filter(pmr -> pmr.getMech().getWeightClass().equals(listKey)).collect(Collectors.toList()));
+            } else if (agg == MechdataAggregation.FACTION) {
+                matches.addAll(pr.getMatchRecords().parallelStream().filter(pmr -> pmr.getMech().getFaction().equals(listKey)).collect(Collectors.toList()));
+            } else if (agg == MechdataAggregation.TONNAGE) {
+                matches.addAll(pr.getMatchRecords().parallelStream().filter(pmr -> listKey.equals("" + pmr.getMech().getTons())).collect(Collectors.toList()));
+            } else if (agg == MechdataAggregation.MAP) {
+                matches.addAll(pr.getMatchRecords().parallelStream().filter(pmr -> pmr.getMatchValues().get(StatType.MAP).equals(listKey)).collect(Collectors.toList()));
+            } else if (agg == MechdataAggregation.GAMEMODE) {
+                matches.addAll(pr.getMatchRecords().parallelStream().filter(pmr -> pmr.getMatchValues().get(StatType.GAMEMODE).equals(listKey)).collect(Collectors.toList()));
+            }
+            for (CustomizableStatTemplate template : StatBuilder.getDefaultPlayerTabMechStats()) {
+                CustomizableStatRuntime stat = template.getRuntimeInstance(refRecord);
+                String value = stat.getValue(matches);
+                stats.put(template.getShortName(), value);
+            }
+        }
+
+    }
+
+    private void buildMechTable(PlayerRuntime newPlayer) {
+        if (newPlayer == null) {
+            return;
+        }
+        ChoiceBox<MechdataAggregation> choiceAggregateMechStats = new ChoiceBox<>();
+        choiceAggregateMechStats.getItems().addAll(MechdataAggregation.values());
+        choiceAggregateMechStats.getSelectionModel().select(selectedAggregation);
+        choiceAggregateMechStats.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            panePlayerstats.getChildren().clear();
+            selectedAggregation = newValue;
+            buildMechTable(newPlayer);
+        });
+
+        TableView<AggregateMatchData> tableMechdata = new TableView<>();
+        List<String> listKeys = new ArrayList<>();
+        if (selectedAggregation == MechdataAggregation.VARIANT) {
+            listKeys.addAll(newPlayer.getMatchRecords().parallelStream().map(pmr -> pmr.getMech().getShortName()).collect(Collectors.toSet()));
+            TableColumn<AggregateMatchData, String> keyCol = new TableColumn<>("Mech Variant");
+            keyCol.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().listKey));
+            tableMechdata.getColumns().add(keyCol);
+        } else if (selectedAggregation == MechdataAggregation.CHASSIS) {
+            listKeys.addAll(newPlayer.getMatchRecords().parallelStream().map(pmr -> pmr.getMech().getChassis()).collect(Collectors.toSet()));
+            TableColumn<AggregateMatchData, String> keyCol = new TableColumn<>("Mech Chassis");
+            keyCol.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().listKey));
+            tableMechdata.getColumns().add(keyCol);
+        } else if (selectedAggregation == MechdataAggregation.CLASS) {
+            listKeys.addAll(newPlayer.getMatchRecords().parallelStream().map(pmr -> pmr.getMech().getWeightClass()).collect(Collectors.toSet()));
+            TableColumn<AggregateMatchData, String> keyCol = new TableColumn<>("Class");
+            keyCol.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().listKey));
+            tableMechdata.getColumns().add(keyCol);
+        } else if (selectedAggregation == MechdataAggregation.FACTION) {
+            listKeys.addAll(newPlayer.getMatchRecords().parallelStream().map(pmr -> pmr.getMech().getFaction()).collect(Collectors.toSet()));
+            TableColumn<AggregateMatchData, String> keyCol = new TableColumn<>("Faction");
+            keyCol.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().listKey));
+            tableMechdata.getColumns().add(keyCol);
+        } else if (selectedAggregation == MechdataAggregation.TONNAGE) {
+            listKeys.addAll(newPlayer.getMatchRecords().parallelStream().map(pmr -> pmr.getMech().getTons() + "").collect(Collectors.toSet()));
+            TableColumn<AggregateMatchData, String> keyCol = new TableColumn<>("Tons");
+            keyCol.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().listKey));
+            tableMechdata.getColumns().add(keyCol);
+        } else if (selectedAggregation == MechdataAggregation.MAP) {
+            listKeys.addAll(newPlayer.getMatchRecords().parallelStream().map(pmr -> pmr.getMatchValues().get(StatType.MAP)).collect(Collectors.toSet()));
+            TableColumn<AggregateMatchData, String> keyCol = new TableColumn<>("Map");
+            keyCol.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().listKey));
+            tableMechdata.getColumns().add(keyCol);
+        } else if (selectedAggregation == MechdataAggregation.GAMEMODE) {
+            listKeys.addAll(newPlayer.getMatchRecords().parallelStream().map(pmr -> pmr.getMatchValues().get(StatType.GAMEMODE)).collect(Collectors.toSet()));
+            TableColumn<AggregateMatchData, String> keyCol = new TableColumn<>("GameMode");
+            keyCol.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().listKey));
+            tableMechdata.getColumns().add(keyCol);
+        }
+        for (String key : listKeys) {
+            AggregateMatchData agg = new AggregateMatchData(key, newPlayer, selectedAggregation);
+            tableMechdata.getItems().add(agg);
+            if (tableMechdata.getColumns().size() == 1) {
+                for (String stat : agg.stats.keySet()) {
+                    TableColumn<AggregateMatchData, String> col = new TableColumn<>(stat);
+                    col.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().stats.get(stat)));
+                    col.setComparator(new Utils.NumericStringComparator());
+                    tableMechdata.getColumns().add(col);
+                }
+            }
+        }
+
+        panePlayerstats.getChildren().setAll(new HBox(5, new Label("Aggregate by"), choiceAggregateMechStats),
+                tableMechdata
+        );
     }
 
     private List<PlayerRuntime> findDuplicates(PlayerRuntime orig) {
