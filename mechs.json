@@ -1,0 +1,66 @@
+{
+  "10001": {
+    "id": "10001",
+    "name": "drg-1g",
+    "faction": "InnerSphere",
+    "mech_type": "heavy",
+    "family": "DRAGON",
+    "chassis_translated": "DRAGON",
+    "translated_name": "GRAND DRAGON",
+    "translated_short_name": "DRG-1G",
+    "details": {
+      "type": "",
+      "tons": 60,
+      "top_speed": 81.0,
+      "max_armor": 320
+    }
+  },
+  "10002": {
+    "id": "10002",
+    "name": "tdr-10se",
+    "faction": "InnerSphere",
+    "mech_type": "heavy",
+    "family": "THUNDERBOLT",
+    "chassis_translated": "THUNDERBOLT",
+    "translated_name": "TDR-10SE",
+    "translated_short_name": "TDR-10SE",
+    "details": {
+      "type": "",
+      "tons": 65,
+      "top_speed": 64.8,
+      "max_armor": 400
+    }
+  },
+  "10003": {
+    "id": "10003",
+    "name": "tbr-bh",
+    "faction": "Clan",
+    "mech_type": "heavy",
+    "family": "TIMBER WOLF",
+    "chassis_translated": "TIMBER WOLF",
+    "translated_name": "TBR-BH",
+    "translated_short_name": "TBR-BH",
+    "details": {
+      "type": "",
+      "tons": 75,
+      "top_speed": 81.0,
+      "max_armor": 460
+    }
+  },
+  "10004": {
+    "id": "10004",
+    "name": "dwf-c",
+    "faction": "Clan",
+    "mech_type": "assault",
+    "family": "DIRE WOLF",
+    "chassis_translated": "DIRE WOLF",
+    "translated_name": "DWF-C",
+    "translated_short_name": "DWF-C",
+    "details": {
+      "type": "",
+      "tons": 100,
+      "top_speed": 48.6,
+      "max_armor": 608
+    }
+  }
+}

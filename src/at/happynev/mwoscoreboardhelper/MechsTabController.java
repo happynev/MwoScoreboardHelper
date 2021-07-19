@@ -2,6 +2,10 @@ package at.happynev.mwoscoreboardhelper;
 
 import at.happynev.mwoscoreboardhelper.smurfyapi.ApiCaller;
 import at.happynev.mwoscoreboardhelper.smurfyapi.Mech;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -10,7 +14,12 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.sql.PreparedStatement;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -67,7 +76,11 @@ public class MechsTabController {
         Logger.log("downloading mech data");
         List<Mech> mechs = ApiCaller.getAllMechs();
         Logger.log("downloaded " + mechs.size() + " mechs");
+        List<Mech> localMechs = getLocalMechData();
+        Logger.log("plus " + localMechs.size() + " local mechs");
+        mechs.addAll(localMechs);
         if (mechs.size() > 0) {
+            System.out.println(new Gson().toJson(mechs.get(0)));
             deleteMechData();
             try {
 
@@ -97,6 +110,23 @@ public class MechsTabController {
         }
         reloadData();
         Utils.confirmationDialog("Mech Update Successful", "got " + mechs.size() + " mechs");
+    }
+
+    private List<Mech> getLocalMechData() {
+        try {
+            //{"id":"1","name":"hbk-4g","faction":"InnerSphere","mech_type":"medium","family":"hunchback","chassis_translated":"HUNCHBACK","translated_name":"HBK-4G","translated_short_name":"HBK-4G","details":{"type":"","tons":50,"top_speed":89.1,"max_armor":338}}
+            List<Mech> mechs = new ArrayList<>();
+            File localMechData = new File("./mechs.json");
+            if (localMechData.exists()) {
+                Gson gson = new GsonBuilder().setLenient().create();
+                JsonObject root = new JsonParser().parse(new String(Files.readAllBytes(localMechData.toPath()), StandardCharsets.UTF_8)).getAsJsonObject();
+                root.entrySet().forEach(e -> mechs.add(gson.fromJson(e.getValue(), Mech.class)));
+            }
+            return mechs;
+        } catch (Exception e) {
+            Logger.error(e);
+            return Collections.emptyList();
+        }
     }
 
     private void reloadData() {
