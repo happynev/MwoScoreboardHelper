@@ -2,12 +2,7 @@ package at.happynev.mwoscoreboardhelper.tracer;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.awt.*;
-import java.awt.color.ColorSpace;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBuffer;
 import java.util.*;
-import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -97,8 +92,8 @@ public class ValueHelpers {
                 case MAP:
                     return Arrays.asList("", "ALPINE PEAKS", "CANYON NETWORK", "CAUSTIC VALLEY", "CRIMSON STRAIT", "FOREST COLONY", "FROZEN CITY",
                             "GRIM PLEXUS", "HPG MANIFOLD", "POLAR HIGHLANDS", "RIVER CITY", "TERRA THERMA", "THE MINING COLLECTIVE", "TOURMALINE DESERT",
-                            "VIRIDIAN BOG", "RUBELLITE OASIS", "SOLARIS CITY", "SOLARIS CITY","FROZEN CITY NIGHT (CLASSIC)","FOREST COLONY SNOW (CLASSIC)",
-                            "HIBERNAL RIFT");
+                            "VIRIDIAN BOG", "RUBELLITE OASIS", "SOLARIS CITY", "FROZEN CITY (CLASSIC)", "FROZEN CITY NIGHT (CLASSIC)", "FOREST COLONY (CLASSIC)"
+                            , "FOREST COLONY SNOW (CLASSIC)", "HIBERNAL RIFT", "HELLEBORE OUTPOST", "VITRIC FORGE", "EMERALD VALE" );
                 case GAMEMODE:
                     List<String> ret = Arrays.asList("", "SKIRMISH", "DOMINATION", "ASSAULT", "CONQUEST", "INCURSION", "INVASION", "SIEGE", "ESCORT");
                     List<String> gameModeRet = new ArrayList<>(ret.size());

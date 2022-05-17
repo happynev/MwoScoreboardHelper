@@ -1,11 +1,7 @@
 package at.happynev.mwoscoreboardhelper;
 
-import at.happynev.mwoscoreboardhelper.smurfyapi.ApiCaller;
 import at.happynev.mwoscoreboardhelper.smurfyapi.Mech;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -15,11 +11,13 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -45,8 +43,10 @@ public class MechsTabController {
     @FXML
     private void initialize() {
         buttonClearData.setOnAction(event -> deleteMechData());
+        buttonImportMechData.setText("Reload mechs.json");
         buttonImportMechData.setOnAction(event -> downloadMechData());
-        buttonReloadData.setOnAction(event -> reloadData());
+        buttonReloadData.setText("export as json");
+        buttonReloadData.setOnAction(event -> exportMechData());
         tableMechs.getColumns().addAll(
                 createColumn("ID", "id"),//
                 createColumn("Faction", "faction"),//
@@ -72,13 +72,25 @@ public class MechsTabController {
         reloadData();
     }
 
+    private void exportMechData() {
+        File localMechData = new File("./exported_mechs.json");
+        JsonObject rootList = new JsonObject();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        MechRuntime.getKnownMechs().entrySet().stream().sorted(Comparator.comparingInt(value -> Integer.parseInt(value.getKey()))).forEach(me -> {
+            Mech mech = me.getValue().getDataObject();
+            JsonElement m = gson.toJsonTree(mech);
+            rootList.add("" + mech.getId(), m);
+        });
+        try {
+            Files.write(localMechData.toPath(), gson.toJson(rootList).getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            Logger.error(e);
+        }
+    }
+
     private void downloadMechData() {
-        Logger.log("downloading mech data");
-        List<Mech> mechs = ApiCaller.getAllMechs();
-        Logger.log("downloaded " + mechs.size() + " mechs");
-        List<Mech> localMechs = getLocalMechData();
-        Logger.log("plus " + localMechs.size() + " local mechs");
-        mechs.addAll(localMechs);
+        List<Mech> mechs = getLocalMechData();
+        Logger.log("found " + mechs.size() + " local mechs");
         if (mechs.size() > 0) {
             System.out.println(new Gson().toJson(mechs.get(0)));
             deleteMechData();

@@ -1,5 +1,6 @@
 package at.happynev.mwoscoreboardhelper;
 
+import at.happynev.mwoscoreboardhelper.smurfyapi.Mech;
 import at.happynev.mwoscoreboardhelper.stat.StatType;
 import at.happynev.mwoscoreboardhelper.tracer.ValueHelpers;
 import org.apache.commons.lang3.StringUtils;
@@ -15,8 +16,8 @@ import java.util.Set;
  * Created by Nev on 22.01.2017.
  */
 public class MechRuntime {
-    private static Set<String> knownShortNames = new HashSet<>();
-    private static Map<String, MechRuntime> knownMechs = new HashMap<>();
+    private static final Set<String> knownShortNames = new HashSet<>();
+    private static final Map<String, MechRuntime> knownMechs = new HashMap<>();
     private final String id;
     private final String internalName;
     private final String name;
@@ -129,6 +130,30 @@ public class MechRuntime {
             Logger.log("changed mech: " + mech + "-->" + guess);
         }
         return guess;
+    }
+
+    public Mech getDataObject() {
+        Mech mech = new Mech();
+        mech.setId(id);
+        mech.setMech_type(getWeightClass());
+        mech.setFaction(faction);
+        mech.setChassis_translated(chassis);
+        mech.setName(internalName);
+        mech.setTranslated_name(name);
+        mech.setTranslated_short_name(shortName);
+
+        Mech.Details details = new Mech.Details();
+        details.setTons(tons);
+        details.setMax_armor(armor);
+        details.setTop_speed(speed);
+        details.setType(specialtype);
+        mech.setDetails(details);
+        mech.getMax_armor();
+        mech.getTons();
+        mech.getTop_speed();
+        mech.getType();
+        mech.setDetails(null);
+        return mech;
     }
 
     @Override

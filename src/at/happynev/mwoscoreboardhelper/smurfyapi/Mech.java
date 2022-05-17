@@ -14,7 +14,11 @@ public class Mech {
     String chassis_translated;
     String translated_name;
     String translated_short_name;
-    Details details;
+    Details details = new Details();
+    String type;
+    int tons;
+    double top_speed;
+    int max_armor;
 
     public String getId() {
         return id;
@@ -89,23 +93,35 @@ public class Mech {
     }
 
     public int getMax_armor() {
-        return details.max_armor;
+        if (max_armor == 0) {
+            max_armor = details.max_armor;
+        }
+        return max_armor;
     }
 
     public String getType() {
-        return details.type;
+        if (type == null) {
+            type = details.type;
+        }
+        return type;
     }
 
     public int getTons() {
-        return details.tons;
+        if (tons == 0) {
+            tons = details.tons;
+        }
+        return tons;
     }
 
     public String getTop_speed() {
-        BigDecimal bd = new BigDecimal(details.top_speed);
+        if (top_speed == 0d) {
+            top_speed = details.top_speed;
+        }
+        BigDecimal bd = new BigDecimal(top_speed);
         return bd.setScale(1, BigDecimal.ROUND_HALF_UP).toPlainString();
     }
 
-    public class Details {
+    public static class Details {
         String type;
         int tons;
         double top_speed;
